@@ -1,11 +1,27 @@
 {
-  "name": "vanilla-js-wheel-zoom",
-  "version": "1.0.0",
-  "description": "",
-  "main": "wheel-zoom.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "",
-  "license": "ISC"
+    "name": "vanilla-js-wheel-zoom",
+    "version": "1.0.0",
+    "main": "wheel-zoom.js",
+    "directories": {
+        "example": "example"
+    },
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Worka/vanilla-js-wheel-zoom.git"
+    },
+    "keywords": [
+        "wheelzoom",
+        "js",
+        "javascript",
+        "vanilla"
+    ],
+    "author": "Worka",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/Worka/vanilla-js-wheel-zoom/issues"
+    },
+    "homepage": "https://github.com/Worka/vanilla-js-wheel-zoom#readme"
 }
