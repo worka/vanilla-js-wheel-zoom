@@ -32,15 +32,24 @@
     JcWheelZoom.prototype = {
         constructor: JcWheelZoom,
         image: null,
-        image_original_rectangle: null,
+        image_original: {},
         container: null,
-        container_original_rectangle: null,
+        container_original: {},
         options: null,
         _prepareImage: function () {
-            this.image_original_rectangle = this.image.getBoundingClientRect();
-            this.container_original_rectangle = this.container.getBoundingClientRect()
+            var container_original_rectangle = this.container.getBoundingClientRect();
 
-            this.image.style.maxWidth = 'none';
+            this.image_original = {
+                width: this.image.offsetWidth,
+                height: this.image.offsetHeight
+            };
+
+            this.container_original = {
+                width: this.container.offsetWidth,
+                height: this.container.offsetHeight,
+                left: container_original_rectangle.left,
+                top: container_original_rectangle.top
+            };
 
             if (typeof this.options.prepareImage === 'function') {
                 this.options.prepareImage();
@@ -55,25 +64,17 @@
         _rescaleImage: function (event) {
             var delta = -100000;
 
+            var image_current_width = this.image.offsetWidth;
+            var image_current_height = this.image.offsetHeight;
+
             if (typeof event !== 'undefined' && event instanceof WheelEvent) {
                 event.preventDefault();
 
                 delta = event.wheelDelta > 0 || event.detail < 0 ? 1 : -1;
             }
 
-            var image_current_rectangle = this.image.getBoundingClientRect();
-
-            var image_original_width = this.image_original_rectangle.width;
-            var image_original_height = this.image_original_rectangle.height;
-
-            var container_original_width = this.container_original_rectangle.width;
-            var container_original_height = this.container_original_rectangle.height;
-
-            var image_current_width = image_current_rectangle.width;
-            var image_current_height = image_current_rectangle.height;
-
-            var scale = image_current_width / image_original_width;
-            var min_scale = Math.min(container_original_width / image_original_width, container_original_height / image_original_height);
+            var scale = image_current_width / this.image_original.width;
+            var min_scale = Math.min(this.container_original.width / this.image_original.width, this.container_original.height / this.image_original.height);
             var max_scale = 1;
             var new_scale = scale + (delta / (this.options.speed || 20));
 
@@ -84,11 +85,11 @@
             new_scale = Math.round(new_scale);
             new_scale = new_scale / 100;
 
-            var correct_x = Math.round(Math.max(0, (container_original_width - image_original_width * new_scale) / 2));
-            var correct_y = Math.round(Math.max(0, (container_original_height - image_original_height * new_scale) / 2));
+            var correct_x = Math.round(Math.max(0, (this.container_original.width - this.image_original.width * new_scale) / 2));
+            var correct_y = Math.round(Math.max(0, (this.container_original.height - this.image_original.height * new_scale) / 2));
 
-            this.image.width = image_original_width * new_scale;
-            this.image.height = image_original_height * new_scale;
+            this.image.width = this.image_original.width * new_scale;
+            this.image.height = this.image_original.height * new_scale;
 
             this.image.style.marginLeft = correct_x + 'px';
             this.image.style.marginTop = correct_y + 'px';
@@ -101,7 +102,7 @@
                 // var isset_left_scroll = !(!(this.container.scrollWidth - this.container.clientWidth));
                 // var isset_top_scroll = !(!(this.container.scrollHeight - this.container.clientHeight));
 
-                var x = Math.round(event.clientX - this.container_original_rectangle.left + this.container.scrollLeft);
+                var x = Math.round(event.clientX - this.container_original.left + this.container.scrollLeft);
                 var new_x = Math.round(this.image.width * x / image_current_width);
                 var shift_x = new_x - x;
 
@@ -114,7 +115,7 @@
                 this.container.scrollLeft += shift_x;
                 // }
 
-                var y = Math.round(event.clientY - this.container_original_rectangle.top + this.container.scrollTop);
+                var y = Math.round(event.clientY - this.container_original.top + this.container.scrollTop);
                 var new_y = Math.round(this.image.height * y / image_current_height);
                 var shift_y = new_y - y;
 
