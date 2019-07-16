@@ -1,6 +1,6 @@
 {
     "name": "vanilla-js-wheel-zoom",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "main": "wheel-zoom.js",
     "directories": {
         "example": "example"
