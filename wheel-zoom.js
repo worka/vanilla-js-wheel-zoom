@@ -56,13 +56,9 @@
             window.addEventListener('resize', this._rescale);
         },
         _prepare: function () {
-            var window_original_rectangle = this.window.getBoundingClientRect();
-
             this.original.window = {
                 width: this.window.offsetWidth,
-                height: this.window.offsetHeight,
-                left: window_original_rectangle.left,
-                top: window_original_rectangle.top
+                height: this.window.offsetHeight
             };
 
             var min_scale = Math.min(this.original.window.width / this.original.image.width, this.original.window.height / this.original.image.height);
@@ -114,19 +110,52 @@
                 this.options.rescale(new_scale, this.correct_x, this.correct_y);
             }
 
-            var x = Math.round(event.clientX - this.original.window.left + this.window.scrollLeft);
-            var new_x = Math.round(container_new_width * x / container_current_width);
-            var shift_x = new_x - x;
+            setTimeout(() => {
+                var window_coords = getCoords(this.window);
 
-            this.window.scrollLeft += shift_x;
+                var x = Math.round(event.pageX - window_coords.left + this.window.scrollLeft);
+                var new_x = Math.round(container_new_width * x / container_current_width);
+                var shift_x = new_x - x;
 
-            var y = Math.round(event.clientY - this.original.window.top + this.window.scrollTop);
-            var new_y = Math.round(container_new_height * y / container_current_height);
-            var shift_y = new_y - y;
+                // this.window.scrollLeft += shift_x;
 
-            this.window.scrollTop += shift_y;
+                console.log(container_new_width / container_current_width);
+                console.log(x, container_new_width / container_current_width * x, shift_x);
+
+                // console.log(x, new_x, shift_x, this.window.scrollLeft);
+                // console.log(event.pageX, window_coords.left);
+                // console.log(container_new_width, container_current_width);
+
+                var y = Math.round(event.pageY - window_coords.top + this.window.scrollTop);
+                var new_y = Math.round(container_new_height * y / container_current_height);
+                var shift_y = new_y - y;
+
+                // this.window.scrollTop += shift_y;
+            }, 2000);
         }
     };
+
+    // support old browsers
+    function getCoords(elem) {
+        var box = elem.getBoundingClientRect();
+
+        var body = document.body;
+        var docEl = document.documentElement;
+
+        var scrollTop = window.pageYOffset || docEl.scrollTop || body.scrollTop;
+        var scrollLeft = window.pageXOffset || docEl.scrollLeft || body.scrollLeft;
+
+        var clientTop = docEl.clientTop || body.clientTop || 0;
+        var clientLeft = docEl.clientLeft || body.clientLeft || 0;
+
+        var top = box.top + scrollTop - clientTop;
+        var left = box.left + scrollLeft - clientLeft;
+
+        return {
+            top: top,
+            left: left
+        };
+    }
 
     /**
      * Create JcWheelZoom instance
