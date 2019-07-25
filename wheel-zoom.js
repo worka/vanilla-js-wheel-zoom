@@ -19,11 +19,14 @@
         this.options = options;
 
         if (this.image !== null) {
+            // для window берем просто родителя
             this.window = this.image.parentNode;
 
+            // если изображение уже загрузилось
             if (this.image.complete) {
                 this._init();
             } else {
+                // если вдруг изображение ещё не загрузилось, то ждём
                 this.image.onload = this._init;
             }
         }
@@ -39,6 +42,7 @@
         correct_x: null,
         correct_y: null,
         _init: function () {
+            // оригинальные размеры изображения
             this.original.image = {
                 width: this.image.offsetWidth,
                 height: this.image.offsetHeight
@@ -56,19 +60,23 @@
             window.addEventListener('resize', this._rescale);
         },
         _prepare: function () {
+            // оригинальные размеры window
             this.original.window = {
                 width: this.window.offsetWidth,
                 height: this.window.offsetHeight
             };
 
+            // минимально разрешенная пропорция масштаба
             var min_scale = Math.min(this.original.window.width / this.original.image.width, this.original.window.height / this.original.image.height);
 
+            // вычисляем margin-left и margin-top что бы отцентровать изображение
             this.correct_x = Math.max(0, (this.original.window.width - this.original.image.width * min_scale) / 2);
             this.correct_y = Math.max(0, (this.original.window.height - this.original.image.height * min_scale) / 2);
 
             this.image.width = this.original.image.width * min_scale;
             this.image.height = this.original.image.height * min_scale;
 
+            // центруем изображение
             this.image.style.marginLeft = this.correct_x + 'px';
             this.image.style.marginTop = this.correct_y + 'px';
 
@@ -84,16 +92,27 @@
 
             var delta = event.wheelDelta > 0 || event.detail < 0 ? 1 : -1;
 
+            // размеры изображения в данный момент
             var image_current_width = this.image.width;
             var image_current_height = this.image.height;
 
+            // текущая пропорция масштаба
             var scale = image_current_width / this.original.image.width;
+            // минимально разрешенная пропорция масштаба
             var min_scale = Math.min(this.original.window.width / this.original.image.width, this.original.window.height / this.original.image.height);
+            // максимально разрешенная пропорция масштаба
             var max_scale = 1;
+            // пропорция масштаба которую будем устанавливать
             var new_scale = scale + (delta / 10);
 
             new_scale = (new_scale < min_scale) ? min_scale : (new_scale > max_scale ? max_scale : new_scale);
 
+            // скролл по оси X до того как изменили размер
+            var scroll_left_before_rescale = this.window.scrollLeft;
+            // скролл по оси Y до того как изменили размер
+            var scroll_top_before_rescale = this.window.scrollTop;
+
+            // новые размеры изображения которые будем устанавливать
             var image_new_width = this.image.width = this.original.image.width * new_scale;
             var image_new_height = this.image.height = this.original.image.height * new_scale;
 
@@ -110,28 +129,28 @@
                 this.options.rescale(new_scale, this.correct_x, this.correct_y);
             }
 
-            setTimeout(() => {
-                var window_coords = getCoords(this.window);
+            // скролл по оси X после того как изменили размер
+            var scroll_left_after_rescale = this.window.scrollLeft;
+            // скролл по оси Y после того как изменили размер
+            var scroll_top_after_rescale = this.window.scrollTop;
 
-                var x = Math.round(event.pageX - window_coords.left + this.window.scrollLeft);
-                var new_x = Math.round(container_new_width * x / container_current_width);
-                var shift_x = new_x - x;
+            var window_coords = getCoords(this.window);
 
-                // this.window.scrollLeft += shift_x;
+            // setTimeout(() => {
+            var x = Math.round(event.pageX - window_coords.left + this.window.scrollLeft - this.correct_x);
+            var new_x = Math.round(image_new_width * x / image_current_width);
+            var shift_x = new_x - x;
 
-                console.log(container_new_width / container_current_width);
-                console.log(x, container_new_width / container_current_width * x, shift_x);
+            this.window.scrollLeft += shift_x + (scroll_left_before_rescale - scroll_left_after_rescale);
 
-                // console.log(x, new_x, shift_x, this.window.scrollLeft);
-                // console.log(event.pageX, window_coords.left);
-                // console.log(container_new_width, container_current_width);
+            console.log(scroll_left_before_rescale, scroll_left_after_rescale,/*x, new_x, */shift_x, this.window.scrollLeft);
 
-                var y = Math.round(event.pageY - window_coords.top + this.window.scrollTop);
-                var new_y = Math.round(container_new_height * y / container_current_height);
-                var shift_y = new_y - y;
+            var y = Math.round(event.pageY - window_coords.top + this.window.scrollTop - this.correct_y);
+            var new_y = Math.round(image_new_height * y / image_current_height);
+            var shift_y = new_y - y;
 
-                // this.window.scrollTop += shift_y;
-            }, 2000);
+            this.window.scrollTop += shift_y + (scroll_top_before_rescale - scroll_top_after_rescale);
+            // }, 1000);
         }
     };
 
