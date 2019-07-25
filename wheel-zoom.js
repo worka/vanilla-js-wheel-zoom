@@ -48,12 +48,17 @@
                 height: this.image.offsetHeight
             };
 
+            // этот контейнер и будем двигать, а изображение в нём отцентруем
             this.container = document.createElement('div');
 
             this.window.appendChild(this.container);
             this.container.appendChild(this.image);
 
             this._prepare();
+
+            if (this.options.dragscrollable === true) {
+                this.window.addEventListener('mousedown', dragscrollable.mouseDownHandler);
+            }
 
             this.window.addEventListener('mousewheel', this._rescale);
 
@@ -73,6 +78,7 @@
             this.correct_x = Math.max(0, (this.original.window.width - this.original.image.width * min_scale) / 2);
             this.correct_y = Math.max(0, (this.original.window.height - this.original.image.height * min_scale) / 2);
 
+            // устанавливаем новые размеры изображения, что бы вписать его
             this.image.width = this.original.image.width * min_scale;
             this.image.height = this.original.image.height * min_scale;
 
@@ -136,25 +142,65 @@
 
             var window_coords = getCoords(this.window);
 
-            // setTimeout(() => {
             var x = Math.round(event.pageX - window_coords.left + this.window.scrollLeft - this.correct_x);
             var new_x = Math.round(image_new_width * x / image_current_width);
             var shift_x = new_x - x;
 
             this.window.scrollLeft += shift_x + (scroll_left_before_rescale - scroll_left_after_rescale);
 
-            console.log(scroll_left_before_rescale, scroll_left_after_rescale,/*x, new_x, */shift_x, this.window.scrollLeft);
+            // console.log(scroll_left_before_rescale, scroll_left_after_rescale,/*x, new_x, */shift_x, this.window.scrollLeft);
 
             var y = Math.round(event.pageY - window_coords.top + this.window.scrollTop - this.correct_y);
             var new_y = Math.round(image_new_height * y / image_current_height);
             var shift_y = new_y - y;
 
             this.window.scrollTop += shift_y + (scroll_top_before_rescale - scroll_top_after_rescale);
-            // }, 1000);
         }
     };
 
-    // support old browsers
+    var dragscrollable = {
+        coords: null,
+        scrollable: null,
+        mouseDownHandler: function (event) {
+            event.preventDefault();
+
+            // mousedown, left click
+            if (event.which != 1) {
+                return false;
+            }
+
+            dragscrollable.coords = {left: event.clientX, top: event.clientY};
+            dragscrollable.scrollable = this;
+
+            document.addEventListener('mouseup', dragscrollable.mouseUpHandler);
+            document.addEventListener('mousemove', dragscrollable.mouseMoveHandler);
+        },
+        mouseUpHandler: function () {
+            event.preventDefault();
+
+            document.removeEventListener('mouseup', dragscrollable.mouseUpHandler);
+            document.removeEventListener('mousemove', dragscrollable.mouseMoveHandler);
+        },
+        mouseMoveHandler: function (event) {
+            event.preventDefault();
+
+            var delta = {
+                left: (event.clientX - dragscrollable.coords.left),
+                top: (event.clientY - dragscrollable.coords.top)
+            };
+
+            console.log(dragscrollable.scrollable.scrollLeft, delta.left);
+
+            // Set the scroll position relative to what ever the scroll is now
+            dragscrollable.scrollable.scrollLeft = dragscrollable.scrollable.scrollLeft - delta.left;
+            dragscrollable.scrollable.scrollTop = dragscrollable.scrollable.scrollTop - delta.top;
+
+            // Save where the cursor is
+            dragscrollable.coords = {left: event.clientX, top: event.clientY}
+        }
+    }
+
+    // with support old browsers
     function getCoords(elem) {
         var box = elem.getBoundingClientRect();
 
