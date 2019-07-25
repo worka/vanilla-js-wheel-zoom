@@ -4,9 +4,10 @@
     window.JcWheelZoom = factory();
 })(function JcWheelZoomFactory() {
     /**
-     * @class  JcWheelZoom
-     * @param  {selector} selector
-     * @param  {Object} [options]
+     * @class JcWheelZoom
+     * @param {selector} selector
+     * @param {Object} [options]
+     * @constructor
      */
     function JcWheelZoom(selector, options) {
         for (var fn in this) {
@@ -15,18 +16,23 @@
             }
         }
 
+        var defaults = {
+            dragscrollable: true,
+            speed: 10
+        };
+
         this.image = document.querySelector(selector);
-        this.options = options;
+        this.options = options = _extend(defaults, options);
 
         if (this.image !== null) {
-            // для window берем просто родителя
+            // for window take just the parent
             this.window = this.image.parentNode;
 
-            // если изображение уже загрузилось
+            // if the image has already been loaded
             if (this.image.complete) {
                 this._init();
             } else {
-                // если вдруг изображение ещё не загрузилось, то ждём
+                // if suddenly the image has not loaded yet, then wait
                 this.image.onload = this._init;
             }
         }
@@ -42,13 +48,13 @@
         correct_x: null,
         correct_y: null,
         _init: function () {
-            // оригинальные размеры изображения
+            // original image sizes
             this.original.image = {
                 width: this.image.offsetWidth,
                 height: this.image.offsetHeight
             };
 
-            // этот контейнер и будем двигать, а изображение в нём отцентруем
+            // will move this container, and will center the image in it
             this.container = document.createElement('div');
 
             this.window.appendChild(this.container);
@@ -57,7 +63,7 @@
             this._prepare();
 
             if (this.options.dragscrollable === true) {
-                new dragscrollable(this.window);
+                new DragScrollable(this.window);
             }
 
             this.window.addEventListener('mousewheel', this._rescale);
@@ -65,24 +71,24 @@
             window.addEventListener('resize', this._rescale);
         },
         _prepare: function () {
-            // оригинальные размеры window
+            // original window sizes
             this.original.window = {
                 width: this.window.offsetWidth,
                 height: this.window.offsetHeight
             };
 
-            // минимально разрешенная пропорция масштаба
+            // minimum allowed proportion of scale
             var min_scale = Math.min(this.original.window.width / this.original.image.width, this.original.window.height / this.original.image.height);
 
-            // вычисляем margin-left и margin-top что бы отцентровать изображение
+            // calculate margin-left and margin-top to center the image
             this.correct_x = Math.max(0, (this.original.window.width - this.original.image.width * min_scale) / 2);
             this.correct_y = Math.max(0, (this.original.window.height - this.original.image.height * min_scale) / 2);
 
-            // устанавливаем новые размеры изображения, что бы вписать его
+            // set new image dimensions to fit it into the container
             this.image.width = this.original.image.width * min_scale;
             this.image.height = this.original.image.height * min_scale;
 
-            // центруем изображение
+            // center the image
             this.image.style.marginLeft = this.correct_x + 'px';
             this.image.style.marginTop = this.correct_y + 'px';
 
@@ -98,27 +104,27 @@
 
             var delta = event.wheelDelta > 0 || event.detail < 0 ? 1 : -1;
 
-            // размеры изображения в данный момент
+            // the size of the image at the moment
             var image_current_width = this.image.width;
             var image_current_height = this.image.height;
 
-            // текущая пропорция масштаба
+            // current proportion of scale
             var scale = image_current_width / this.original.image.width;
-            // минимально разрешенная пропорция масштаба
+            // minimum allowed proportion of scale
             var min_scale = Math.min(this.original.window.width / this.original.image.width, this.original.window.height / this.original.image.height);
-            // максимально разрешенная пропорция масштаба
+            // maximum allowed proportion of scale
             var max_scale = 1;
-            // пропорция масштаба которую будем устанавливать
-            var new_scale = scale + (delta / 10);
+            // new allowed proportion of scale
+            var new_scale = scale + (delta / this.options.speed);
 
             new_scale = (new_scale < min_scale) ? min_scale : (new_scale > max_scale ? max_scale : new_scale);
 
-            // скролл по оси X до того как изменили размер
+            // scroll along the X axis before resizing
             var scroll_left_before_rescale = this.window.scrollLeft;
-            // скролл по оси Y до того как изменили размер
+            // scroll along the Y axis before resizing
             var scroll_top_before_rescale = this.window.scrollTop;
 
-            // новые размеры изображения которые будем устанавливать
+            // new image sizes that will be set
             var image_new_width = this.image.width = this.original.image.width * new_scale;
             var image_new_height = this.image.height = this.original.image.height * new_scale;
 
@@ -135,12 +141,12 @@
                 this.options.rescale(new_scale, this.correct_x, this.correct_y);
             }
 
-            // скролл по оси X после того как изменили размер
+            // scroll on the X axis after resized
             var scroll_left_after_rescale = this.window.scrollLeft;
-            // скролл по оси Y после того как изменили размер
+            // scroll on the Y axis after resized
             var scroll_top_after_rescale = this.window.scrollTop;
 
-            var window_coords = getCoords(this.window);
+            var window_coords = _getCoords(this.window);
 
             var x = Math.round(event.pageX - window_coords.left + this.window.scrollLeft - this.correct_x);
             var new_x = Math.round(image_new_width * x / image_current_width);
@@ -156,18 +162,83 @@
         }
     };
 
-    // with support old browsers
-    function getCoords(elem) {
-        var box = elem.getBoundingClientRect();
+    /**
+     * Create JcWheelZoom instance
+     * @param {selector} selector
+     * @param {Object} [options]
+     * @returns {JcWheelZoom}
+     */
+    JcWheelZoom.create = function (selector, options) {
+        return new JcWheelZoom(selector, options);
+    };
+
+    /**
+     * @class DragScrollable
+     * @param {Element} scrollable
+     * @constructor
+     */
+    function DragScrollable(scrollable) {
+        this.mouseUpHandler = this.mouseUpHandler.bind(this);
+        this.mouseDownHandler = this.mouseDownHandler.bind(this);
+        this.mouseMoveHandler = this.mouseMoveHandler.bind(this);
+
+        this.scrollable = scrollable;
+        this.scrollable.addEventListener('mousedown', this.mouseDownHandler);
+    }
+
+    DragScrollable.prototype = {
+        scrollable: null,
+        coords: null,
+        mouseDownHandler: function (event) {
+            event.preventDefault();
+
+            if (event.which != 1) {
+                return false;
+            }
+
+            this.coords = {left: event.clientX, top: event.clientY};
+
+            document.addEventListener('mouseup', this.mouseUpHandler);
+            document.addEventListener('mousemove', this.mouseMoveHandler);
+        },
+        mouseUpHandler: function (event) {
+            event.preventDefault();
+
+            document.removeEventListener('mouseup', this.mouseUpHandler);
+            document.removeEventListener('mousemove', this.mouseMoveHandler);
+        },
+        mouseMoveHandler: function (event) {
+            event.preventDefault();
+
+            this.scrollable.scrollLeft = this.scrollable.scrollLeft - (event.clientX - this.coords.left);
+            this.scrollable.scrollTop = this.scrollable.scrollTop - (event.clientY - this.coords.top);
+
+            this.coords = {left: event.clientX, top: event.clientY}
+        }
+    }
+
+    /**
+     * Get elemetn coordinates (with support old browsers)
+     * @param {Element} element
+     * @returns {{top: number, left: number}}
+     */
+
+    /**
+     * Get elemetn coordinates (with support old browsers)
+     * @param {Element} element
+     * @returns {{top: number, left: number}}
+     */
+    function _getCoords(element) {
+        var box = element.getBoundingClientRect();
 
         var body = document.body;
-        var docEl = document.documentElement;
+        var documentElement = document.documentElement;
 
-        var scrollTop = window.pageYOffset || docEl.scrollTop || body.scrollTop;
-        var scrollLeft = window.pageXOffset || docEl.scrollLeft || body.scrollLeft;
+        var scrollTop = window.pageYOffset || documentElement.scrollTop || body.scrollTop;
+        var scrollLeft = window.pageXOffset || documentElement.scrollLeft || body.scrollLeft;
 
-        var clientTop = docEl.clientTop || body.clientTop || 0;
-        var clientLeft = docEl.clientLeft || body.clientLeft || 0;
+        var clientTop = documentElement.clientTop || body.clientTop || 0;
+        var clientLeft = documentElement.clientLeft || body.clientLeft || 0;
 
         var top = box.top + scrollTop - clientTop;
         var left = box.left + scrollLeft - clientLeft;
@@ -178,59 +249,17 @@
         };
     }
 
-    /******************************************************************************************************************/
-    function dragscrollable(scrollable) {
-        for (var fn in this) {
-            if (fn.charAt(0) === '_' && typeof this[fn] === 'function') {
-                this[fn] = this[fn].bind(this);
+    function _extend(dst, src) {
+        if (dst && src) {
+            for (var key in src) {
+                if (src.hasOwnProperty(key)) {
+                    dst[key] = src[key];
+                }
             }
         }
 
-        this.scrollable = scrollable;
-
-        this.scrollable.addEventListener('mousedown', this._mouseDownHandler);
+        return dst;
     }
-
-    dragscrollable.prototype = {
-        scrollable: null,
-        coords: null,
-        _mouseDownHandler: function (event) {
-            event.preventDefault();
-
-            if (event.which != 1) {
-                return false;
-            }
-
-            this.coords = {left: event.clientX, top: event.clientY};
-
-            document.addEventListener('mouseup', this._mouseUpHandler);
-            document.addEventListener('mousemove', this._mouseMoveHandler);
-        },
-        _mouseUpHandler: function (event) {
-            event.preventDefault();
-
-            document.removeEventListener('mouseup', this._mouseUpHandler);
-            document.removeEventListener('mousemove', this._mouseMoveHandler);
-        },
-        _mouseMoveHandler: function (event) {
-            event.preventDefault();
-
-            this.scrollable.scrollLeft = this.scrollable.scrollLeft - (event.clientX - this.coords.left);
-            this.scrollable.scrollTop = this.scrollable.scrollTop - (event.clientY - this.coords.top);
-
-            this.coords = {left: event.clientX, top: event.clientY}
-        }
-    }
-    /******************************************************************************************************************/
-
-    /**
-     * Create JcWheelZoom instance
-     * @param {selector} selector
-     * @param {Object} [options]
-     */
-    JcWheelZoom.create = function (selector, options) {
-        return new JcWheelZoom(selector, options);
-    };
 
     // Export
     return JcWheelZoom;
