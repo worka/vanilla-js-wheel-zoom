@@ -57,7 +57,7 @@
             this._prepare();
 
             if (this.options.dragscrollable === true) {
-                this.window.addEventListener('mousedown', dragscrollable.mouseDownHandler);
+                new dragscrollable(this.window);
             }
 
             this.window.addEventListener('mousewheel', this._rescale);
@@ -148,8 +148,6 @@
 
             this.window.scrollLeft += shift_x + (scroll_left_before_rescale - scroll_left_after_rescale);
 
-            // console.log(scroll_left_before_rescale, scroll_left_after_rescale,/*x, new_x, */shift_x, this.window.scrollLeft);
-
             var y = Math.round(event.pageY - window_coords.top + this.window.scrollTop - this.correct_y);
             var new_y = Math.round(image_new_height * y / image_current_height);
             var shift_y = new_y - y;
@@ -157,48 +155,6 @@
             this.window.scrollTop += shift_y + (scroll_top_before_rescale - scroll_top_after_rescale);
         }
     };
-
-    var dragscrollable = {
-        coords: null,
-        scrollable: null,
-        mouseDownHandler: function (event) {
-            event.preventDefault();
-
-            // mousedown, left click
-            if (event.which != 1) {
-                return false;
-            }
-
-            dragscrollable.coords = {left: event.clientX, top: event.clientY};
-            dragscrollable.scrollable = this;
-
-            document.addEventListener('mouseup', dragscrollable.mouseUpHandler);
-            document.addEventListener('mousemove', dragscrollable.mouseMoveHandler);
-        },
-        mouseUpHandler: function () {
-            event.preventDefault();
-
-            document.removeEventListener('mouseup', dragscrollable.mouseUpHandler);
-            document.removeEventListener('mousemove', dragscrollable.mouseMoveHandler);
-        },
-        mouseMoveHandler: function (event) {
-            event.preventDefault();
-
-            var delta = {
-                left: (event.clientX - dragscrollable.coords.left),
-                top: (event.clientY - dragscrollable.coords.top)
-            };
-
-            console.log(dragscrollable.scrollable.scrollLeft, delta.left);
-
-            // Set the scroll position relative to what ever the scroll is now
-            dragscrollable.scrollable.scrollLeft = dragscrollable.scrollable.scrollLeft - delta.left;
-            dragscrollable.scrollable.scrollTop = dragscrollable.scrollable.scrollTop - delta.top;
-
-            // Save where the cursor is
-            dragscrollable.coords = {left: event.clientX, top: event.clientY}
-        }
-    }
 
     // with support old browsers
     function getCoords(elem) {
@@ -221,6 +177,51 @@
             left: left
         };
     }
+
+    /******************************************************************************************************************/
+    function dragscrollable(scrollable) {
+        for (var fn in this) {
+            if (fn.charAt(0) === '_' && typeof this[fn] === 'function') {
+                this[fn] = this[fn].bind(this);
+            }
+        }
+
+        this.scrollable = scrollable;
+
+        this.scrollable.addEventListener('mousedown', this._mouseDownHandler);
+    }
+
+    dragscrollable.prototype = {
+        scrollable: null,
+        coords: null,
+        _mouseDownHandler: function (event) {
+            event.preventDefault();
+
+            if (event.which != 1) {
+                return false;
+            }
+
+            this.coords = {left: event.clientX, top: event.clientY};
+
+            document.addEventListener('mouseup', this._mouseUpHandler);
+            document.addEventListener('mousemove', this._mouseMoveHandler);
+        },
+        _mouseUpHandler: function (event) {
+            event.preventDefault();
+
+            document.removeEventListener('mouseup', this._mouseUpHandler);
+            document.removeEventListener('mousemove', this._mouseMoveHandler);
+        },
+        _mouseMoveHandler: function (event) {
+            event.preventDefault();
+
+            this.scrollable.scrollLeft = this.scrollable.scrollLeft - (event.clientX - this.coords.left);
+            this.scrollable.scrollTop = this.scrollable.scrollTop - (event.clientY - this.coords.top);
+
+            this.coords = {left: event.clientX, top: event.clientY}
+        }
+    }
+    /******************************************************************************************************************/
 
     /**
      * Create JcWheelZoom instance
