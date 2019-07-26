@@ -34,7 +34,11 @@ Default params
 
 ```
 var defaults = {
+    // drag scrollable image
     dragscrollable: true,
+    // maximum allowed proportion of scale
+    max_scale: 1,
+    // image resizing speed
     speed: 10
 };
 ```
