@@ -10,6 +10,14 @@ Image resizing using mouse wheel + drag scrollable image
     <script src="wheel-zoom.js"></script>
 </head>
 <body>
+    <div>
+        <a href="javascript:;" id="zoom_up">Up</a>
+    </div>
+    
+    <div>
+        <a href="javascript:;" id="zoom_down">Down</a>
+    </div>
+    
     <div style="width:600px;height:600px;overflow:auto">
         <img src="https://placehold.it/1200x700" />
     </div>
@@ -23,6 +31,18 @@ Image resizing using mouse wheel + drag scrollable image
                 rescale: function (scale, correct_x, correct_y) {
                     // do smth when image rescaled
                 }
+            });
+           
+            window.addEventListener('resize', function () {
+                jcWheelZoom._prepare();
+            });
+            
+            document.getElementById('zoom_up').addEventListener('click', function () {
+                jcWheelZoom._zoomUp();
+            });
+            
+            document.getElementById('zoom_down').addEventListener('click', function () {
+                jcWheelZoom._zoomDown();
             });
         });
     </script>
