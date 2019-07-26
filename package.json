@@ -10,7 +10,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/Worka/vanilla-js-wheel-zoom.git"
+        "url": "git+https://github.com/worka/vanilla-js-wheel-zoom.git"
     },
     "keywords": [
         "wheelzoom",
@@ -18,10 +18,10 @@
         "javascript",
         "vanilla"
     ],
-    "author": "Worka",
+    "author": "worka",
     "license": "ISC",
     "bugs": {
-        "url": "https://github.com/Worka/vanilla-js-wheel-zoom/issues"
+        "url": "https://github.com/worka/vanilla-js-wheel-zoom/issues"
     },
-    "homepage": "https://github.com/Worka/vanilla-js-wheel-zoom#readme"
+    "homepage": "https://github.com/worka/vanilla-js-wheel-zoom#readme"
 }
