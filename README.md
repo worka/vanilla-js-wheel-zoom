@@ -2,7 +2,7 @@
 
 Image resizing using mouse wheel + drag scrollable image
 
-```
+``` html
 <html>
 <head>
     <meta http-equiv="Content-type" content="text/html; charset=utf-8">
@@ -52,7 +52,7 @@ Image resizing using mouse wheel + drag scrollable image
 
 Default params
 
-```
+``` javascript
 var defaults = {
     // drag scrollable image
     dragscrollable: true,
