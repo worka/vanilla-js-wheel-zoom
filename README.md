@@ -34,15 +34,15 @@ Image resizing using mouse wheel + drag scrollable image
             });
            
             window.addEventListener('resize', function () {
-                jcWheelZoom._prepare();
+                jcWheelZoom.prepare();
             });
             
             document.getElementById('zoom_up').addEventListener('click', function () {
-                jcWheelZoom._zoomUp();
+                jcWheelZoom.zoomUp();
             });
             
             document.getElementById('zoom_down').addEventListener('click', function () {
-                jcWheelZoom._zoomDown();
+                jcWheelZoom.zoomDown();
             });
         });
     </script>
