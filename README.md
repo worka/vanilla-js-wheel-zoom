@@ -3,6 +3,14 @@
 Image resizing using mouse wheel + drag scrollable image
 
 ```
+<html>
+<head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+
+    <script src="autocomplete.js"></script>
+</head>
+<body>
+
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         jcWheelZoom = JcWheelZoom.create('image_selector', {
@@ -15,6 +23,8 @@ Image resizing using mouse wheel + drag scrollable image
         });
     });
 </script>
+</body>
+</html>
 ```
 
 Default params
