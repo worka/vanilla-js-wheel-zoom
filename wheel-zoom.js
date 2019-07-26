@@ -161,6 +161,22 @@
             var shift_y = new_y - y;
 
             this.window.scrollTop += shift_y + (scroll_top_before_rescale - scroll_top_after_rescale);
+        },
+        _zoomUp: function () {
+            var event = new Event('mousewheel');
+
+            event.wheelDelta = 1;
+            event.detail = -1;
+
+            this._rescale(event);
+        },
+        _zoomDown: function () {
+            var event = new Event('mousewheel');
+
+            event.wheelDelta = -1;
+            event.detail = 1;
+
+            this._rescale(event);
         }
     };
 
