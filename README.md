@@ -10,7 +10,7 @@ Image resizing using mouse wheel + drag scrollable image
     <script src="wheel-zoom.js"></script>
 </head>
 <body>
-    <div style="width:600px;height:600px">
+    <div style="width:600px;height:600px;overflow:auto">
         <img src="https://placehold.it/1200x700" />
     </div>
     
