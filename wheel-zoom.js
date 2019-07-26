@@ -51,6 +51,9 @@
         options: null,
         correct_x: null,
         correct_y: null,
+        /**
+         * @private
+         */
         _init: function () {
             // original image sizes
             this.original.image = {
@@ -74,6 +77,9 @@
 
             window.addEventListener('resize', this._rescale);
         },
+        /**
+         * @private
+         */
         _prepare: function () {
             // original window sizes
             this.original.window = {
@@ -103,6 +109,9 @@
                 this.options.prepare(min_scale, this.correct_x, this.correct_y);
             }
         },
+        /**
+         * @private
+         */
         _rescale: function (event) {
             event.preventDefault();
 
@@ -162,7 +171,16 @@
 
             this.window.scrollTop += shift_y + (scroll_top_before_rescale - scroll_top_after_rescale);
         },
-        _zoomUp: function () {
+        /**
+         * @public
+         */
+        prepare: function () {
+            this._prepare();
+        },
+        /**
+         * @public
+         */
+        zoomUp: function () {
             var event = new Event('mousewheel');
 
             event.wheelDelta = 1;
@@ -170,7 +188,10 @@
 
             this._rescale(event);
         },
-        _zoomDown: function () {
+        /**
+         * @public
+         */
+        zoomDown: function () {
             var event = new Event('mousewheel');
 
             event.wheelDelta = -1;
