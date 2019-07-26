@@ -17,7 +17,11 @@
         }
 
         var defaults = {
+            // drag scrollable image
             dragscrollable: true,
+            // maximum allowed proportion of scale
+            max_scale: 1,
+            // image resizing speed
             speed: 10
         };
 
@@ -112,12 +116,10 @@
             var scale = image_current_width / this.original.image.width;
             // minimum allowed proportion of scale
             var min_scale = Math.min(this.original.window.width / this.original.image.width, this.original.window.height / this.original.image.height);
-            // maximum allowed proportion of scale
-            var max_scale = 1;
             // new allowed proportion of scale
             var new_scale = scale + (delta / this.options.speed);
 
-            new_scale = (new_scale < min_scale) ? min_scale : (new_scale > max_scale ? max_scale : new_scale);
+            new_scale = (new_scale < min_scale) ? min_scale : (new_scale > this.options.max_scale ? this.options.max_scale : new_scale);
 
             // scroll along the X axis before resizing
             var scroll_left_before_rescale = this.window.scrollLeft;
