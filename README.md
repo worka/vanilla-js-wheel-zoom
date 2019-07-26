@@ -11,7 +11,7 @@ Image resizing using mouse wheel + drag scrollable image
 </head>
 <body>
     <div style="width:600px;height:600px">
-        <img src="" />
+        <img src="https://placehold.it/1200x700" />
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
