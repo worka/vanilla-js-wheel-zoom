@@ -16,3 +16,12 @@ Image resizing using mouse wheel + drag scrollable image
     });
 </script>
 ```
+
+Default params
+
+```
+var defaults = {
+    dragscrollable: true,
+    speed: 10
+};
+```
