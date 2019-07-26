@@ -10,19 +10,21 @@ Image resizing using mouse wheel + drag scrollable image
     <script src="wheel-zoom.js"></script>
 </head>
 <body>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        jcWheelZoom = JcWheelZoom.create('image_selector', {
-            prepare: function (scale, correct_x, correct_y) {
-                // do smth when image prepared
-            },
-            rescale: function (scale, correct_x, correct_y) {
-                // do smth when image rescaled
-            }
+    <div style="width:600px;height:600px">
+        <img src="" />
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            jcWheelZoom = JcWheelZoom.create('img', {
+                prepare: function (scale, correct_x, correct_y) {
+                    // do smth when image prepared
+                },
+                rescale: function (scale, correct_x, correct_y) {
+                    // do smth when image rescaled
+                }
+            });
         });
-    });
-</script>
+    </script>
 </body>
 </html>
 ```
