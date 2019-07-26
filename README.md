@@ -7,7 +7,7 @@ Image resizing using mouse wheel + drag scrollable image
 <head>
     <meta http-equiv="Content-type" content="text/html; charset=utf-8">
 
-    <script src="autocomplete.js"></script>
+    <script src="wheel-zoom.js"></script>
 </head>
 <body>
 
