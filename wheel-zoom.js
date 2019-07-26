@@ -181,10 +181,14 @@
          * @public
          */
         zoomUp: function () {
+            var window_coords = _getCoords(this.window);
+
             var event = new Event('mousewheel');
 
             event.wheelDelta = 1;
             event.detail = -1;
+            event.pageX = window_coords.left + (this.original.window.width / 2);
+            event.pageY = window_coords.top + (this.original.window.height / 2);
 
             this._rescale(event);
         },
@@ -192,10 +196,14 @@
          * @public
          */
         zoomDown: function () {
+            var window_coords = _getCoords(this.window);
+            
             var event = new Event('mousewheel');
 
             event.wheelDelta = -1;
             event.detail = 1;
+            event.pageX = window_coords.left + (this.original.window.width / 2);
+            event.pageY = window_coords.top + (this.original.window.height / 2);
 
             this._rescale(event);
         }
