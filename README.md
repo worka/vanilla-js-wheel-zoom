@@ -28,7 +28,7 @@ Image resizing using mouse wheel + drag scrollable image
                 prepare: function (scale, correct_x, correct_y) {
                     // do smth when image prepared
                 },
-                rescale: function (scale, correct_x, correct_y) {
+                rescale: function (scale, correct_x, correct_y, min_scale) {
                     // do smth when image rescaled
                 }
             });
