@@ -149,7 +149,7 @@
             this.container.style.height = container_new_height + 'px';
 
             if (typeof this.options.rescale === 'function') {
-                this.options.rescale(new_scale, this.correct_x, this.correct_y);
+                this.options.rescale(new_scale, this.correct_x, this.correct_y, min_scale);
             }
 
             // scroll on the X axis after resized
@@ -197,7 +197,7 @@
          */
         zoomDown: function () {
             var window_coords = _getCoords(this.window);
-            
+
             var event = new Event('mousewheel');
 
             event.wheelDelta = -1;
