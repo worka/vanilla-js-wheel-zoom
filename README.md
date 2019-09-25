@@ -2,6 +2,8 @@
 
 Image resizing using mouse wheel + drag scrollable image
 
+<a href="https://worka.github.io/wheel-zoom.html">Demo</a>
+
 ``` html
 <html>
 <head>
