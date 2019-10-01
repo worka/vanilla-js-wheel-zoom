@@ -25,7 +25,7 @@ Advantages: the ability to fit the image into a container of any proportion
             </div>
         </div>
 
-        <div style="width:600px;height:600px;overflow:auto;background:#999;position:relative;cursor: move">
+        <div style="width:600px;height:600px;overflow:auto;background:#999;position:relative;cursor:move">
             <div class="badge" style="width:50px;height:60px;top:500px;left:600px;border:solid 1px blue;position:absolute"></div>
             
             <img src="https://placehold.it/2400x1400" />
