@@ -2,6 +2,8 @@
 
 Image resizing using mouse wheel + drag scrollable image
 
+Advantages: the ability to fit the image into a container of any proportion
+
 <a href="https://worka.github.io/wheel-zoom.html">Demo</a>
 
 ``` html
@@ -12,16 +14,20 @@ Image resizing using mouse wheel + drag scrollable image
     <script src="wheel-zoom.js"></script>
 </head>
 <body>
-    <div>
-        <a href="javascript:;" id="zoom_up">Up</a>
-    </div>
-    
-    <div>
-        <a href="javascript:;" id="zoom_down">Down</a>
-    </div>
-    
-    <div style="width:600px;height:600px;overflow:auto">
-        <img src="https://placehold.it/1200x700" />
+    <div style="margin:20px;width:600px">
+        <div style="margin:20px 0">
+            <div style="float:right">
+                <a href="javascript:;" id="zoom_up">Zoom Up</a>
+            </div>
+
+            <div>
+                <a href="javascript:;" id="zoom_down">Zoom Down</a>
+            </div>
+        </div>
+
+        <div style="width:600px;height:600px;overflow:auto;background:#999">
+            <img src="https://placehold.it/2400x1400" />
+        </div>
     </div>
     
     <script>
