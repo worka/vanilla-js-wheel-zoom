@@ -2,7 +2,9 @@
 
 Image resizing using mouse wheel + drag scrollable image
 
-Advantages: the ability to fit the image into a container of any proportion
+Advantages: 
+* the ability to fit the image into a container of any proportion
+* the ability to place elements (e.g. badge) on the image that can be moved and resized using callback
 
 <a href="https://worka.github.io/wheel-zoom.html">Demo</a>
 
