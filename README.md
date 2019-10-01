@@ -25,19 +25,38 @@ Advantages: the ability to fit the image into a container of any proportion
             </div>
         </div>
 
-        <div style="width:600px;height:600px;overflow:auto;background:#999">
+        <div style="width:600px;height:600px;overflow:auto;background:#999;position:relative;cursor: move">
+            <div class="badge" style="width:50px;height:60px;top:500px;left:600px;border:solid 1px blue;position:absolute"></div>
+            
             <img src="https://placehold.it/2400x1400" />
         </div>
     </div>
     
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            var badge = document.querySelector('.badge');
+            
             jcWheelZoom = JcWheelZoom.create('img', {
                 prepare: function (scale, correct_x, correct_y) {
                     // do smth when image prepared
+                    
+                    if (badge.dataset.width === undefined) badge.dataset.width = parseInt(badge.style.width);
+                    if (badge.dataset.height === undefined) badge.dataset.height = parseInt(badge.style.height);
+                    if (badge.dataset.left === undefined) badge.dataset.left = parseInt(badge.style.left);
+                    if (badge.dataset.top === undefined) badge.dataset.top = parseInt(badge.style.top);
+                    
+                    badge.style.width = (badge.dataset.width * scale) + 'px';
+                    badge.style.height = (badge.dataset.height * scale) + 'px';
+                    badge.style.left = (badge.dataset.left * scale + correct_x) + 'px';
+                    badge.style.top = (badge.dataset.top * scale + correct_y) + 'px';
                 },
                 rescale: function (scale, correct_x, correct_y, min_scale) {
                     // do smth when image rescaled
+                    
+                    badge.style.width = (badge.dataset.width * scale) + 'px';
+                    badge.style.height = (badge.dataset.height * scale) + 'px';
+                    badge.style.left = (badge.dataset.left * scale + correct_x) + 'px';
+                    badge.style.top = (badge.dataset.top * scale + correct_y) + 'px';
                 }
             });
            
