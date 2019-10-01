@@ -11,7 +11,7 @@ Advantages: the ability to fit the image into a container of any proportion
 <head>
     <meta http-equiv="Content-type" content="text/html; charset=utf-8">
 
-    <script src="wheel-zoom.js"></script>
+    <script src="/wheel-zoom.js"></script>
 </head>
 <body>
     <div style="margin:20px;width:600px">
