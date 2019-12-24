@@ -4,6 +4,7 @@
 [![GitHub stars](https://img.shields.io/github/stars/worka/vanilla-js-wheel-zoom)](https://github.com/worka/vanilla-js-wheel-zoom/stargazers)
 [![GitHub issues](https://img.shields.io/github/issues/worka/vanilla-js-wheel-zoom)](https://github.com/worka/vanilla-js-wheel-zoom/issues)
 [![GitHub forks](https://img.shields.io/github/forks/worka/vanilla-js-wheel-zoom)](https://github.com/worka/vanilla-js-wheel-zoom/network)
+![Website](https://img.shields.io/website?up_message=demo&url=https%3A%2F%2Fworka.github.io%2Fwheel-zoom.html)
 
 Image resizing using mouse wheel + drag scrollable image
 
