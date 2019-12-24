@@ -1,4 +1,4 @@
-# vanilla-js-wheel-zoom
+# :bomb: vanilla-js-wheel-zoom
 
 ![GitHub package.json version](https://img.shields.io/github/package-json/v/worka/vanilla-js-wheel-zoom)
 [![GitHub stars](https://img.shields.io/github/stars/worka/vanilla-js-wheel-zoom)](https://github.com/worka/vanilla-js-wheel-zoom/stargazers)
