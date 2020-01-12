@@ -14,11 +14,9 @@ Advantages:
 <a href="https://worka.github.io/wheel-zoom.html">Demo</a>
 
 ``` html
-<html>
+<html lang="en">
 <head>
     <meta http-equiv="Content-type" content="text/html; charset=utf-8">
-
-    <script src="/wheel-zoom.js"></script>
 </head>
 <body>
     <div style="margin:20px;width:600px">
@@ -39,6 +37,8 @@ Advantages:
         </div>
     </div>
     
+    <script src="../es5/wheel-zoom.min.js" type="text/javascript"></script>
+
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             var badge = document.querySelector('.badge');
