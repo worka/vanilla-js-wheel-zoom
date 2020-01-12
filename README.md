@@ -11,7 +11,26 @@ Advantages:
 * the ability to fit the image into a container of any proportion
 * the ability to place elements (e.g. badge) on the image that can be moved and resized using callback
 
+#### Get started
+
+``` javascript
+JcWheelZoom.create('img');
+```
+
 <a href="https://worka.github.io/wheel-zoom.html">Demo</a>
+
+#### Default params
+
+``` javascript
+var defaults = {
+    // drag scrollable image
+    dragScrollable: true,
+    // maximum allowed proportion of scale
+    maxScale: 1,
+    // image resizing speed
+    speed: 10
+};
+```
 
 ``` html
 <html lang="en">
@@ -84,17 +103,4 @@ Advantages:
     </script>
 </body>
 </html>
-```
-
-Default params
-
-``` javascript
-var defaults = {
-    // drag scrollable image
-    dragScrollable: true,
-    // maximum allowed proportion of scale
-    maxScale: 1,
-    // image resizing speed
-    speed: 10
-};
 ```
