@@ -11,14 +11,19 @@ Advantages:
 * the ability to fit the image into a container of any proportion
 * the ability to place elements (e.g. badge) on the image that can be moved and resized using callback
 
+<a href="https://worka.github.io/wheel-zoom.html">Demo</a>
+
 #### Get started
+
+```html
+    <div style="width:600px;height:600px;overflow:auto;background:#999;position:relative;cursor:move">
+        <img src="https://placehold.it/2400x1400" />
+    </div>
+```
 
 ``` javascript
 JcWheelZoom.create('img');
 ```
-
-<a href="https://worka.github.io/wheel-zoom.html">Demo</a>
-
 #### Default params
 
 ``` javascript
@@ -31,6 +36,8 @@ var defaults = {
     speed: 10
 };
 ```
+
+#### Badge on the image
 
 ``` html
 <html lang="en">
