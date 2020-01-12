@@ -1,0 +1,47 @@
+{
+    "env": {
+        "es6": true
+    },
+    "extends": "eslint:recommended",
+    "globals": {
+        "Atomics": "readonly",
+        "SharedArrayBuffer": "readonly"
+    },
+    "parserOptions": {
+        "ecmaVersion": 2018
+    },
+    "rules": {
+        "indent": [
+            "error",
+            4
+        ],
+        "linebreak-style": [
+            "error",
+            "windows"
+        ],
+        "quotes": [
+            "error",
+            "single"
+        ],
+        "semi": [
+            "error",
+            "always"
+        ],
+        "no-undef": 0,
+        "camelcase": 2,
+        "eol-last": 2,
+        "object-shorthand": [
+            1,
+            "properties"
+        ],
+        "object-curly-spacing": [
+            "error",
+            "always"
+        ],
+        "no-useless-escape": 0,
+        "no-prototype-builtins": 0,
+        "prefer-template": 2,
+        "prefer-destructuring": 1,
+        "no-var": 2
+    }
+}

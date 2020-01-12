@@ -47,10 +47,12 @@ Advantages:
                 prepare: function (scale, correct_x, correct_y) {
                     // do smth when image prepared
                     
-                    if (badge.dataset.width === undefined) badge.dataset.width = parseInt(badge.style.width);
-                    if (badge.dataset.height === undefined) badge.dataset.height = parseInt(badge.style.height);
-                    if (badge.dataset.left === undefined) badge.dataset.left = parseInt(badge.style.left);
-                    if (badge.dataset.top === undefined) badge.dataset.top = parseInt(badge.style.top);
+                    if (!Object.keys(badge.dataset).length) {
+                        badge.dataset.width = parseInt(badge.style.width);
+                        badge.dataset.height = parseInt(badge.style.height);
+                        badge.dataset.left = parseInt(badge.style.left);
+                        badge.dataset.top = parseInt(badge.style.top);
+                    }
                     
                     badge.style.width = (badge.dataset.width * scale) + 'px';
                     badge.style.height = (badge.dataset.height * scale) + 'px';
@@ -89,9 +91,9 @@ Default params
 ``` javascript
 var defaults = {
     // drag scrollable image
-    dragscrollable: true,
+    dragScrollable: true,
     // maximum allowed proportion of scale
-    max_scale: 1,
+    maxScale: 1,
     // image resizing speed
     speed: 10
 };
