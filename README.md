@@ -16,9 +16,9 @@ Advantages:
 #### Get started
 
 ```html
-    <div style="width:600px;height:600px;overflow:auto;background:#999;position:relative;cursor:move">
-        <img src="https://placehold.it/2400x1400" />
-    </div>
+<div style="width:600px;height:600px;overflow:auto;background:#999;position:relative;cursor:move">
+    <img src="https://placehold.it/2400x1400" />
+</div>
 ```
 
 ``` javascript
