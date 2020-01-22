@@ -1,6 +1,5 @@
 # vanilla-js-wheel-zoom
 
-![GitHub package.json version](https://img.shields.io/github/package-json/v/worka/vanilla-js-wheel-zoom)
 ![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/worka/vanilla-js-wheel-zoom)
 [![GitHub stars](https://img.shields.io/github/stars/worka/vanilla-js-wheel-zoom)](https://github.com/worka/vanilla-js-wheel-zoom/stargazers)
 [![GitHub issues](https://img.shields.io/github/issues/worka/vanilla-js-wheel-zoom)](https://github.com/worka/vanilla-js-wheel-zoom/issues)
