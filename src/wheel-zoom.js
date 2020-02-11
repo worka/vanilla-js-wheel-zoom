@@ -1,7 +1,13 @@
 'use strict';
 
 (function JcWheelZoomModule(factory) {
-    window.JcWheelZoom = factory();
+    if (typeof exports === 'object' && typeof module !== 'undefined') {
+        module.exports = factory();
+    } else if (typeof define === 'function' && define.amd) {
+        define(factory);
+    } else {
+        self.JcWheelZoom = factory();
+    }
 })(function JcWheelZoomFactory() {
     /**
      * @class JcWheelZoom
@@ -99,11 +105,11 @@
             this.image.height = this.original.image.height * minScale;
 
             // center the image
-            this.image.style.marginLeft = `${this.correctX}px`;
-            this.image.style.marginTop = `${this.correctY}px`;
+            this.image.style.marginLeft = `${ this.correctX }px`;
+            this.image.style.marginTop = `${ this.correctY }px`;
 
-            this.container.style.width = `${this.image.width + (this.correctX * 2)}px`;
-            this.container.style.height = `${this.image.height + (this.correctY * 2)}px`;
+            this.container.style.width = `${ this.image.width + (this.correctX * 2) }px`;
+            this.container.style.height = `${ this.image.height + (this.correctY * 2) }px`;
 
             if (typeof this.options.prepare === 'function') {
                 this.options.prepare(minScale, this.correctX, this.correctY);
@@ -142,8 +148,8 @@
             const containerNewWidth = imageNewWidth + (this.correctX * 2);
             const containerNewHeight = imageNewHeight + (this.correctY * 2);
 
-            this.container.style.width = `${containerNewWidth}px`;
-            this.container.style.height = `${containerNewHeight}px`;
+            this.container.style.width = `${ containerNewWidth }px`;
+            this.container.style.height = `${ containerNewHeight }px`;
 
             if (typeof this.options.rescale === 'function') {
                 this.options.rescale(newScale, this.correctX, this.correctY, minScale);
