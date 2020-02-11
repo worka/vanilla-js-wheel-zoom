@@ -16,11 +16,9 @@
      * @constructor
      */
     function JcWheelZoom(selector, options) {
-        for (let fn in this) {
-            if (fn.charAt(0) === '_' && typeof this[fn] === 'function') {
-                this[fn] = this[fn].bind(this);
-            }
-        }
+        this._init = this._init.bind(this);
+        this._prepare = this._prepare.bind(this);
+        this._rescale = this._rescale.bind(this);
 
         const defaults = {
             // drag scrollable image
@@ -49,7 +47,6 @@
     }
 
     JcWheelZoom.prototype = {
-        constructor: JcWheelZoom,
         image: null,
         container: null,
         window: null,

@@ -18,12 +18,9 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
    * @constructor
    */
   function JcWheelZoom(selector, options) {
-    for (var fn in this) {
-      if (fn.charAt(0) === '_' && typeof this[fn] === 'function') {
-        this[fn] = this[fn].bind(this);
-      }
-    }
-
+    this._init = this._init.bind(this);
+    this._prepare = this._prepare.bind(this);
+    this._rescale = this._rescale.bind(this);
     var defaults = {
       // drag scrollable image
       dragScrollable: true,
@@ -49,7 +46,6 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
   }
 
   JcWheelZoom.prototype = {
-    constructor: JcWheelZoom,
     image: null,
     container: null,
     window: null,
