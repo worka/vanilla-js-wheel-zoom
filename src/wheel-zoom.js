@@ -1,5 +1,3 @@
-'use strict';
-
 (function JcWheelZoomModule(factory) {
     if (typeof exports === 'object' && typeof module !== 'undefined') {
         module.exports = factory();

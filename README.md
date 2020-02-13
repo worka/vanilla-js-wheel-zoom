@@ -63,7 +63,7 @@ var defaults = {
         </div>
     </div>
     
-    <script src="../es5/wheel-zoom.min.js" type="text/javascript"></script>
+    <script src="es5/wheel-zoom.min.js" type="text/javascript"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
