@@ -13,7 +13,7 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
 })(function JcWheelZoomFactory() {
   /**
    * @class JcWheelZoom
-   * @param {selector} selector
+   * @param {string} selector
    * @param {Object} [options]
    * @constructor
    */
@@ -195,7 +195,7 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
   };
   /**
    * Create JcWheelZoom instance
-   * @param {selector} selector
+   * @param {string} selector
    * @param {Object} [options]
    * @returns {JcWheelZoom}
    */
@@ -224,7 +224,7 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
     mouseDownHandler: function mouseDownHandler(event) {
       event.preventDefault();
 
-      if (event.which !== 1) {
+      if (event.buttons !== 1) {
         return false;
       }
 

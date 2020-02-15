@@ -134,3 +134,11 @@ window.addEventListener('resize', () => {
 | speed          | _Integer_  | `10`        | Step with which the image will be scaled. Measured in relative units.<br>The larger the value, the smaller the step and vice versa. |
 | prepare        | _Function_ | `undefined` | Сalled after the script is initialized when the image is scaled and fit into the container.                                         |
 | rescale        | _Function_ | `undefined` | Сalled on every change of scale.                                                                                                    |
+
+### API
+
+| name        | note                                      |
+|-------------|-------------------------------------------|
+| .prepare()  | Reinitialize script                       |
+| .zoomUp()   | Zoom on one step (see option `speed`)     |
+| .zoomDown() | Zoom out on one step (see option `speed`) |
