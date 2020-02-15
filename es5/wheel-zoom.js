@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -77,7 +77,7 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
         new DragScrollable(this.window);
       }
 
-      this.window.addEventListener('mousewheel', this._rescale);
+      this.window.addEventListener('wheel', this._rescale);
       window.addEventListener('resize', this._rescale);
     },
 
@@ -114,7 +114,7 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
      */
     _rescale: function _rescale(event) {
       event.preventDefault();
-      var delta = event.wheelDelta > 0 || event.detail < 0 ? 1 : -1; // the size of the image at the moment
+      var delta = event.deltaY < 0 ? 1 : -1; // the size of the image at the moment
 
       var imageCurrentWidth = this.image.width;
       var imageCurrentHeight = this.image.height; // current proportion of scale
@@ -171,9 +171,8 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
     zoomUp: function zoomUp() {
       var windowCoords = _getCoords(this.window);
 
-      var event = new Event('mousewheel');
-      event.wheelDelta = 1;
-      event.detail = -1;
+      var event = new Event('wheel');
+      event.deltaY = -1;
       event.pageX = windowCoords.left + this.original.window.width / 2;
       event.pageY = windowCoords.top + this.original.window.height / 2;
 
@@ -186,9 +185,8 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
     zoomDown: function zoomDown() {
       var windowCoords = _getCoords(this.window);
 
-      var event = new Event('mousewheel');
-      event.wheelDelta = -1;
-      event.detail = 1;
+      var event = new Event('wheel');
+      event.deltaY = 1;
       event.pageX = windowCoords.left + this.original.window.width / 2;
       event.pageY = windowCoords.top + this.original.window.height / 2;
 

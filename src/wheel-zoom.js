@@ -74,7 +74,7 @@
                 new DragScrollable(this.window);
             }
 
-            this.window.addEventListener('mousewheel', this._rescale);
+            this.window.addEventListener('wheel', this._rescale);
 
             window.addEventListener('resize', this._rescale);
         },
@@ -116,7 +116,7 @@
         _rescale: function (event) {
             event.preventDefault();
 
-            const delta = event.wheelDelta > 0 || event.detail < 0 ? 1 : -1;
+            const delta = event.deltaY < 0 ? 1 : -1;
 
             // the size of the image at the moment
             const imageCurrentWidth = this.image.width;
@@ -181,10 +181,9 @@
         zoomUp: function () {
             const windowCoords = _getCoords(this.window);
 
-            const event = new Event('mousewheel');
+            const event = new Event('wheel');
 
-            event.wheelDelta = 1;
-            event.detail = -1;
+            event.deltaY = -1;
             event.pageX = windowCoords.left + (this.original.window.width / 2);
             event.pageY = windowCoords.top + (this.original.window.height / 2);
 
@@ -196,10 +195,9 @@
         zoomDown: function () {
             const windowCoords = _getCoords(this.window);
 
-            const event = new Event('mousewheel');
+            const event = new Event('wheel');
 
-            event.wheelDelta = -1;
-            event.detail = 1;
+            event.deltaY = 1;
             event.pageX = windowCoords.left + (this.original.window.width / 2);
             event.pageY = windowCoords.top + (this.original.window.height / 2);
 

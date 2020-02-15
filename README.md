@@ -43,67 +43,83 @@ var defaults = {
 <html lang="en">
 <head>
     <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+
+    <style>
+        .container {
+            width: 600px;
+            height: 600px;
+            overflow: auto;
+            background: #999;
+            position: relative;
+            cursor: move
+        }
+
+        .badge {
+            border: solid 1px blue;
+            position: absolute
+        }
+    </style>
 </head>
 <body>
     <div style="margin:20px;width:600px">
         <div style="margin:20px 0">
             <div style="float:right">
-                <a href="javascript:;" id="zoom_up">Zoom Up</a>
+                <a data-zoom-up href="javascript:;">Zoom Up</a>
             </div>
-
+    
             <div>
-                <a href="javascript:;" id="zoom_down">Zoom Down</a>
+                <a data-zoom-down href="javascript:;">Zoom Down</a>
             </div>
         </div>
-
-        <div style="width:600px;height:600px;overflow:auto;background:#999;position:relative;cursor:move">
-            <div class="badge" style="width:50px;height:60px;top:500px;left:600px;border:solid 1px blue;position:absolute"></div>
-            
-            <img src="https://placehold.it/2400x1400" />
+    
+        <div class="container">
+            <div class="badge" style="width:50px;height:60px;top:500px;left:600px"></div>
+    
+            <img src="https://placehold.it/2400x1400" alt=""/>
         </div>
     </div>
     
     <script src="es5/wheel-zoom.min.js" type="text/javascript"></script>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            var badge = document.querySelector('.badge');
-            
-            jcWheelZoom = JcWheelZoom.create('img', {
-                prepare: function (scale, correct_x, correct_y) {
+        document.addEventListener('DOMContentLoaded', () => {
+            const badge = document.querySelector('.badge');
+        
+            const jcWheelZoom = JcWheelZoom.create('img', {
+                prepare: function (scale, correctX, correctY) {
                     // do smth when image prepared
-                    
+        
                     if (!Object.keys(badge.dataset).length) {
-                        badge.dataset.width = parseInt(badge.style.width);
-                        badge.dataset.height = parseInt(badge.style.height);
-                        badge.dataset.left = parseInt(badge.style.left);
-                        badge.dataset.top = parseInt(badge.style.top);
+                        badge.dataset.width = badge.style.width.replace('px', '');
+                        badge.dataset.height = badge.style.height.replace('px', '');
+                        badge.dataset.left = badge.style.left.replace('px', '');
+                        badge.dataset.top = badge.style.top.replace('px', '');
                     }
-                    
-                    badge.style.width = (badge.dataset.width * scale) + 'px';
-                    badge.style.height = (badge.dataset.height * scale) + 'px';
-                    badge.style.left = (badge.dataset.left * scale + correct_x) + 'px';
-                    badge.style.top = (badge.dataset.top * scale + correct_y) + 'px';
+        
+                    badge.style.width = `${ badge.dataset.width * scale }px`;
+                    badge.style.height = `${ badge.dataset.height * scale }px`;
+                    badge.style.left = `${ badge.dataset.left * scale + correctX }px`;
+                    badge.style.top = `${ badge.dataset.top * scale + correctY }px`;
                 },
-                rescale: function (scale, correct_x, correct_y, min_scale) {
+                rescale: function (scale, correctX, correctY) {
                     // do smth when image rescaled
-                    
-                    badge.style.width = (badge.dataset.width * scale) + 'px';
-                    badge.style.height = (badge.dataset.height * scale) + 'px';
-                    badge.style.left = (badge.dataset.left * scale + correct_x) + 'px';
-                    badge.style.top = (badge.dataset.top * scale + correct_y) + 'px';
+        
+                    badge.style.width = `${ badge.dataset.width * scale }px`;
+                    badge.style.height = `${ badge.dataset.height * scale }px`;
+                    badge.style.left = `${ badge.dataset.left * scale + correctX }px`;
+                    badge.style.top = `${ badge.dataset.top * scale + correctY }px`;
                 }
             });
-           
-            window.addEventListener('resize', function () {
+        
+            window.addEventListener('resize', () => {
                 jcWheelZoom.prepare();
             });
-            
-            document.getElementById('zoom_up').addEventListener('click', function () {
+        
+            document.querySelector('[data-zoom-up]').addEventListener('click', () => {
                 jcWheelZoom.zoomUp();
             });
-            
-            document.getElementById('zoom_down').addEventListener('click', function () {
+        
+            document.querySelector('[data-zoom-down]').addEventListener('click', () => {
                 jcWheelZoom.zoomDown();
             });
         });
