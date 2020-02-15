@@ -13,7 +13,7 @@ Advantages:
 
 <a href="https://worka.github.io/wheel-zoom.html">Demo</a>
 
-#### Get started
+### Get started
 
 ```html
 <div style="width:600px;height:600px;overflow:auto;background:#999;position:relative;cursor:move">
@@ -115,7 +115,7 @@ document.querySelector('[data-zoom-down]').addEventListener('click', () => {
 });
 ```
 
-### On window resize
+#### On window resize
 
 ``` javascript
 const jcWheelZoom = JcWheelZoom.create('img');
@@ -124,3 +124,13 @@ window.addEventListener('resize', () => {
     jcWheelZoom.prepare();
 });
 ```
+
+### Options
+
+| name           | type       | default     | note                                                                                                                                |
+|----------------|------------|-------------|-------------------------------------------------------------------------------------------------------------------------------------|
+| dragScrollable | _Boolean_  | `true`      | If `true` -  scaled image can be dragged with the mouse to see parts of the image that are out of scale.                            |
+| maxScale       | _Integer_  | `1`         | The maximum scale to which the image can be zoomed.<br>`1` means that the image can be maximized to 100%, `2` - 200%, etc.          |
+| speed          | _Integer_  | `10`        | Step with which the image will be scaled. Measured in relative units.<br>The larger the value, the smaller the step and vice versa. |
+| prepare        | _Function_ | `undefined` | Сalled after the script is initialized when the image is scaled and fit into the container.                                         |
+| rescale        | _Function_ | `undefined` | Сalled on every change of scale.                                                                                                    |

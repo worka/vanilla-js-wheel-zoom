@@ -9,7 +9,7 @@
 })(function JcWheelZoomFactory() {
     /**
      * @class JcWheelZoom
-     * @param {selector} selector
+     * @param {string} selector
      * @param {Object} [options]
      * @constructor
      */
@@ -207,7 +207,7 @@
 
     /**
      * Create JcWheelZoom instance
-     * @param {selector} selector
+     * @param {string} selector
      * @param {Object} [options]
      * @returns {JcWheelZoom}
      */
@@ -235,7 +235,7 @@
         mouseDownHandler: function (event) {
             event.preventDefault();
 
-            if (event.which !== 1) {
+            if (event.buttons !== 1) {
                 return false;
             }
 
