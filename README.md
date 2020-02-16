@@ -13,6 +13,18 @@ Advantages:
 
 <a href="https://worka.github.io/wheel-zoom.html">Demo</a>
 
+### Install
+
+```cmd
+npm i vanilla-js-wheel-zoom
+```
+
+or
+
+```cmd
+yarn add vanilla-js-wheel-zoom
+```
+
 ### Get started
 
 ```html
