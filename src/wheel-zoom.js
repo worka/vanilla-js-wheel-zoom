@@ -45,6 +45,7 @@
     }
 
     JcWheelZoom.prototype = {
+        constructor: JcWheelZoom,
         image: null,
         container: null,
         window: null,
