@@ -17,11 +17,9 @@ Advantages:
 
 ```cmd
 npm i vanilla-js-wheel-zoom
-```
 
-or
+# or
 
-```cmd
 yarn add vanilla-js-wheel-zoom
 ```
 
