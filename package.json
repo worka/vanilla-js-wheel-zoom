@@ -1,6 +1,6 @@
 {
     "name": "vanilla-js-wheel-zoom",
-    "version": "3.2.0",
+    "version": "3.2.1",
     "devDependencies": {
         "@babel/cli": "^7.8.4",
         "@babel/core": "^7.8.4",
@@ -28,5 +28,5 @@
     "bugs": {
         "url": "https://github.com/worka/vanilla-js-wheel-zoom/issues"
     },
-    "homepage": "https://github.com/worka/vanilla-js-wheel-zoom#readme"
+    "homepage": "https://github.com/worka/vanilla-js-wheel-zoom"
 }
