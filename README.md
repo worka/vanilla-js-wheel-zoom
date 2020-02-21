@@ -36,7 +36,8 @@ yarn add vanilla-js-wheel-zoom
 ``` javascript
 JcWheelZoom.create('img');
 ```
-![](example/example.gif)
+
+![](https://raw.githubusercontent.com/worka/worka.github.io/master/files/wheel-zoom.gif)
 
 #### Default params
 

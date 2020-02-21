@@ -46,6 +46,7 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
   }
 
   JcWheelZoom.prototype = {
+    constructor: JcWheelZoom,
     image: null,
     container: null,
     window: null,
