@@ -21,7 +21,10 @@
         "wheelzoom",
         "js",
         "javascript",
-        "vanilla"
+        "vanilla",
+        "mousewheel",
+        "imagezoom",
+        "imagescale"
     ],
     "author": "worka",
     "license": "ISC",
