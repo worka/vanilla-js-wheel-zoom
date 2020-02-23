@@ -24,7 +24,8 @@
         "vanilla",
         "mousewheel",
         "imagezoom",
-        "imagescale"
+        "imagescale",
+        "drag scrollable image "
     ],
     "author": "worka",
     "license": "ISC",
