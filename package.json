@@ -21,7 +21,11 @@
         "wheelzoom",
         "js",
         "javascript",
-        "vanilla"
+        "vanilla",
+        "mousewheel",
+        "image zoom",
+        "image scale",
+        "drag scrollable image"
     ],
     "author": "worka",
     "license": "ISC",
