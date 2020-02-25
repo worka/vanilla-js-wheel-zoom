@@ -1,11 +1,11 @@
 # vanilla-js-wheel-zoom
 
+Image resizing using mouse wheel + drag scrollable image
+
 ![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/worka/vanilla-js-wheel-zoom)
 [![GitHub stars](https://img.shields.io/github/stars/worka/vanilla-js-wheel-zoom)](https://github.com/worka/vanilla-js-wheel-zoom/stargazers)
 [![GitHub issues](https://img.shields.io/github/issues/worka/vanilla-js-wheel-zoom)](https://github.com/worka/vanilla-js-wheel-zoom/issues)
 [![GitHub forks](https://img.shields.io/github/forks/worka/vanilla-js-wheel-zoom)](https://github.com/worka/vanilla-js-wheel-zoom/network)
-
-Image resizing using mouse wheel + drag scrollable image
 
 Advantages: 
 * the ability to fit the image into a container of any proportion
