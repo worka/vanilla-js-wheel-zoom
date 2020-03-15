@@ -1,17 +1,19 @@
 {
     "name": "vanilla-js-wheel-zoom",
-    "version": "3.2.3",
+    "version": "4.0.0",
     "devDependencies": {
-        "@babel/cli": "^7.8.4",
-        "@babel/core": "^7.8.4",
-        "@babel/preset-env": "^7.8.4",
+        "@babel/core": "^7.8.7",
+        "@babel/preset-env": "^7.8.7",
         "babel-minify": "^0.5.1",
-        "eslint": "^6.8.0"
+        "prettier": "1.19.1",
+        "rollup": "^2.0.6",
+        "rollup-plugin-babel": "^4.4.0"
     },
     "scripts": {
-        "build": "yarn es5 && yarn minify",
-        "es5": "npx babel src --out-dir es5",
-        "minify": "npx minify es5/wheel-zoom.js --out-file es5/wheel-zoom.min.js"
+        "build": "yarn rollup && yarn prettier && yarn minify",
+        "rollup": "npx rollup --config",
+        "prettier": "npx prettier --write dist/wheel-zoom.js",
+        "minify": "npx minify dist/wheel-zoom.js --out-file dist/wheel-zoom.min.js"
     },
     "repository": {
         "type": "git",
