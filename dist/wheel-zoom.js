@@ -1,10 +1,10 @@
-(function(global, factory) {
+(function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined'
         ? (module.exports = factory())
         : typeof define === 'function' && define.amd
         ? define(factory)
         : ((global = global || self), (global.JcWheelZoom = factory()));
-})(this, function() {
+})(this, function () {
     'use strict';
 
     /**
@@ -23,7 +23,7 @@
             // maximum allowed proportion of scale
             maxScale: 1,
             // image resizing speed
-            speed: 10
+            speed: 10,
         };
         this.image = document.querySelector(selector);
         this.options = _extend(defaults, options);
@@ -48,7 +48,7 @@
         window: null,
         original: {
             image: {},
-            window: {}
+            window: {},
         },
         options: null,
         correctX: null,
@@ -61,7 +61,7 @@
             // original image sizes
             this.original.image = {
                 width: this.image.offsetWidth,
-                height: this.image.offsetHeight
+                height: this.image.offsetHeight,
             }; // will move this container, and will center the image in it
 
             this.container = document.createElement('div');
@@ -85,7 +85,7 @@
             // original window sizes
             this.original.window = {
                 width: this.window.offsetWidth,
-                height: this.window.offsetHeight
+                height: this.window.offsetHeight,
             }; // minimum allowed proportion of scale
 
             var minScale = Math.min(
@@ -233,7 +233,7 @@
             event.pageY = windowCoords.top + this.original.window.height / 2;
 
             this._rescale(event);
-        }
+        },
     };
     /**
      * Create JcWheelZoom instance
@@ -242,7 +242,7 @@
      * @returns {JcWheelZoom}
      */
 
-    JcWheelZoom.create = function(selector, options) {
+    JcWheelZoom.create = function (selector, options) {
         return new JcWheelZoom(selector, options);
     };
     /**
@@ -271,7 +271,7 @@
 
             this.coords = {
                 left: event.clientX,
-                top: event.clientY
+                top: event.clientY,
             };
             document.addEventListener('mouseup', this.mouseUpHandler);
             document.addEventListener('mousemove', this.mouseMoveHandler);
@@ -289,9 +289,9 @@
                 this.scrollable.scrollTop - (event.clientY - this.coords.top);
             this.coords = {
                 left: event.clientX,
-                top: event.clientY
+                top: event.clientY,
             };
-        }
+        },
     };
     /**
      * Get element coordinates (with support old browsers)
@@ -314,7 +314,7 @@
         var left = box.left + scrollLeft - clientLeft;
         return {
             top: top,
-            left: left
+            left: left,
         };
     }
 
