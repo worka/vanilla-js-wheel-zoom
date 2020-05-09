@@ -8,11 +8,103 @@
     'use strict';
 
     /**
+     * @class DragScrollable
+     * @param {Element} scrollable
+     * @constructor
+     */
+    function DragScrollable(scrollable) {
+        this.mouseUpHandler = this.mouseUpHandler.bind(this);
+        this.mouseDownHandler = this.mouseDownHandler.bind(this);
+        this.mouseMoveHandler = this.mouseMoveHandler.bind(this);
+        this.scrollable = scrollable;
+        this.scrollable.addEventListener('mousedown', this.mouseDownHandler);
+    }
+
+    DragScrollable.prototype = {
+        constructor: DragScrollable,
+        scrollable: null,
+        coords: null,
+        mouseDownHandler: function mouseDownHandler(event) {
+            event.preventDefault();
+
+            if (event.buttons !== 1) {
+                return false;
+            }
+
+            this.coords = {
+                left: event.clientX,
+                top: event.clientY,
+            };
+            document.addEventListener('mouseup', this.mouseUpHandler);
+            document.addEventListener('mousemove', this.mouseMoveHandler);
+        },
+        mouseUpHandler: function mouseUpHandler(event) {
+            event.preventDefault();
+            document.removeEventListener('mouseup', this.mouseUpHandler);
+            document.removeEventListener('mousemove', this.mouseMoveHandler);
+        },
+        mouseMoveHandler: function mouseMoveHandler(event) {
+            event.preventDefault();
+            this.scrollable.scrollLeft =
+                this.scrollable.scrollLeft - (event.clientX - this.coords.left);
+            this.scrollable.scrollTop =
+                this.scrollable.scrollTop - (event.clientY - this.coords.top);
+            this.coords = {
+                left: event.clientX,
+                top: event.clientY,
+            };
+        },
+    };
+
+    /**
+     * Get element coordinates (with support old browsers)
+     * @param {Element} element
+     * @returns {{top: number, left: number}}
+     */
+    function getElementCoordinates(element) {
+        var box = element.getBoundingClientRect();
+        var _document = document,
+            body = _document.body,
+            documentElement = _document.documentElement;
+        var scrollTop =
+            window.pageYOffset || documentElement.scrollTop || body.scrollTop;
+        var scrollLeft =
+            window.pageXOffset || documentElement.scrollLeft || body.scrollLeft;
+        var clientTop = documentElement.clientTop || body.clientTop || 0;
+        var clientLeft = documentElement.clientLeft || body.clientLeft || 0;
+        var top = box.top + scrollTop - clientTop;
+        var left = box.left + scrollLeft - clientLeft;
+        return {
+            top: top,
+            left: left,
+        };
+    }
+    /**
+     * Universal alternative to Object.assign()
+     * @param {Array} destination
+     * @param {Array} source
+     * @returns {Array}
+     */
+
+    function extendArray(destination, source) {
+        if (destination && source) {
+            for (var key in source) {
+                if (source.hasOwnProperty(key)) {
+                    destination[key] = source[key];
+                }
+            }
+        }
+
+        return destination;
+    }
+
+    /**
      * @class JcWheelZoom
      * @param {string} selector
      * @param {Object} [options]
      * @constructor
      */
+
     function JcWheelZoom(selector, options) {
         this._init = this._init.bind(this);
         this._prepare = this._prepare.bind(this);
@@ -26,7 +118,7 @@
             speed: 10,
         };
         this.image = document.querySelector(selector);
-        this.options = _extend(defaults, options);
+        this.options = extendArray(defaults, options);
 
         if (this.image !== null) {
             // for window take just the parent
@@ -175,9 +267,7 @@
             var scrollLeftAfterRescale = this.window.scrollLeft; // scroll on the Y axis after resized
 
             var scrollTopAfterRescale = this.window.scrollTop;
-
-            var windowCoords = _getCoords(this.window);
-
+            var windowCoords = getElementCoordinates(this.window);
             var x = Math.round(
                 event.pageX -
                     windowCoords.left +
@@ -211,8 +301,7 @@
          * @public
          */
         zoomUp: function zoomUp() {
-            var windowCoords = _getCoords(this.window);
-
+            var windowCoords = getElementCoordinates(this.window);
             var event = new Event('wheel');
             event.deltaY = -1;
             event.pageX = windowCoords.left + this.original.window.width / 2;
@@ -225,8 +314,7 @@
          * @public
          */
         zoomDown: function zoomDown() {
-            var windowCoords = _getCoords(this.window);
-
+            var windowCoords = getElementCoordinates(this.window);
             var event = new Event('wheel');
             event.deltaY = 1;
             event.pageX = windowCoords.left + this.original.window.width / 2;
@@ -245,90 +333,6 @@
     JcWheelZoom.create = function (selector, options) {
         return new JcWheelZoom(selector, options);
     };
-    /**
-     * @class DragScrollable
-     * @param {Element} scrollable
-     * @constructor
-     */
-
-    function DragScrollable(scrollable) {
-        this.mouseUpHandler = this.mouseUpHandler.bind(this);
-        this.mouseDownHandler = this.mouseDownHandler.bind(this);
-        this.mouseMoveHandler = this.mouseMoveHandler.bind(this);
-        this.scrollable = scrollable;
-        this.scrollable.addEventListener('mousedown', this.mouseDownHandler);
-    }
-
-    DragScrollable.prototype = {
-        scrollable: null,
-        coords: null,
-        mouseDownHandler: function mouseDownHandler(event) {
-            event.preventDefault();
-
-            if (event.buttons !== 1) {
-                return false;
-            }
-
-            this.coords = {
-                left: event.clientX,
-                top: event.clientY,
-            };
-            document.addEventListener('mouseup', this.mouseUpHandler);
-            document.addEventListener('mousemove', this.mouseMoveHandler);
-        },
-        mouseUpHandler: function mouseUpHandler(event) {
-            event.preventDefault();
-            document.removeEventListener('mouseup', this.mouseUpHandler);
-            document.removeEventListener('mousemove', this.mouseMoveHandler);
-        },
-        mouseMoveHandler: function mouseMoveHandler(event) {
-            event.preventDefault();
-            this.scrollable.scrollLeft =
-                this.scrollable.scrollLeft - (event.clientX - this.coords.left);
-            this.scrollable.scrollTop =
-                this.scrollable.scrollTop - (event.clientY - this.coords.top);
-            this.coords = {
-                left: event.clientX,
-                top: event.clientY,
-            };
-        },
-    };
-    /**
-     * Get element coordinates (with support old browsers)
-     * @param {Element} element
-     * @returns {{top: number, left: number}}
-     */
-
-    function _getCoords(element) {
-        var box = element.getBoundingClientRect();
-        var _document = document,
-            body = _document.body,
-            documentElement = _document.documentElement;
-        var scrollTop =
-            window.pageYOffset || documentElement.scrollTop || body.scrollTop;
-        var scrollLeft =
-            window.pageXOffset || documentElement.scrollLeft || body.scrollLeft;
-        var clientTop = documentElement.clientTop || body.clientTop || 0;
-        var clientLeft = documentElement.clientLeft || body.clientLeft || 0;
-        var top = box.top + scrollTop - clientTop;
-        var left = box.left + scrollLeft - clientLeft;
-        return {
-            top: top,
-            left: left,
-        };
-    }
-
-    function _extend(dst, src) {
-        if (dst && src) {
-            for (var key in src) {
-                if (src.hasOwnProperty(key)) {
-                    dst[key] = src[key];
-                }
-            }
-        }
-
-        return dst;
-    } // Export
 
     return JcWheelZoom;
 });

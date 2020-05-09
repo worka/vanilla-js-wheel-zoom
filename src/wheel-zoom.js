@@ -1,3 +1,6 @@
+import DragScrollable from './drag-scrollable';
+import { getElementCoordinates, extendArray } from './toolkit';
+
 /**
  * @class JcWheelZoom
  * @param {string} selector
@@ -19,7 +22,7 @@ function JcWheelZoom(selector, options) {
     };
 
     this.image = document.querySelector(selector);
-    this.options = _extend(defaults, options);
+    this.options = extendArray(defaults, options);
 
     if (this.image !== null) {
         // for window take just the parent
@@ -147,7 +150,7 @@ JcWheelZoom.prototype = {
         // scroll on the Y axis after resized
         const scrollTopAfterRescale = this.window.scrollTop;
 
-        const windowCoords = _getCoords(this.window);
+        const windowCoords = getElementCoordinates(this.window);
 
         const x = Math.round(event.pageX - windowCoords.left + this.window.scrollLeft - this.correctX);
         const newX = Math.round(imageNewWidth * x / imageCurrentWidth);
@@ -171,7 +174,7 @@ JcWheelZoom.prototype = {
      * @public
      */
     zoomUp: function () {
-        const windowCoords = _getCoords(this.window);
+        const windowCoords = getElementCoordinates(this.window);
 
         const event = new Event('wheel');
 
@@ -185,7 +188,7 @@ JcWheelZoom.prototype = {
      * @public
      */
     zoomDown: function () {
-        const windowCoords = _getCoords(this.window);
+        const windowCoords = getElementCoordinates(this.window);
 
         const event = new Event('wheel');
 
@@ -207,90 +210,4 @@ JcWheelZoom.create = function (selector, options) {
     return new JcWheelZoom(selector, options);
 };
 
-/**
- * @class DragScrollable
- * @param {Element} scrollable
- * @constructor
- */
-function DragScrollable(scrollable) {
-    this.mouseUpHandler = this.mouseUpHandler.bind(this);
-    this.mouseDownHandler = this.mouseDownHandler.bind(this);
-    this.mouseMoveHandler = this.mouseMoveHandler.bind(this);
-
-    this.scrollable = scrollable;
-    this.scrollable.addEventListener('mousedown', this.mouseDownHandler);
-}
-
-DragScrollable.prototype = {
-    scrollable: null,
-    coords: null,
-    mouseDownHandler: function (event) {
-        event.preventDefault();
-
-        if (event.buttons !== 1) {
-            return false;
-        }
-
-        this.coords = {
-            left: event.clientX,
-            top: event.clientY
-        };
-
-        document.addEventListener('mouseup', this.mouseUpHandler);
-        document.addEventListener('mousemove', this.mouseMoveHandler);
-    },
-    mouseUpHandler: function (event) {
-        event.preventDefault();
-
-        document.removeEventListener('mouseup', this.mouseUpHandler);
-        document.removeEventListener('mousemove', this.mouseMoveHandler);
-    },
-    mouseMoveHandler: function (event) {
-        event.preventDefault();
-
-        this.scrollable.scrollLeft = this.scrollable.scrollLeft - (event.clientX - this.coords.left);
-        this.scrollable.scrollTop = this.scrollable.scrollTop - (event.clientY - this.coords.top);
-
-        this.coords = {
-            left: event.clientX,
-            top: event.clientY
-        };
-    }
-};
-
-/**
- * Get element coordinates (with support old browsers)
- * @param {Element} element
- * @returns {{top: number, left: number}}
- */
-function _getCoords(element) {
-    const box = element.getBoundingClientRect();
-
-    const { body, documentElement } = document;
-
-    const scrollTop = window.pageYOffset || documentElement.scrollTop || body.scrollTop;
-    const scrollLeft = window.pageXOffset || documentElement.scrollLeft || body.scrollLeft;
-
-    const clientTop = documentElement.clientTop || body.clientTop || 0;
-    const clientLeft = documentElement.clientLeft || body.clientLeft || 0;
-
-    const top = box.top + scrollTop - clientTop;
-    const left = box.left + scrollLeft - clientLeft;
-
-    return { top, left };
-}
-
-function _extend(dst, src) {
-    if (dst && src) {
-        for (let key in src) {
-            if (src.hasOwnProperty(key)) {
-                dst[key] = src[key];
-            }
-        }
-    }
-
-    return dst;
-}
-
-// Export
 export default JcWheelZoom;
