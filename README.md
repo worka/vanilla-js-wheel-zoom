@@ -11,7 +11,7 @@ Advantages:
 * the ability to fit the image into a container of any proportion
 * the ability to place elements (e.g. badge) on the image that can be moved and resized using callback
 
-<a href="example">Demo</a>
+<a href="https://worka.github.io/vanilla-js-wheel-zoom/example/">Demo</a>
 
 ### Install
 
