@@ -3,55 +3,45 @@
         <title>worka/vanilla-js-wheel-zoom</title>
 
         <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+              integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
         <style>
             .container {
                 width: 600px;
                 height: 600px;
                 overflow: auto;
-                background: #999;
                 position: relative;
                 cursor: move
             }
-
-            .badge {
-                border: solid 1px blue;
-                position: absolute
-            }
         </style>
     </head>
-    <body>
-        <div style="margin:20px;width:600px">
-            <h1>vanilla-js-wheel-zoom</h1>
+    <body class="p-3">
+        <h1>vanilla-js-wheel-zoom</h1>
 
-            <h4>
-                <a href="https://github.com/worka/vanilla-js-wheel-zoom">
-                    https://github.com/worka/vanilla-js-wheel-zoom
-                </a>
-            </h4>
+        <p class="h4 mb-4">
+            <a href="https://github.com/worka/vanilla-js-wheel-zoom">
+                https://github.com/worka/vanilla-js-wheel-zoom
+            </a>
+        </p>
 
-            <div style="margin:20px 0">
-                <div style="float:right">
-                    <a data-zoom-up href="javascript:;">Zoom Up</a>
-                </div>
+        <div class="my-3 clearfix" style="width:600px">
+            <button data-zoom-up class="btn btn-info float-right">Zoom Up</button>
+            <button data-zoom-down class="btn btn-info float-left">Zoom Down</button>
+        </div>
 
-                <div>
-                    <a data-zoom-down href="javascript:;">Zoom Down</a>
-                </div>
-            </div>
+        <div class="container rounded bg-secondary m-0 p-0">
+            <div class="myBadge border border-primary rounded bg-primary"
+                 style="width:100px;height:100px;top:500px;left:600px;position:absolute"></div>
 
-            <div class="container">
-                <div class="badge" style="width:50px;height:60px;top:500px;left:600px"></div>
-
-                <img src="https://placehold.it/2400x1400" alt=""/>
-            </div>
+            <img src="https://placehold.it/2400x1400" alt=""/>
         </div>
 
         <script src="dist/wheel-zoom.min.js" type="text/javascript"></script>
 
         <script type="text/javascript">
             document.addEventListener('DOMContentLoaded', function () {
-                var badge = document.querySelector('.badge');
+                var badge = document.querySelector('.myBadge');
 
                 var jcWheelZoom = JcWheelZoom.create('img', {
                     prepare: function (scale, correctX, correctY) {
