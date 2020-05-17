@@ -1,20 +1,24 @@
 import DragScrollable from './drag-scrollable';
-import { getElementCoordinates, extendArray } from './toolkit';
+import { getElementCoordinates, extendObject } from './toolkit';
 
 /**
  * @class JcWheelZoom
  * @param {string} selector
- * @param {Object} [options]
+ * @param {Object} options
  * @constructor
  */
-function JcWheelZoom(selector, options) {
+function JcWheelZoom(selector, options = {}) {
     this._init = this._init.bind(this);
     this._prepare = this._prepare.bind(this);
     this._rescale = this._rescale.bind(this);
 
+    //@TODO если просто кликнули на изображение сделать что бы оно масштабировалось от 0 до 100 и наоборот
+
     const defaults = {
         // drag scrollable image
         dragScrollable: true,
+        // options for the DragScrollable module
+        dragScrollableOptions: {},
         // maximum allowed proportion of scale
         maxScale: 1,
         // image resizing speed
@@ -22,7 +26,7 @@ function JcWheelZoom(selector, options) {
     };
 
     this.image = document.querySelector(selector);
-    this.options = extendArray(defaults, options);
+    this.options = extendObject(defaults, options);
 
     if (this.image !== null) {
         // for window take just the parent
@@ -66,7 +70,7 @@ JcWheelZoom.prototype = {
         this._prepare();
 
         if (this.options.dragScrollable === true) {
-            new DragScrollable(this.window);
+            new DragScrollable(this.window, this.options.dragScrollableOptions);
         }
 
         this.window.addEventListener('wheel', this._rescale);

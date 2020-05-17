@@ -8,55 +8,6 @@
     'use strict';
 
     /**
-     * @class DragScrollable
-     * @param {Element} scrollable
-     * @constructor
-     */
-    function DragScrollable(scrollable) {
-        this.mouseUpHandler = this.mouseUpHandler.bind(this);
-        this.mouseDownHandler = this.mouseDownHandler.bind(this);
-        this.mouseMoveHandler = this.mouseMoveHandler.bind(this);
-        this.scrollable = scrollable;
-        this.scrollable.addEventListener('mousedown', this.mouseDownHandler);
-    }
-
-    DragScrollable.prototype = {
-        constructor: DragScrollable,
-        scrollable: null,
-        coords: null,
-        mouseDownHandler: function mouseDownHandler(event) {
-            event.preventDefault();
-
-            if (event.buttons !== 1) {
-                return false;
-            }
-
-            this.coords = {
-                left: event.clientX,
-                top: event.clientY,
-            };
-            document.addEventListener('mouseup', this.mouseUpHandler);
-            document.addEventListener('mousemove', this.mouseMoveHandler);
-        },
-        mouseUpHandler: function mouseUpHandler(event) {
-            event.preventDefault();
-            document.removeEventListener('mouseup', this.mouseUpHandler);
-            document.removeEventListener('mousemove', this.mouseMoveHandler);
-        },
-        mouseMoveHandler: function mouseMoveHandler(event) {
-            event.preventDefault();
-            this.scrollable.scrollLeft =
-                this.scrollable.scrollLeft - (event.clientX - this.coords.left);
-            this.scrollable.scrollTop =
-                this.scrollable.scrollTop - (event.clientY - this.coords.top);
-            this.coords = {
-                left: event.clientX,
-                top: event.clientY,
-            };
-        },
-    };
-
-    /**
      * Get element coordinates (with support old browsers)
      * @param {Element} element
      * @returns {{top: number, left: number}}
@@ -81,12 +32,12 @@
     }
     /**
      * Universal alternative to Object.assign()
-     * @param {Array} destination
-     * @param {Array} source
-     * @returns {Array}
+     * @param {Object} destination
+     * @param {Object} source
+     * @returns {Object}
      */
 
-    function extendArray(destination, source) {
+    function extendObject(destination, source) {
         if (destination && source) {
             for (var key in source) {
                 if (source.hasOwnProperty(key)) {
@@ -97,28 +48,205 @@
 
         return destination;
     }
+    /**
+     * @param number number
+     * @returns {[]}
+     */
+
+    function numberExtinction(number) {
+        var k = 3;
+        var maxAvailableLength = 12 * k;
+        var minAvailableLength = k;
+        var forTail = [20, 7, 6, 5, 4];
+        var numbers = [];
+        var direction = number > 0 ? 1 : -1;
+        var length = Math.abs(number) * k;
+        length =
+            length && length > maxAvailableLength ? maxAvailableLength : length;
+        length =
+            length && length < minAvailableLength ? minAvailableLength : length;
+        number = (length / k) * direction;
+
+        function generateTail(data) {
+            var result = [];
+
+            for (var i = data.length - 1; i >= 0; i--) {
+                for (var j = 0; j < data[i]; j++) {
+                    result.push((i + 1) * direction);
+                }
+            }
+
+            return result;
+        }
+
+        for (var i = 0; i < length - forTail.length; i++) {
+            numbers.push(number * k - i * direction);
+        }
+
+        return numbers.length ? numbers.concat(generateTail(forTail)) : [];
+    }
+
+    /**
+     * @class DragScrollable
+     * @param {Element} scrollable
+     * @param {Object} options
+     * @constructor
+     */
+
+    function DragScrollable(scrollable) {
+        var options =
+            arguments.length > 1 && arguments[1] !== undefined
+                ? arguments[1]
+                : {};
+        this.dropHandler = this.dropHandler.bind(this);
+        this.grabHandler = this.grabHandler.bind(this);
+        this.moveHandler = this.moveHandler.bind(this);
+        this.options = extendObject(
+            {
+                // smooth extinction moving element after set loose
+                smoothExtinction: true,
+                // callback triggered when grabbing an element
+                onGrab: null,
+                // callback triggered when moving an element
+                onMove: null,
+                // callback triggered when dropping an element
+                onDrop: null,
+            },
+            options
+        );
+        this.scrollable = scrollable;
+        this.scrollable.addEventListener('mousedown', this.grabHandler);
+    }
+
+    DragScrollable.prototype = {
+        constructor: DragScrollable,
+        scrollable: null,
+        moveTimer: null,
+        options: {},
+        isGrab: false,
+        coords: null,
+        speed: null,
+        grabHandler: function grabHandler(event) {
+            event.preventDefault();
+
+            if (event.buttons !== 1) {
+                return false;
+            }
+
+            this.isGrab = true;
+            this.coords = {
+                left: event.clientX,
+                top: event.clientY,
+            };
+            this.speed = {
+                x: 0,
+                y: 0,
+            };
+            document.addEventListener('mouseup', this.dropHandler);
+            document.addEventListener('mousemove', this.moveHandler);
+
+            if (typeof this.options.onGrab === 'function') {
+                this.options.onGrab();
+            }
+        },
+        dropHandler: function dropHandler(event) {
+            event.preventDefault();
+            this.isGrab = false;
+
+            if (this.options.smoothExtinction) {
+                var moveExtinction = function moveExtinction(
+                    field,
+                    speedArray
+                ) {
+                    // !this.isGrab - stop moving if there was a new grab
+                    if (!this.isGrab && speedArray.length) {
+                        this.scrollable[field] =
+                            this.scrollable[field] - speedArray.shift();
+
+                        if (speedArray.length) {
+                            window.requestAnimationFrame(
+                                moveExtinction.bind(this, field, speedArray)
+                            );
+                        }
+                    }
+                };
+
+                moveExtinction.bind(this)(
+                    'scrollLeft',
+                    numberExtinction(this.speed.x)
+                );
+                moveExtinction.bind(this)(
+                    'scrollTop',
+                    numberExtinction(this.speed.y)
+                );
+            }
+
+            document.removeEventListener('mouseup', this.dropHandler);
+            document.removeEventListener('mousemove', this.moveHandler);
+
+            if (typeof this.options.onDrop === 'function') {
+                this.options.onDrop();
+            }
+        },
+        moveHandler: function moveHandler(event) {
+            event.preventDefault(); // speed of change of the coordinate of the mouse cursor along the X/Y axis
+
+            this.speed.x = event.clientX - this.coords.left;
+            this.speed.y = event.clientY - this.coords.top;
+            clearTimeout(this.moveTimer); // reset speed data if cursor stops
+
+            this.moveTimer = setTimeout(
+                function () {
+                    this.speed = {
+                        x: 0,
+                        y: 0,
+                    };
+                }.bind(this),
+                50
+            );
+            this.scrollable.scrollLeft =
+                this.scrollable.scrollLeft - this.speed.x;
+            this.scrollable.scrollTop =
+                this.scrollable.scrollTop - this.speed.y;
+            this.coords = {
+                left: event.clientX,
+                top: event.clientY,
+            };
+
+            if (typeof this.options.onMove === 'function') {
+                this.options.onMove();
+            }
+        },
+    };
 
     /**
      * @class JcWheelZoom
      * @param {string} selector
-     * @param {Object} [options]
+     * @param {Object} options
      * @constructor
      */
 
-    function JcWheelZoom(selector, options) {
+    function JcWheelZoom(selector) {
+        var options =
+            arguments.length > 1 && arguments[1] !== undefined
+                ? arguments[1]
+                : {};
         this._init = this._init.bind(this);
         this._prepare = this._prepare.bind(this);
-        this._rescale = this._rescale.bind(this);
+        this._rescale = this._rescale.bind(this); //@TODO если просто кликнули на изображение сделать что бы оно масштабировалось от 0 до 100 и наоборот
+
         var defaults = {
             // drag scrollable image
             dragScrollable: true,
+            // options for the DragScrollable module
+            dragScrollableOptions: {},
             // maximum allowed proportion of scale
             maxScale: 1,
             // image resizing speed
             speed: 10,
         };
         this.image = document.querySelector(selector);
-        this.options = extendArray(defaults, options);
+        this.options = extendObject(defaults, options);
 
         if (this.image !== null) {
             // for window take just the parent
@@ -163,7 +291,10 @@
             this._prepare();
 
             if (this.options.dragScrollable === true) {
-                new DragScrollable(this.window);
+                new DragScrollable(
+                    this.window,
+                    this.options.dragScrollableOptions
+                );
             }
 
             this.window.addEventListener('wheel', this._rescale);

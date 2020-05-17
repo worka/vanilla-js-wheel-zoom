@@ -22,11 +22,11 @@ export function getElementCoordinates(element) {
 
 /**
  * Universal alternative to Object.assign()
- * @param {Array} destination
- * @param {Array} source
- * @returns {Array}
+ * @param {Object} destination
+ * @param {Object} source
+ * @returns {Object}
  */
-export function extendArray(destination, source) {
+export function extendObject(destination, source) {
     if (destination && source) {
         for (let key in source) {
             if (source.hasOwnProperty(key)) {
@@ -36,4 +36,42 @@ export function extendArray(destination, source) {
     }
 
     return destination;
+}
+
+/**
+ * @param number number
+ * @returns {[]}
+ */
+export function numberExtinction(number) {
+    const k = 3;
+    const maxAvailableLength = 12 * k;
+    const minAvailableLength = k;
+    const forTail = [20, 7, 6, 5, 4];
+
+    const numbers = [];
+    const direction = number > 0 ? 1 : -1;
+
+    let length = Math.abs(number) * k;
+    length = length && length > maxAvailableLength ? maxAvailableLength : length;
+    length = length && length < minAvailableLength ? minAvailableLength : length;
+
+    number = length / k * direction;
+
+    function generateTail(data) {
+        const result = [];
+
+        for (let i = data.length - 1; i >= 0; i--) {
+            for (let j = 0; j < data[i]; j++) {
+                result.push((i + 1) * direction);
+            }
+        }
+
+        return result;
+    }
+
+    for (let i = 0; i < length - forTail.length; i++) {
+        numbers.push((number * k) - (i * direction));
+    }
+
+    return numbers.length ? numbers.concat(generateTail(forTail)) : [];
 }

@@ -10,9 +10,9 @@
             .container {
                 width: 600px;
                 height: 600px;
-                overflow: auto;
+                overflow: hidden;
                 position: relative;
-                cursor: move
+                cursor: grab;
             }
         </style>
     </head>
@@ -66,6 +66,14 @@
                         badge.style.height = (badge.dataset.height * scale) + 'px';
                         badge.style.left = (badge.dataset.left * scale + correctX) + 'px';
                         badge.style.top = (badge.dataset.top * scale + correctY) + 'px';
+                    },
+                    dragScrollableOptions: {
+                        onGrab: function () {
+                            document.querySelector('.container').style.cursor = 'grabbing';
+                        },
+                        onDrop: function () {
+                            document.querySelector('.container').style.cursor = 'grab';
+                        }
                     }
                 });
 

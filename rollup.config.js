@@ -9,5 +9,8 @@ module.exports = {
     },
     plugins: [
         babel()
-    ]
+    ],
+    watch: {
+        clearScreen: false
+    }
 };

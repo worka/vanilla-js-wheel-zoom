@@ -141,13 +141,17 @@ window.addEventListener('resize', () => {
 
 ### Options
 
-| name           | type       | default     | note                                                                                                                                |
-|----------------|------------|-------------|-------------------------------------------------------------------------------------------------------------------------------------|
-| dragScrollable | _Boolean_  | `true`      | If `true` -  scaled image can be dragged with the mouse to see parts of the image that are out of scale.                            |
-| maxScale       | _Integer_  | `1`         | The maximum scale to which the image can be zoomed.<br>`1` means that the image can be maximized to 100%, `2` - 200%, etc.          |
-| speed          | _Integer_  | `10`        | Step with which the image will be scaled. Measured in relative units.<br>The larger the value, the smaller the step and vice versa. |
-| prepare        | _Function_ | `undefined` | Сalled after the script is initialized when the image is scaled and fit into the container.                                         |
-| rescale        | _Function_ | `undefined` | Сalled on every change of scale.                                                                                                    |
+| name                                     | type       | default     | note                                                                                                                                |
+|------------------------------------------|------------|-------------|-------------------------------------------------------------------------------------------------------------------------------------|
+| dragScrollable                           | _Boolean_  | `true`      | If `true` -  scaled image can be dragged with the mouse to see parts of the image that are out of scale.                            |
+| dragScrollableOptions._smoothExtinction_ | _Boolean_  | `true`      | If `true` -  smooth extinction moving element after set loose.                                                                      |
+| dragScrollableOptions._onGrab_           | _Function_ | `undefined` | Сalled after grabbing an element.                                                                                                   |
+| dragScrollableOptions._onMove_           | _Function_ | `undefined` | Called on every tick when moving element.                                                                                           |
+| dragScrollableOptions._onDrop_           | _Function_ | `undefined` | Сalled after dropping an element.                                                                                                   |
+| maxScale                                 | _Integer_  | `1`         | The maximum scale to which the image can be zoomed.<br>`1` means that the image can be maximized to 100%, `2` - 200%, etc.          |
+| speed                                    | _Integer_  | `10`        | Step with which the image will be scaled. Measured in relative units.<br>The larger the value, the smaller the step and vice versa. |
+| prepare                                  | _Function_ | `undefined` | Сalled after the script is initialized when the image is scaled and fit into the container.                                         |
+| rescale                                  | _Function_ | `undefined` | Сalled on every change of scale.                                                                                                    |
 
 ### API
 

@@ -6,11 +6,12 @@
         "@babel/preset-env": "^7.9.6",
         "babel-minify": "^0.5.1",
         "prettier": "2.0.5",
-        "rollup": "^2.8.2",
+        "rollup": "^2.10.2",
         "rollup-plugin-babel": "^4.4.0"
     },
     "scripts": {
         "build": "yarn rollup && yarn prettier && yarn minify",
+        "watch": "yarn rollup --watch",
         "rollup": "npx rollup --config",
         "prettier": "npx prettier --write dist/wheel-zoom.js",
         "minify": "npx minify dist/wheel-zoom.js --out-file dist/wheel-zoom.min.js"
