@@ -43,7 +43,7 @@ export function extendObject(destination, source) {
  * @returns {[]}
  */
 export function numberExtinction(number) {
-    const k = 3;
+    const k = 2;
     const maxAvailableLength = 12 * k;
     const minAvailableLength = k;
     const forTail = [20, 7, 6, 5, 4];

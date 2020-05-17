@@ -54,7 +54,7 @@
      */
 
     function numberExtinction(number) {
-        var k = 3;
+        var k = 2;
         var maxAvailableLength = 12 * k;
         var minAvailableLength = k;
         var forTail = [20, 7, 6, 5, 4];
