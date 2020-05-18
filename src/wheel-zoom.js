@@ -12,8 +12,6 @@ function JcWheelZoom(selector, options = {}) {
     this._prepare = this._prepare.bind(this);
     this._rescale = this._rescale.bind(this);
 
-    //@TODO если просто кликнули на изображение сделать что бы оно масштабировалось от 0 до 100 и наоборот
-
     const defaults = {
         // drag scrollable image
         dragScrollable: true,

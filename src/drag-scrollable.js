@@ -22,12 +22,22 @@ function DragScrollable(scrollable, options = {}) {
         onDrop: null
     }, options);
 
+    // check if we're using a touch screen
+    this.isTouch = 'ontouchstart' in window || navigator.MaxTouchPoints > 0 || navigator.msMaxTouchPoints > 0;
+
+    if (this.isTouch) {
+        // switch to touch events if using a touch screen
+        this.events = { grab: 'touchstart', move: 'touchmove', drop: 'touchend' };
+    }
+
     this.scrollable = scrollable;
-    this.scrollable.addEventListener('mousedown', this.grabHandler);
+    this.scrollable.addEventListener(this.events.grab, this.grabHandler);
 }
 
 DragScrollable.prototype = {
     constructor: DragScrollable,
+    isTouch: false,
+    events: { grab: 'mousedown', move: 'mousemove', drop: 'mouseup' },
     scrollable: null,
     moveTimer: null,
     options: {},
@@ -45,8 +55,8 @@ DragScrollable.prototype = {
         this.coords = { left: event.clientX, top: event.clientY };
         this.speed = { x: 0, y: 0 };
 
-        document.addEventListener('mouseup', this.dropHandler);
-        document.addEventListener('mousemove', this.moveHandler);
+        document.addEventListener(this.events.drop, this.dropHandler);
+        document.addEventListener(this.events.move, this.moveHandler);
 
         if (typeof this.options.onGrab === 'function') {
             this.options.onGrab();
@@ -73,8 +83,8 @@ DragScrollable.prototype = {
             }
         }
 
-        document.removeEventListener('mouseup', this.dropHandler);
-        document.removeEventListener('mousemove', this.moveHandler);
+        document.removeEventListener(this.events.drop, this.dropHandler);
+        document.removeEventListener(this.events.move, this.moveHandler);
 
         if (typeof this.options.onDrop === 'function') {
             this.options.onDrop();
