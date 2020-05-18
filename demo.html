@@ -11,7 +11,6 @@
         <style>
             .embed-responsive-item {
                 overflow: hidden;
-                position: relative;
                 cursor: grab;
             }
         </style>
@@ -33,7 +32,7 @@
                         <button data-zoom-up class="btn btn-info ml-auto">Zoom Up</button>
                     </div>
 
-                    <div class="container rounded bg-secondary m-0 p-0">
+                    <div class="rounded bg-secondary">
                         <div class="embed-responsive embed-responsive-4by3">
                             <div class="embed-responsive-item">
                                 <div class="myBadge border border-primary rounded bg-primary"
@@ -78,10 +77,10 @@
                     },
                     dragScrollableOptions: {
                         onGrab: function () {
-                            document.querySelector('.container').style.cursor = 'grabbing';
+                            document.querySelector('.embed-responsive-item').style.cursor = 'grabbing';
                         },
                         onDrop: function () {
-                            document.querySelector('.container').style.cursor = 'grab';
+                            document.querySelector('.embed-responsive-item').style.cursor = 'grab';
                         }
                     }
                 });
