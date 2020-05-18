@@ -9,33 +9,40 @@
               integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
         <style>
-            .container {
+            .embed-responsive-item {
                 overflow: hidden;
                 position: relative;
                 cursor: grab;
             }
         </style>
     </head>
-    <body class="p-3">
-        <h1>vanilla-js-wheel-zoom</h1>
+    <body>
+        <div class="container py-3">
+            <div class="row justify-content-center">
+                <div class="col-12 col-lg-8">
+                    <h1>vanilla-js-wheel-zoom</h1>
 
-        <p class="h4 mb-4" style="word-wrap:break-word">
-            <a href="https://github.com/worka/vanilla-js-wheel-zoom">
-                https://github.com/worka/vanilla-js-wheel-zoom
-            </a>
-        </p>
+                    <p class="lead mb-4" style="word-wrap:break-word">
+                        <a href="https://github.com/worka/vanilla-js-wheel-zoom">
+                            https://github.com/worka/vanilla-js-wheel-zoom
+                        </a>
+                    </p>
 
-        <div class="col-lg-4 col-12 m-0 p-0">
-            <div class="my-3 clearfix">
-                <button data-zoom-up class="btn btn-info float-right">Zoom Up</button>
-                <button data-zoom-down class="btn btn-info float-left">Zoom Down</button>
-            </div>
+                    <div class="d-flex my-3">
+                        <button data-zoom-down class="btn btn-info">Zoom Down</button>
+                        <button data-zoom-up class="btn btn-info ml-auto">Zoom Up</button>
+                    </div>
 
-            <div class="container rounded bg-secondary m-0 p-0">
-                <div class="myBadge border border-primary rounded bg-primary"
-                     style="width:100px;height:100px;top:500px;left:600px;position:absolute"></div>
-
-                <img src="https://placehold.it/2400x1400" alt=""/>
+                    <div class="container rounded bg-secondary m-0 p-0">
+                        <div class="embed-responsive embed-responsive-4by3">
+                            <div class="embed-responsive-item">
+                                <div class="myBadge border border-primary rounded bg-primary"
+                                     style="width:100px;height:100px;top:500px;left:600px;position:absolute"></div>
+                                <img src="https://placehold.it/2400x1400" alt=""/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
