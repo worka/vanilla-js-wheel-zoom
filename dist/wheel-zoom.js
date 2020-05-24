@@ -172,8 +172,11 @@
             this.scrollable,
             this.events.grab,
             function (event) {
-                // if touch started or pressed left mouse button
-                if (_this.isTouch || event.buttons === 1) {
+                // if touch started (only one finger) or pressed left mouse button
+                if (
+                    (_this.isTouch && event.touches.length === 1) ||
+                    event.buttons === 1
+                ) {
                     _this.grabHandler(event);
                 }
             },
@@ -315,7 +318,16 @@
                 : {};
         this._init = this._init.bind(this);
         this._prepare = this._prepare.bind(this);
-        this._rescale = this._rescale.bind(this);
+        this._rescale = this._rescale.bind(this); //
+        //
+        //
+        //
+        //@TODO если просто кликнули на изображение сделать что бы оно масштабировалось от 0 до 100 и наоборот
+        //
+        //
+        //
+        //
+
         var defaults = {
             // drag scrollable image
             dragScrollable: true,

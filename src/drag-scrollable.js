@@ -36,8 +36,8 @@ function DragScrollable(scrollable, options = {}) {
     this.scrollable = scrollable;
 
     on(this.scrollable, this.events.grab, event => {
-        // if touch started or pressed left mouse button
-        if (this.isTouch || event.buttons === 1) {
+        // if touch started (only one finger) or pressed left mouse button
+        if ((this.isTouch && event.touches.length === 1) || event.buttons === 1) {
             this.grabHandler(event);
         }
     }, this.events.options);
