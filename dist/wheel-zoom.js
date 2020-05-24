@@ -49,6 +49,34 @@
         return destination;
     }
     /**
+     * @param target
+     * @param type
+     * @param listener
+     * @param options
+     */
+
+    function on(target, type, listener) {
+        var options =
+            arguments.length > 3 && arguments[3] !== undefined
+                ? arguments[3]
+                : false;
+        target.addEventListener(type, listener, options);
+    }
+    /**
+     * @param target
+     * @param type
+     * @param listener
+     * @param options
+     */
+
+    function off(target, type, listener) {
+        var options =
+            arguments.length > 3 && arguments[3] !== undefined
+                ? arguments[3]
+                : false;
+        target.removeEventListener(type, listener, options);
+    }
+    /**
      * @param number number
      * @returns {[]}
      */
@@ -94,6 +122,8 @@
      */
 
     function DragScrollable(scrollable) {
+        var _this = this;
+
         var options =
             arguments.length > 1 && arguments[1] !== undefined
                 ? arguments[1]
@@ -118,102 +148,107 @@
         this.isTouch =
             'ontouchstart' in window ||
             navigator.MaxTouchPoints > 0 ||
-            navigator.msMaxTouchPoints > 0;
+            navigator.msMaxTouchPoints > 0; // switch to touch events if using a touch screen
 
-        if (this.isTouch) {
-            // switch to touch events if using a touch screen
-            this.events = {
-                grab: 'touchstart',
-                move: 'touchmove',
-                drop: 'touchend',
-            };
-        }
+        this.events = this.isTouch
+            ? {
+                  grab: 'touchstart',
+                  move: 'touchmove',
+                  drop: 'touchend',
+              }
+            : {
+                  grab: 'mousedown',
+                  move: 'mousemove',
+                  drop: 'mouseup',
+              }; // if using touch screen tells the browser that the default action will not be undone
 
+        this.events.options = this.isTouch
+            ? {
+                  passive: true,
+              }
+            : false;
         this.scrollable = scrollable;
-        this.scrollable.addEventListener(this.events.grab, this.grabHandler);
+        on(
+            this.scrollable,
+            this.events.grab,
+            function (event) {
+                // if touch started or pressed left mouse button
+                if (_this.isTouch || event.buttons === 1) {
+                    _this.grabHandler(event);
+                }
+            },
+            this.events.options
+        );
     }
 
     DragScrollable.prototype = {
         constructor: DragScrollable,
         isTouch: false,
-        events: {
-            grab: 'mousedown',
-            move: 'mousemove',
-            drop: 'mouseup',
-        },
+        isGrab: false,
+        events: null,
         scrollable: null,
         moveTimer: null,
         options: {},
-        isGrab: false,
-        coords: null,
+        coordinates: null,
         speed: null,
         grabHandler: function grabHandler(event) {
-            event.preventDefault();
-
-            if (event.buttons !== 1) {
-                return false;
-            }
-
+            if (!this.isTouch) event.preventDefault();
             this.isGrab = true;
-            this.coords = {
-                left: event.clientX,
-                top: event.clientY,
+            this.coordinates = {
+                left: _getClientX(event),
+                top: _getClientY(event),
             };
             this.speed = {
                 x: 0,
                 y: 0,
             };
-            document.addEventListener(this.events.drop, this.dropHandler);
-            document.addEventListener(this.events.move, this.moveHandler);
+            on(
+                document,
+                this.events.drop,
+                this.dropHandler,
+                this.events.options
+            );
+            on(
+                document,
+                this.events.move,
+                this.moveHandler,
+                this.events.options
+            );
 
             if (typeof this.options.onGrab === 'function') {
                 this.options.onGrab();
             }
         },
         dropHandler: function dropHandler(event) {
-            event.preventDefault();
+            if (!this.isTouch) event.preventDefault();
             this.isGrab = false;
 
             if (this.options.smoothExtinction) {
-                var moveExtinction = function moveExtinction(
-                    field,
-                    speedArray
-                ) {
-                    // !this.isGrab - stop moving if there was a new grab
-                    if (!this.isGrab && speedArray.length) {
-                        this.scrollable[field] =
-                            this.scrollable[field] - speedArray.shift();
-
-                        if (speedArray.length) {
-                            window.requestAnimationFrame(
-                                moveExtinction.bind(this, field, speedArray)
-                            );
-                        }
-                    }
-                };
-
-                moveExtinction.bind(this)(
+                _moveExtinction.call(
+                    this,
                     'scrollLeft',
                     numberExtinction(this.speed.x)
                 );
-                moveExtinction.bind(this)(
+
+                _moveExtinction.call(
+                    this,
                     'scrollTop',
                     numberExtinction(this.speed.y)
                 );
             }
 
-            document.removeEventListener(this.events.drop, this.dropHandler);
-            document.removeEventListener(this.events.move, this.moveHandler);
+            off(document, this.events.drop, this.dropHandler);
+            off(document, this.events.move, this.moveHandler);
 
             if (typeof this.options.onDrop === 'function') {
                 this.options.onDrop();
             }
         },
         moveHandler: function moveHandler(event) {
-            event.preventDefault(); // speed of change of the coordinate of the mouse cursor along the X/Y axis
+            if (!this.isTouch) event.preventDefault(); // speed of change of the coordinate of the mouse cursor along the X/Y axis
 
-            this.speed.x = event.clientX - this.coords.left;
-            this.speed.y = event.clientY - this.coords.top;
+            this.speed.x = _getClientX(event) - this.coordinates.left;
+            this.speed.y = _getClientY(event) - this.coordinates.top;
             clearTimeout(this.moveTimer); // reset speed data if cursor stops
 
             this.moveTimer = setTimeout(
@@ -229,9 +264,9 @@
                 this.scrollable.scrollLeft - this.speed.x;
             this.scrollable.scrollTop =
                 this.scrollable.scrollTop - this.speed.y;
-            this.coords = {
-                left: event.clientX,
-                top: event.clientY,
+            this.coordinates = {
+                left: _getClientX(event),
+                top: _getClientY(event),
             };
 
             if (typeof this.options.onMove === 'function') {
@@ -239,6 +274,32 @@
             }
         },
     };
+
+    function _moveExtinction(field, speedArray) {
+        // !this.isGrab - stop moving if there was a new grab
+        if (!this.isGrab && speedArray.length) {
+            this.scrollable[field] =
+                this.scrollable[field] - speedArray.shift();
+
+            if (speedArray.length) {
+                window.requestAnimationFrame(
+                    _moveExtinction.bind(this, field, speedArray)
+                );
+            }
+        }
+    }
+
+    function _getClientX(event) {
+        return event instanceof TouchEvent
+            ? event.touches[0].clientX
+            : event.clientX;
+    }
+
+    function _getClientY(event) {
+        return event instanceof TouchEvent
+            ? event.touches[0].clientY
+            : event.clientY;
+    }
 
     /**
      * @class JcWheelZoom
@@ -317,8 +378,8 @@
                 );
             }
 
-            this.window.addEventListener('wheel', this._rescale);
-            window.addEventListener('resize', this._rescale);
+            on(this.window, 'wheel', this._rescale);
+            on(window, 'resize', this._rescale);
         },
 
         /**

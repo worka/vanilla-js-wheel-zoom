@@ -1,5 +1,5 @@
 import DragScrollable from './drag-scrollable';
-import { getElementCoordinates, extendObject } from './toolkit';
+import { getElementCoordinates, extendObject, on } from './toolkit';
 
 /**
  * @class JcWheelZoom
@@ -71,9 +71,8 @@ JcWheelZoom.prototype = {
             new DragScrollable(this.window, this.options.dragScrollableOptions);
         }
 
-        this.window.addEventListener('wheel', this._rescale);
-
-        window.addEventListener('resize', this._rescale);
+        on(this.window, 'wheel', this._rescale);
+        on(window, 'resize', this._rescale);
     },
     /**
      * @private

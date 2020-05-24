@@ -39,6 +39,26 @@ export function extendObject(destination, source) {
 }
 
 /**
+ * @param target
+ * @param type
+ * @param listener
+ * @param options
+ */
+export function on(target, type, listener, options = false) {
+    target.addEventListener(type, listener, options);
+}
+
+/**
+ * @param target
+ * @param type
+ * @param listener
+ * @param options
+ */
+export function off(target, type, listener, options = false) {
+    target.removeEventListener(type, listener, options);
+}
+
+/**
  * @param number number
  * @returns {[]}
  */
