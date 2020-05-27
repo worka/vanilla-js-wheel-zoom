@@ -13,7 +13,7 @@ function DragScrollable(scrollable, options = {}) {
 
     this.options = extendObject({
         // smooth extinction moving element after set loose
-        smoothExtinction: true,
+        smoothExtinction: false,
         // callback triggered when grabbing an element
         onGrab: null,
         // callback triggered when moving an element

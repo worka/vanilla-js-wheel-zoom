@@ -45,6 +45,17 @@ JcWheelZoom.create('img');
 var defaults = {
     // drag scrollable image
     dragScrollable: true,
+    // options for the DragScrollable module
+    dragScrollableOptions: {
+        // smooth extinction moving element after set loose
+        smoothExtinction: false,
+        // callback triggered when grabbing an element
+        onGrab: null,
+        // callback triggered when moving an element
+        onMove: null,
+        // callback triggered when dropping an element
+        onDrop: null
+    },
     // maximum allowed proportion of scale
     maxScale: 1,
     // image resizing speed
@@ -144,7 +155,7 @@ window.addEventListener('resize', () => {
 | name                                     | type       | default     | note                                                                                                                                |
 |------------------------------------------|------------|-------------|-------------------------------------------------------------------------------------------------------------------------------------|
 | dragScrollable                           | _Boolean_  | `true`      | If `true` -  scaled image can be dragged with the mouse to see parts of the image that are out of scale.                            |
-| dragScrollableOptions._smoothExtinction_ | _Boolean_  | `true`      | If `true` -  smooth extinction moving element after set loose.                                                                      |
+| dragScrollableOptions._smoothExtinction_ | _Boolean_  | `false`     | If `true` -  smooth extinction moving element after set loose.                                                                      |
 | dragScrollableOptions._onGrab_           | _Function_ | `undefined` | Сalled after grabbing an element.                                                                                                   |
 | dragScrollableOptions._onMove_           | _Function_ | `undefined` | Called on every tick when moving element.                                                                                           |
 | dragScrollableOptions._onDrop_           | _Function_ | `undefined` | Сalled after dropping an element.                                                                                                   |

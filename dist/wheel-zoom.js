@@ -134,7 +134,7 @@
         this.options = extendObject(
             {
                 // smooth extinction moving element after set loose
-                smoothExtinction: true,
+                smoothExtinction: false,
                 // callback triggered when grabbing an element
                 onGrab: null,
                 // callback triggered when moving an element
@@ -318,16 +318,7 @@
                 : {};
         this._init = this._init.bind(this);
         this._prepare = this._prepare.bind(this);
-        this._rescale = this._rescale.bind(this); //
-        //
-        //
-        //
-        //@TODO если просто кликнули на изображение сделать что бы оно масштабировалось от 0 до 100 и наоборот
-        //
-        //
-        //
-        //
-
+        this._rescale = this._rescale.bind(this);
         var defaults = {
             // drag scrollable image
             dragScrollable: true,
