@@ -1,9 +1,9 @@
 /**
- * Get element coordinates (with support old browsers)
+ * Get element position (with support old browsers)
  * @param {Element} element
  * @returns {{top: number, left: number}}
  */
-export function getElementCoordinates(element) {
+export function getElementPosition(element) {
     const box = element.getBoundingClientRect();
 
     const { body, documentElement } = document;
@@ -94,4 +94,12 @@ export function numberExtinction(number) {
     }
 
     return numbers.length ? numbers.concat(generateTail(forTail)) : [];
+}
+
+export function getClientX(event) {
+    return event instanceof TouchEvent ? event.changedTouches[0].clientX : event.clientX;
+}
+
+export function getClientY(event) {
+    return event instanceof TouchEvent ? event.changedTouches[0].clientY : event.clientY;
 }
