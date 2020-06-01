@@ -1,4 +1,4 @@
-import { extendObject, on, off, numberExtinction, getClientX, getClientY } from './toolkit';
+import { extendObject, on, off, numberExtinction, eventClientX, eventClientY } from './toolkit';
 
 /**
  * @class DragScrollable
@@ -57,7 +57,7 @@ DragScrollable.prototype = {
         if (!this.isTouch) event.preventDefault();
 
         this.isGrab = true;
-        this.coordinates = { left: getClientX(event), top: getClientY(event) };
+        this.coordinates = { left: eventClientX(event), top: eventClientY(event) };
         this.speed = { x: 0, y: 0 };
 
         on(document, this.events.drop, this.dropHandler, this.events.options);
@@ -88,8 +88,8 @@ DragScrollable.prototype = {
         if (!this.isTouch) event.preventDefault();
 
         // speed of change of the coordinate of the mouse cursor along the X/Y axis
-        this.speed.x = getClientX(event) - this.coordinates.left;
-        this.speed.y = getClientY(event) - this.coordinates.top;
+        this.speed.x = eventClientX(event) - this.coordinates.left;
+        this.speed.y = eventClientY(event) - this.coordinates.top;
 
         clearTimeout(this.moveTimer);
 
@@ -101,7 +101,7 @@ DragScrollable.prototype = {
         this.scrollable.scrollLeft = this.scrollable.scrollLeft - this.speed.x;
         this.scrollable.scrollTop = this.scrollable.scrollTop - this.speed.y;
 
-        this.coordinates = { left: getClientX(event), top: getClientY(event) };
+        this.coordinates = { left: eventClientX(event), top: eventClientY(event) };
 
         if (typeof this.options.onMove === 'function') {
             this.options.onMove();

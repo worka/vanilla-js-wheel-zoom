@@ -96,10 +96,10 @@ export function numberExtinction(number) {
     return numbers.length ? numbers.concat(generateTail(forTail)) : [];
 }
 
-export function getClientX(event) {
+export function eventClientX(event) {
     return event instanceof TouchEvent ? event.changedTouches[0].clientX : event.clientX;
 }
 
-export function getClientY(event) {
+export function eventClientY(event) {
     return event instanceof TouchEvent ? event.changedTouches[0].clientY : event.clientY;
 }

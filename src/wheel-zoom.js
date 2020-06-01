@@ -1,5 +1,5 @@
 import DragScrollable from './drag-scrollable';
-import { getElementPosition, extendObject, on, getClientX, getClientY } from './toolkit';
+import { getElementPosition, extendObject, on, eventClientX, eventClientY } from './toolkit';
 
 /**
  * @class JcWheelZoom
@@ -64,6 +64,7 @@ JcWheelZoom.prototype = {
     options: null,
     correctX: null,
     correctY: null,
+    stack: [],
     _init() {
         // original `image` sizes and transform data
         this.content.originalWidth = this.content.$element.naturalWidth;
@@ -89,7 +90,7 @@ JcWheelZoom.prototype = {
 
             this._transform(
                 this._computeNewPosition(
-                    this._computeNewScale(event.deltaY), { x: getClientX(event), y: getClientY(event) }));
+                    this._computeNewScale(event.deltaY), { x: eventClientX(event), y: eventClientY(event) }));
         });
 
         on(self, 'resize', event => {
@@ -98,7 +99,7 @@ JcWheelZoom.prototype = {
             this._prepare();
             this._transform(
                 this._computeNewPosition(
-                    1, { x: getClientX(event), y: getClientY(event) }));
+                    1, { x: eventClientX(event), y: eventClientY(event) }));
         });
 
         // processing of the event "max / min zoom" begin only if there was really just a click
@@ -113,8 +114,8 @@ JcWheelZoom.prototype = {
         on(this.window.$element, this.events.up, event => {
             if (!clickExpired) {
                 this._transform(this._computeNewPosition(this.direction === 1 ? this.content.maxScale : 1, {
-                    x: getClientX(event),
-                    y: getClientY(event)
+                    x: eventClientX(event),
+                    y: eventClientY(event)
                 }));
                 this.direction = this.direction * -1;
             }
@@ -176,24 +177,42 @@ JcWheelZoom.prototype = {
             contentNewLeft = contentNewTop = 0;
         }
 
+        const response = {
+            currentLeft: content.currentLeft,
+            newLeft: round(contentNewLeft),
+            currentTop: content.currentTop,
+            newTop: round(contentNewTop),
+            currentScale: content.currentScale,
+            newScale: round(contentNewScale)
+        };
+
         content.currentWidth = round(contentNewWidth);
         content.currentHeight = round(contentNewHeight);
         content.currentLeft = round(contentNewLeft);
         content.currentTop = round(contentNewTop);
         content.currentScale = round(contentNewScale);
 
-        return {
-            currentLeft: content.currentLeft,
-            newLeft: contentNewLeft,
-            currentTop: content.currentTop,
-            newTop: contentNewTop,
-            currentScale: content.currentScale,
-            newScale: contentNewScale
-        };
+        return response;
     },
     _transform({ currentLeft, newLeft, currentTop, newTop, currentScale, newScale }, iterations = 1) {
         this.content.$element.style.transform = newScale === 1 ? null :
             `translate3d(${ newLeft }px, ${ newTop }px, 0px) scale(${ newScale })`;
+    },
+    _zoom(direction) {
+        const windowPosition = getElementPosition(this.window.$element);
+
+        this._transform(
+            this._computeNewPosition(
+                this._computeNewScale(direction), {
+                    x: windowPosition.left + (this.window.originalWidth / 2),
+                    y: windowPosition.top + (this.window.originalHeight / 2)
+                }));
+    },
+    zoomUp: function () {
+        this._zoom(-1);
+    },
+    zoomDown: function () {
+        this._zoom(1);
     }
 };
 
