@@ -15,13 +15,13 @@ function JcWheelZoom(selector, options = {}) {
     this._transform = this._transform.bind(this);
 
     const defaults = {
-        // drag scrollable `image`
+        // drag scrollable content
         dragScrollable: true,
         // options for the DragScrollable module
         dragScrollableOptions: {},
         // maximum allowed proportion of scale
         maxScale: 1,
-        // `image` resizing speed
+        // content resizing speed
         speed: 10
     };
 
@@ -113,10 +113,11 @@ JcWheelZoom.prototype = {
 
         on(this.window.$element, this.events.up, event => {
             if (!clickExpired) {
-                this._transform(this._computeNewPosition(this.direction === 1 ? this.content.maxScale : 1, {
-                    x: eventClientX(event),
-                    y: eventClientY(event)
-                }));
+                this._transform(
+                    this._computeNewPosition(this.direction === 1 ? this.content.maxScale : 1, {
+                        x: eventClientX(event),
+                        y: eventClientY(event)
+                    }));
                 this.direction = this.direction * -1;
             }
         }, this.events.options);
@@ -130,7 +131,7 @@ JcWheelZoom.prototype = {
         this.window.positionLeft = windowPosition.left;
         this.window.positionTop = windowPosition.top;
 
-        // calculate margin-left and margin-top to center the `image`
+        // calculate margin-left and margin-top to center the content
         this.correctX = Math.max(0, (this.window.originalWidth - this.content.currentWidth) / 2);
         this.correctY = Math.max(0, (this.window.originalHeight - this.content.currentHeight) / 2);
     },
