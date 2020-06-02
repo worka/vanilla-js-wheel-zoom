@@ -9,22 +9,14 @@
           integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
     <style>
-        #myContainer {
+        #myWindow {
             cursor: grab;
             overflow: hidden;
             display: flex;
             position: absolute;
         }
 
-        #myBadge {
-            width: 100px;
-            height: 100px;
-            top: 500px;
-            left: 600px;
-            position: absolute
-        }
-
-        #myImage {
+        #myContent {
             max-width: 100%;
             max-height: 100%;
             width: auto;
@@ -40,13 +32,13 @@
 <div class="container py-3">
     <div class="row justify-content-center">
         <div class="col-12 col-lg-8">
-            <!--                    <h1>vanilla-js-wheel-zoom</h1>-->
+            <h1>vanilla-js-wheel-zoom</h1>
 
-            <!--                    <p class="lead mb-4" style="word-wrap:break-word">-->
-            <!--                        <a href="https://github.com/worka/vanilla-js-wheel-zoom">-->
-            <!--                            https://github.com/worka/vanilla-js-wheel-zoom-->
-            <!--                        </a>-->
-            <!--                    </p>-->
+            <p class="lead mb-4" style="word-wrap:break-word">
+                <a href="https://github.com/worka/vanilla-js-wheel-zoom">
+                    https://github.com/worka/vanilla-js-wheel-zoom
+                </a>
+            </p>
 
             <div class="d-flex my-3">
                 <button data-zoom-down class="btn btn-info">Zoom Down</button>
@@ -54,11 +46,8 @@
             </div>
 
             <div class="embed-responsive embed-responsive-4by3 rounded bg-secondary">
-                <div id="myContainer" class="embed-responsive-item">
-                    <!--                            <div id="myBadge" class="border border-primary rounded bg-primary"></div>-->
-                    <img id="myImage" src="https://placehold.it/2500x1500" alt="image"/>
-                    <!--                    <img id="myImage" src="https://habrastorage.org/webt/ak/rb/bl/akrbbl6zyqbbyqdckp2k0bsdyly.jpeg"-->
-                    <!--                         alt="image"/>-->
+                <div id="myWindow" class="embed-responsive-item">
+                    <img id="myContent" src="https://placehold.it/2500x1500" alt="image"/>
                 </div>
             </div>
         </div>
@@ -69,32 +58,7 @@
 
 <script type="text/javascript">
     document.addEventListener('DOMContentLoaded', function () {
-        var badge = document.getElementById('myBadge');
-
-        var jcWheelZoom = JcWheelZoom.create('#myImage', {
-            //     prepare: function (scale, correctX, correctY) {
-            //         // do smth when image prepared
-            //
-            //         if (!Object.keys(badge.dataset).length) {
-            //             badge.dataset.width = badge.style.width.replace('px', '');
-            //             badge.dataset.height = badge.style.height.replace('px', '');
-            //             badge.dataset.left = badge.style.left.replace('px', '');
-            //             badge.dataset.top = badge.style.top.replace('px', '');
-            //         }
-            //
-            //         badge.style.width = (badge.dataset.width * scale) + 'px';
-            //         badge.style.height = (badge.dataset.height * scale) + 'px';
-            //         badge.style.left = (badge.dataset.left * scale + correctX) + 'px';
-            //         badge.style.top = (badge.dataset.top * scale + correctY) + 'px';
-            //     },
-            //     rescale: function (scale, correctX, correctY) {
-            //         // do smth when image rescaled
-            //
-            //         badge.style.width = (badge.dataset.width * scale) + 'px';
-            //         badge.style.height = (badge.dataset.height * scale) + 'px';
-            //         badge.style.left = (badge.dataset.left * scale + correctX) + 'px';
-            //         badge.style.top = (badge.dataset.top * scale + correctY) + 'px';
-            //     },
+        var jcWheelZoom = JcWheelZoom.create('#myContent', {
             //     dragScrollableOptions: {
             //         onGrab: function () {
             //             document.querySelector('.embed-responsive-item').style.cursor = 'grabbing';

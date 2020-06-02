@@ -66,17 +66,22 @@ JcWheelZoom.prototype = {
     correctY: null,
     stack: [],
     _init() {
-        // original `image` sizes and transform data
-        this.content.originalWidth = this.content.$element.naturalWidth;
-        this.content.originalHeight = this.content.$element.naturalHeight;
-        this.content.minScale = 1;
-        this.content.maxScale = round(this.content.$element.naturalWidth / this.content.$element.offsetWidth * this.options.maxScale);
+        if (this.content.$element.tagName === 'IMG') {
+            // original `image` sizes and transform data
+            this.content.originalWidth = this.content.$element.naturalWidth;
+            this.content.originalHeight = this.content.$element.naturalHeight;
+            this.content.minScale = 1;
+            this.content.maxScale = round(this.content.$element.naturalWidth / this.content.$element.offsetWidth * this.options.maxScale);
+        } else {
+            this.content.minScale = 1;
+            this.content.maxScale = 5;
+        }
 
-        // initial `image` sizes
+        // initial content sizes
         this.content.initialWidth = this.content.$element.offsetWidth;
         this.content.initialHeight = this.content.$element.offsetHeight;
 
-        // current `image` sizes and transform data
+        // current content sizes and transform data
         this.content.currentWidth = this.content.$element.offsetWidth;
         this.content.currentHeight = this.content.$element.offsetHeight;
         this.content.currentLeft = 0;
