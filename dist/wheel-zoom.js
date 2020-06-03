@@ -98,7 +98,7 @@
             // maximum allowed proportion of scale
             maxScale: 1,
             // content resizing speed
-            speed: 10,
+            speed: 50,
         };
         this.content.$element = document.querySelector(selector); // check if we're using a touch screen
 
@@ -156,30 +156,6 @@
         _init: function _init() {
             var _this = this;
 
-            if (this.content.$element.tagName === 'IMG') {
-                // original `image` sizes and transform data
-                this.content.originalWidth = this.content.$element.naturalWidth;
-                this.content.originalHeight = this.content.$element.naturalHeight;
-                this.content.minScale = 1;
-                this.content.maxScale = round(
-                    (this.content.$element.naturalWidth /
-                        this.content.$element.offsetWidth) *
-                        this.options.maxScale
-                );
-            } else {
-                this.content.minScale = 1;
-                this.content.maxScale = 5;
-            } // initial content sizes
-
-            this.content.initialWidth = this.content.$element.offsetWidth;
-            this.content.initialHeight = this.content.$element.offsetHeight; // current content sizes and transform data
-
-            this.content.currentWidth = this.content.$element.offsetWidth;
-            this.content.currentHeight = this.content.$element.offsetHeight;
-            this.content.currentLeft = 0;
-            this.content.currentTop = 0;
-            this.content.currentScale = 1;
-
             this._prepare();
 
             on(this.window.$element, 'wheel', function (event) {
@@ -201,7 +177,7 @@
                 _this._prepare();
 
                 _this._transform(
-                    _this._computeNewPosition(1, {
+                    _this._computeNewPosition(_this.content.minScale, {
                         x: eventClientX(event),
                         y: eventClientY(event),
                     })
@@ -213,11 +189,13 @@
             on(
                 this.window.$element,
                 this.events.down,
-                function () {
-                    clickExpired = false;
-                    setTimeout(function () {
-                        return (clickExpired = true);
-                    }, 150);
+                function (event) {
+                    if (event.buttons === 1) {
+                        clickExpired = false;
+                        setTimeout(function () {
+                            return (clickExpired = true);
+                        }, 150);
+                    }
                 },
                 this.events.options
             );
@@ -230,7 +208,7 @@
                             _this._computeNewPosition(
                                 _this.direction === 1
                                     ? _this.content.maxScale
-                                    : 1,
+                                    : _this.content.minScale,
                                 {
                                     x: eventClientX(event),
                                     y: eventClientY(event),
@@ -250,7 +228,50 @@
             this.window.originalWidth = this.window.$element.offsetWidth;
             this.window.originalHeight = this.window.$element.offsetHeight;
             this.window.positionLeft = windowPosition.left;
-            this.window.positionTop = windowPosition.top; // calculate margin-left and margin-top to center the content
+            this.window.positionTop = windowPosition.top; // original content sizes and minScale && maxScale
+
+            if (this.content.$element.tagName === 'IMG') {
+                this.content.originalWidth = this.content.$element.naturalWidth;
+                this.content.originalHeight = this.content.$element.naturalHeight;
+            } else {
+                ////////
+                ////////
+                var $image = this.content.$element.querySelector('img');
+
+                if ($image) {
+                    this.content.originalWidth = $image.naturalWidth;
+                    this.content.originalHeight = $image.naturalHeight;
+                    this.content.$element.style.minWidth = ''.concat(
+                        $image.naturalWidth,
+                        'px'
+                    );
+                    this.content.$element.style.minHeight = ''.concat(
+                        $image.naturalHeight,
+                        'px'
+                    );
+                } else {
+                    ////////
+                    ////////
+                    this.content.originalWidth = this.content.$element.offsetWidth;
+                    this.content.originalHeight = this.content.$element.offsetHeight;
+                }
+            }
+
+            this.content.minScale = round(
+                Math.min(
+                    this.window.originalWidth / this.content.originalWidth,
+                    this.window.originalHeight / this.content.originalHeight
+                )
+            );
+            this.content.maxScale = this.options.maxScale; // current content sizes and transform data
+
+            this.content.currentWidth =
+                this.content.originalWidth * this.content.minScale;
+            this.content.currentHeight =
+                this.content.originalHeight * this.content.minScale;
+            this.content.currentLeft = 0;
+            this.content.currentTop = 0;
+            this.content.currentScale = this.content.minScale; // calculate indent-left and indent-top to of content from window borders
 
             this.correctX = Math.max(
                 0,
@@ -259,6 +280,10 @@
             this.correctY = Math.max(
                 0,
                 (this.window.originalHeight - this.content.currentHeight) / 2
+            );
+            this.content.$element.style.transform = 'scale('.concat(
+                this.content.minScale,
+                ')'
             );
         },
         _computeNewScale: function _computeNewScale(delta) {
@@ -285,8 +310,8 @@
                 content = this.content,
                 correctX = this.correctX,
                 correctY = this.correctY;
-            var contentNewWidth = content.initialWidth * contentNewScale;
-            var contentNewHeight = content.initialHeight * contentNewScale; // calculate the parameters along the X axis
+            var contentNewWidth = content.originalWidth * contentNewScale;
+            var contentNewHeight = content.originalHeight * contentNewScale; // calculate the parameters along the X axis
 
             var leftWindowShiftX = x - window.positionLeft;
             var centerWindowShiftX =
@@ -327,7 +352,7 @@
                     contentNewTop = contentNewTop * -1;
             }
 
-            if (contentNewScale === 1) {
+            if (contentNewScale === this.content.minScale) {
                 contentNewLeft = contentNewTop = 0;
             }
 
@@ -353,13 +378,10 @@
                 newTop = _ref2.newTop,
                 currentScale = _ref2.currentScale,
                 newScale = _ref2.newScale;
-            this.content.$element.style.transform =
-                newScale === 1
-                    ? null
-                    : 'translate3d('
-                          .concat(newLeft, 'px, ')
-                          .concat(newTop, 'px, 0px) scale(')
-                          .concat(newScale, ')');
+            this.content.$element.style.transform = 'translate3d('
+                .concat(newLeft, 'px, ')
+                .concat(newTop, 'px, 0px) scale(')
+                .concat(newScale, ')');
         },
         _zoom: function _zoom(direction) {
             var windowPosition = getElementPosition(this.window.$element);

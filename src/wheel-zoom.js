@@ -22,7 +22,7 @@ function JcWheelZoom(selector, options = {}) {
         // maximum allowed proportion of scale
         maxScale: 1,
         // content resizing speed
-        speed: 10
+        speed: 50
     };
 
     this.content.$element = document.querySelector(selector);
@@ -66,28 +66,6 @@ JcWheelZoom.prototype = {
     correctY: null,
     stack: [],
     _init() {
-        if (this.content.$element.tagName === 'IMG') {
-            // original `image` sizes and transform data
-            this.content.originalWidth = this.content.$element.naturalWidth;
-            this.content.originalHeight = this.content.$element.naturalHeight;
-            this.content.minScale = 1;
-            this.content.maxScale = round(this.content.$element.naturalWidth / this.content.$element.offsetWidth * this.options.maxScale);
-        } else {
-            this.content.minScale = 1;
-            this.content.maxScale = 5;
-        }
-
-        // initial content sizes
-        this.content.initialWidth = this.content.$element.offsetWidth;
-        this.content.initialHeight = this.content.$element.offsetHeight;
-
-        // current content sizes and transform data
-        this.content.currentWidth = this.content.$element.offsetWidth;
-        this.content.currentHeight = this.content.$element.offsetHeight;
-        this.content.currentLeft = 0;
-        this.content.currentTop = 0;
-        this.content.currentScale = 1;
-
         this._prepare();
 
         on(this.window.$element, 'wheel', event => {
@@ -104,22 +82,24 @@ JcWheelZoom.prototype = {
             this._prepare();
             this._transform(
                 this._computeNewPosition(
-                    1, { x: eventClientX(event), y: eventClientY(event) }));
+                    this.content.minScale, { x: eventClientX(event), y: eventClientY(event) }));
         });
 
         // processing of the event "max / min zoom" begin only if there was really just a click
         // so as not to interfere with the DragScrollable module
         let clickExpired = true;
 
-        on(this.window.$element, this.events.down, () => {
-            clickExpired = false;
-            setTimeout(() => clickExpired = true, 150);
+        on(this.window.$element, this.events.down, event => {
+            if (event.buttons === 1) {
+                clickExpired = false;
+                setTimeout(() => clickExpired = true, 150);
+            }
         }, this.events.options);
 
         on(this.window.$element, this.events.up, event => {
             if (!clickExpired) {
                 this._transform(
-                    this._computeNewPosition(this.direction === 1 ? this.content.maxScale : 1, {
+                    this._computeNewPosition(this.direction === 1 ? this.content.maxScale : this.content.minScale, {
                         x: eventClientX(event),
                         y: eventClientY(event)
                     }));
@@ -136,9 +116,44 @@ JcWheelZoom.prototype = {
         this.window.positionLeft = windowPosition.left;
         this.window.positionTop = windowPosition.top;
 
-        // calculate margin-left and margin-top to center the content
+        // original content sizes and minScale && maxScale
+        if (this.content.$element.tagName === 'IMG') {
+            this.content.originalWidth = this.content.$element.naturalWidth;
+            this.content.originalHeight = this.content.$element.naturalHeight;
+        } else {
+
+            ////////
+            ////////
+            const $image = this.content.$element.querySelector('img');
+
+            if ($image) {
+                this.content.originalWidth = $image.naturalWidth;
+                this.content.originalHeight = $image.naturalHeight;
+                this.content.$element.style.minWidth = `${ $image.naturalWidth }px`;
+                this.content.$element.style.minHeight = `${ $image.naturalHeight }px`;
+            } else {
+                ////////
+                ////////
+
+                this.content.originalWidth = this.content.$element.offsetWidth;
+                this.content.originalHeight = this.content.$element.offsetHeight;
+            }
+        }
+        this.content.minScale = round(Math.min(this.window.originalWidth / this.content.originalWidth, this.window.originalHeight / this.content.originalHeight));
+        this.content.maxScale = this.options.maxScale;
+
+        // current content sizes and transform data
+        this.content.currentWidth = this.content.originalWidth * this.content.minScale;
+        this.content.currentHeight = this.content.originalHeight * this.content.minScale;
+        this.content.currentLeft = 0;
+        this.content.currentTop = 0;
+        this.content.currentScale = this.content.minScale;
+
+        // calculate indent-left and indent-top to of content from window borders
         this.correctX = Math.max(0, (this.window.originalWidth - this.content.currentWidth) / 2);
         this.correctY = Math.max(0, (this.window.originalHeight - this.content.currentHeight) / 2);
+
+        this.content.$element.style.transform = `scale(${ this.content.minScale })`;
     },
     _computeNewScale(delta) {
         this.direction = delta < 0 ? 1 : -1;
@@ -152,8 +167,8 @@ JcWheelZoom.prototype = {
     _computeNewPosition(contentNewScale, { x, y }) {
         const { window, content, correctX, correctY } = this;
 
-        const contentNewWidth = content.initialWidth * contentNewScale;
-        const contentNewHeight = content.initialHeight * contentNewScale;
+        const contentNewWidth = content.originalWidth * contentNewScale;
+        const contentNewHeight = content.originalHeight * contentNewScale;
 
         // calculate the parameters along the X axis
         const leftWindowShiftX = x - window.positionLeft;
@@ -179,7 +194,7 @@ JcWheelZoom.prototype = {
             if (centerContentShiftY - centerWindowShiftY < 0) contentNewTop = contentNewTop * -1;
         }
 
-        if (contentNewScale === 1) {
+        if (contentNewScale === this.content.minScale) {
             contentNewLeft = contentNewTop = 0;
         }
 
@@ -201,8 +216,7 @@ JcWheelZoom.prototype = {
         return response;
     },
     _transform({ currentLeft, newLeft, currentTop, newTop, currentScale, newScale }, iterations = 1) {
-        this.content.$element.style.transform = newScale === 1 ? null :
-            `translate3d(${ newLeft }px, ${ newTop }px, 0px) scale(${ newScale })`;
+        this.content.$element.style.transform = `translate3d(${ newLeft }px, ${ newTop }px, 0px) scale(${ newScale })`;
     },
     _zoom(direction) {
         const windowPosition = getElementPosition(this.window.$element);

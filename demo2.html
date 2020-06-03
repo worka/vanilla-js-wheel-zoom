@@ -11,32 +11,32 @@
     <style>
         #myWindow {
             cursor: grab;
-            overflow: hidden;
             display: flex;
-            position: absolute;
+            align-items: center;
+            justify-content: center;
         }
 
         #myContent {
+            position: relative;
             display: flex;
             align-items: center;
-            width: 100%;
-            height: 100%;
-            background: red;
-            border: 1px solid;
+            /*min-width: 2500px;*/
+            /*min-height: 1500px;*/
         }
 
         #myContent img {
             display: block;
-            width: 100%;
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
             height: auto;
+            margin: auto;
+            align-self: center;
+            flex-shrink: 0;
         }
 
         #myContent #myBadge {
-            width: 100px;
-            height: 100px;
-            top: 500px;
-            left: 600px;
-            position: absolute
+            position: absolute;
         }
     </style>
 </head>
@@ -44,7 +44,7 @@
 <div class="container py-3">
     <div class="row justify-content-center">
         <div class="col-12 col-lg-8">
-            <!--                    <h1>vanilla-js-wheel-zoom</h1>-->
+            <h1>vanilla-js-wheel-zoom</h1>
 
             <!--                    <p class="lead mb-4" style="word-wrap:break-word">-->
             <!--                        <a href="https://github.com/worka/vanilla-js-wheel-zoom">-->
@@ -52,15 +52,16 @@
             <!--                        </a>-->
             <!--                    </p>-->
 
-            <div class="d-flex my-3">
-                <button data-zoom-down class="btn btn-info">Zoom Down</button>
-                <button data-zoom-up class="btn btn-info ml-auto">Zoom Up</button>
-            </div>
+            <!--            <div class="d-flex my-3">-->
+            <!--                <button data-zoom-down class="btn btn-info">Zoom Down</button>-->
+            <!--                <button data-zoom-up class="btn btn-info ml-auto">Zoom Up</button>-->
+            <!--            </div>-->
 
             <div class="embed-responsive embed-responsive-4by3 rounded bg-secondary">
                 <div id="myWindow" class="embed-responsive-item">
                     <div id="myContent">
-                        <div id="myBadge" class="border border-primary rounded bg-primary"></div>
+                        <div id="myBadge" class="border border-primary rounded bg-primary"
+                             style="width:100px;height:170px;left:915px;top:670px"></div>
                         <img src="https://placehold.it/2500x1500" alt="image"/>
                     </div>
                 </div>
@@ -76,29 +77,6 @@
         var badge = document.getElementById('myBadge');
 
         var jcWheelZoom = JcWheelZoom.create('#myContent', {
-            //     prepare: function (scale, correctX, correctY) {
-            //         // do smth when image prepared
-            //
-            //         if (!Object.keys(badge.dataset).length) {
-            //             badge.dataset.width = badge.style.width.replace('px', '');
-            //             badge.dataset.height = badge.style.height.replace('px', '');
-            //             badge.dataset.left = badge.style.left.replace('px', '');
-            //             badge.dataset.top = badge.style.top.replace('px', '');
-            //         }
-            //
-            //         badge.style.width = (badge.dataset.width * scale) + 'px';
-            //         badge.style.height = (badge.dataset.height * scale) + 'px';
-            //         badge.style.left = (badge.dataset.left * scale + correctX) + 'px';
-            //         badge.style.top = (badge.dataset.top * scale + correctY) + 'px';
-            //     },
-            //     rescale: function (scale, correctX, correctY) {
-            //         // do smth when image rescaled
-            //
-            //         badge.style.width = (badge.dataset.width * scale) + 'px';
-            //         badge.style.height = (badge.dataset.height * scale) + 'px';
-            //         badge.style.left = (badge.dataset.left * scale + correctX) + 'px';
-            //         badge.style.top = (badge.dataset.top * scale + correctY) + 'px';
-            //     },
             //     dragScrollableOptions: {
             //         onGrab: function () {
             //             document.querySelector('.embed-responsive-item').style.cursor = 'grabbing';
@@ -109,13 +87,13 @@
             //     }
         });
 
-        document.querySelector('[data-zoom-up]').addEventListener('click', function () {
-            jcWheelZoom.zoomUp();
-        });
-
-        document.querySelector('[data-zoom-down]').addEventListener('click', function () {
-            jcWheelZoom.zoomDown();
-        });
+        // document.querySelector('[data-zoom-up]').addEventListener('click', function () {
+        //     jcWheelZoom.zoomUp();
+        // });
+        //
+        // document.querySelector('[data-zoom-down]').addEventListener('click', function () {
+        //     jcWheelZoom.zoomDown();
+        // });
     });
 </script>
 </body>
