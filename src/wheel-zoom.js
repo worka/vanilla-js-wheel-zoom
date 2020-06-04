@@ -15,6 +15,9 @@ function JcWheelZoom(selector, options = {}) {
     this._transform = this._transform.bind(this);
 
     const defaults = {
+        type: 'image',
+        width: null,
+        height: null,
         // drag scrollable content
         dragScrollable: true,
         // options for the DragScrollable module
@@ -40,7 +43,7 @@ function JcWheelZoom(selector, options = {}) {
         // for window take just the parent
         this.window.$element = this.content.$element.parentNode;
 
-        if (this.content.$element.tagName === 'IMG') {
+        if (this.options.type === 'image') {
             // if the `image` has already been loaded
             if (this.content.$element.complete) {
                 this._init();
@@ -68,21 +71,25 @@ JcWheelZoom.prototype = {
     _init() {
         this._prepare();
 
+        if (this.options.dragScrollable === true) {
+            new DragScrollable(this.window.$element, this.content.$element, this.options.dragScrollableOptions);
+        }
+
         on(this.window.$element, 'wheel', event => {
             event.preventDefault();
 
             this._transform(
                 this._computeNewPosition(
-                    this._computeNewScale(event.deltaY), { x: eventClientX(event), y: eventClientY(event) }));
+                    this._computeNewScale(event.deltaY),
+                    { x: eventClientX(event), y: eventClientY(event) }
+                )
+            );
         });
 
         on(self, 'resize', event => {
             event.preventDefault();
 
             this._prepare();
-            this._transform(
-                this._computeNewPosition(
-                    this.content.minScale, { x: eventClientX(event), y: eventClientY(event) }));
         });
 
         // processing of the event "max / min zoom" begin only if there was really just a click
@@ -99,10 +106,13 @@ JcWheelZoom.prototype = {
         on(this.window.$element, this.events.up, event => {
             if (!clickExpired) {
                 this._transform(
-                    this._computeNewPosition(this.direction === 1 ? this.content.maxScale : this.content.minScale, {
-                        x: eventClientX(event),
-                        y: eventClientY(event)
-                    }));
+                    this._computeNewPosition(
+                        this.direction === 1 ? this.content.maxScale : this.content.minScale, {
+                            x: eventClientX(event),
+                            y: eventClientY(event)
+                        }
+                    )
+                );
                 this.direction = this.direction * -1;
             }
         }, this.events.options);
@@ -116,29 +126,16 @@ JcWheelZoom.prototype = {
         this.window.positionLeft = windowPosition.left;
         this.window.positionTop = windowPosition.top;
 
-        // original content sizes and minScale && maxScale
-        if (this.content.$element.tagName === 'IMG') {
-            this.content.originalWidth = this.content.$element.naturalWidth;
-            this.content.originalHeight = this.content.$element.naturalHeight;
+        // original content sizes
+        if (this.options.type === 'image') {
+            this.content.originalWidth = this.options.width || this.content.$element.naturalWidth;
+            this.content.originalHeight = this.options.height || this.content.$element.naturalHeight;
         } else {
-
-            ////////
-            ////////
-            const $image = this.content.$element.querySelector('img');
-
-            if ($image) {
-                this.content.originalWidth = $image.naturalWidth;
-                this.content.originalHeight = $image.naturalHeight;
-                this.content.$element.style.minWidth = `${ $image.naturalWidth }px`;
-                this.content.$element.style.minHeight = `${ $image.naturalHeight }px`;
-            } else {
-                ////////
-                ////////
-
-                this.content.originalWidth = this.content.$element.offsetWidth;
-                this.content.originalHeight = this.content.$element.offsetHeight;
-            }
+            this.content.originalWidth = this.options.width || this.content.$element.offsetWidth;
+            this.content.originalHeight = this.options.height || this.content.$element.offsetHeight;
         }
+
+        // minScale && maxScale
         this.content.minScale = round(Math.min(this.window.originalWidth / this.content.originalWidth, this.window.originalHeight / this.content.originalHeight));
         this.content.maxScale = this.options.maxScale;
 
@@ -153,7 +150,7 @@ JcWheelZoom.prototype = {
         this.correctX = Math.max(0, (this.window.originalWidth - this.content.currentWidth) / 2);
         this.correctY = Math.max(0, (this.window.originalHeight - this.content.currentHeight) / 2);
 
-        this.content.$element.style.transform = `scale(${ this.content.minScale })`;
+        this.content.$element.style.transform = `translate3d(0px, 0px, 0px) scale(${ this.content.minScale })`;
     },
     _computeNewScale(delta) {
         this.direction = delta < 0 ? 1 : -1;
@@ -170,8 +167,13 @@ JcWheelZoom.prototype = {
         const contentNewWidth = content.originalWidth * contentNewScale;
         const contentNewHeight = content.originalHeight * contentNewScale;
 
+        const { body, documentElement } = document;
+
+        const scrollLeft = window.pageXOffset || documentElement.scrollLeft || body.scrollLeft;
+        const scrollTop = window.pageYOffset || documentElement.scrollTop || body.scrollTop;
+
         // calculate the parameters along the X axis
-        const leftWindowShiftX = x - window.positionLeft;
+        const leftWindowShiftX = x + scrollLeft - window.positionLeft;
         const centerWindowShiftX = window.originalWidth / 2 - leftWindowShiftX;
         const centerContentShiftX = centerWindowShiftX + content.currentLeft;
         let contentNewLeft = centerContentShiftX * (contentNewWidth / content.currentWidth) - centerContentShiftX + content.currentLeft;
@@ -183,7 +185,7 @@ JcWheelZoom.prototype = {
         }
 
         // calculate the parameters along the Y axis
-        const topWindowShiftY = y - window.positionTop;
+        const topWindowShiftY = y + scrollTop - window.positionTop;
         const centerWindowShiftY = window.originalHeight / 2 - topWindowShiftY;
         const centerContentShiftY = centerWindowShiftY + content.currentTop;
         let contentNewTop = centerContentShiftY * (contentNewHeight / content.currentHeight) - centerContentShiftY + content.currentTop;

@@ -2,14 +2,15 @@ import { extendObject, on, off, numberExtinction, eventClientX, eventClientY } f
 
 /**
  * @class DragScrollable
- * @param {Element} scrollable
+ * @param {Element} $windowElement
+ * @param {Element} $contentElement
  * @param {Object} options
  * @constructor
  */
-function DragScrollable(scrollable, options = {}) {
-    this.dropHandler = this.dropHandler.bind(this);
-    this.grabHandler = this.grabHandler.bind(this);
-    this.moveHandler = this.moveHandler.bind(this);
+function DragScrollable($windowElement, $contentElement, options = {}) {
+    this._dropHandler = this._dropHandler.bind(this);
+    this._grabHandler = this._grabHandler.bind(this);
+    this._moveHandler = this._moveHandler.bind(this);
 
     this.options = extendObject({
         // smooth extinction moving element after set loose
@@ -33,58 +34,60 @@ function DragScrollable(scrollable, options = {}) {
     // if using touch screen tells the browser that the default action will not be undone
     this.events.options = this.isTouch ? { passive: true } : false;
 
-    this.scrollable = scrollable;
+    this.$windowElement = $windowElement;
+    this.$contentElement = $contentElement;
 
-    on(this.scrollable, this.events.grab, event => {
+    on(this.$contentElement, this.events.grab, event => {
         // if touch started (only one finger) or pressed left mouse button
         if ((this.isTouch && event.touches.length === 1) || event.buttons === 1) {
-            this.grabHandler(event);
+            this._grabHandler(event);
         }
     }, this.events.options);
 }
 
 DragScrollable.prototype = {
     constructor: DragScrollable,
+    $windowElement: null,
+    $contentElement: null,
     isTouch: false,
     isGrab: false,
     events: null,
-    scrollable: null,
     moveTimer: null,
     options: {},
     coordinates: null,
     speed: null,
-    grabHandler(event) {
+    _grabHandler(event) {
         if (!this.isTouch) event.preventDefault();
 
         this.isGrab = true;
         this.coordinates = { left: eventClientX(event), top: eventClientY(event) };
         this.speed = { x: 0, y: 0 };
 
-        on(document, this.events.drop, this.dropHandler, this.events.options);
-        on(document, this.events.move, this.moveHandler, this.events.options);
+        on(document, this.events.drop, this._dropHandler, this.events.options);
+        on(document, this.events.move, this._moveHandler, this.events.options);
 
         if (typeof this.options.onGrab === 'function') {
             this.options.onGrab();
         }
     },
-    dropHandler(event) {
+    _dropHandler(event) {
         if (!this.isTouch) event.preventDefault();
 
         this.isGrab = false;
 
-        if (this.options.smoothExtinction) {
-            _moveExtinction.call(this, 'scrollLeft', numberExtinction(this.speed.x));
-            _moveExtinction.call(this, 'scrollTop', numberExtinction(this.speed.y));
-        }
+        // if (this.options.smoothExtinction) {
+        //     _moveExtinction.call(this, 'scrollLeft', numberExtinction(this.speed.x));
+        //     _moveExtinction.call(this, 'scrollTop', numberExtinction(this.speed.y));
+        // }
 
-        off(document, this.events.drop, this.dropHandler);
-        off(document, this.events.move, this.moveHandler);
+        off(document, this.events.drop, this._dropHandler);
+        off(document, this.events.move, this._moveHandler);
 
         if (typeof this.options.onDrop === 'function') {
             this.options.onDrop();
         }
     },
-    moveHandler(event) {
+    _moveHandler(event) {
         if (!this.isTouch) event.preventDefault();
 
         // speed of change of the coordinate of the mouse cursor along the X/Y axis
@@ -98,8 +101,16 @@ DragScrollable.prototype = {
             this.speed = { x: 0, y: 0 };
         }).bind(this), 50);
 
-        this.scrollable.scrollLeft = this.scrollable.scrollLeft - this.speed.x;
-        this.scrollable.scrollTop = this.scrollable.scrollTop - this.speed.y;
+        console.log(_getTransform.call(this));
+
+        const transformParams = _getTransform.call(this);
+
+        if (transformParams.left || transformParams.top) {
+            _transform.call(this, transformParams.left + this.speed.x, transformParams.top + this.speed.y, transformParams.scale);
+        }
+
+        // this.scrollable.scrollLeft = this.scrollable.scrollLeft - this.speed.x;
+        // this.scrollable.scrollTop = this.scrollable.scrollTop - this.speed.y;
 
         this.coordinates = { left: eventClientX(event), top: eventClientY(event) };
 
@@ -118,6 +129,18 @@ function _moveExtinction(field, speedArray) {
             window.requestAnimationFrame(_moveExtinction.bind(this, field, speedArray));
         }
     }
+}
+
+function _getTransform() {
+    const match = this.$contentElement.style.transform.match(/translate3d\((-?\d+(?:.\d+)?)px, (-?\d+(?:.\d+)?)px, 0px\) scale\((\d+(?:.\d+)?)\)/);
+
+    return match ?
+        { left: parseFloat(match[1]), top: parseFloat(match[2]), scale: parseFloat(match[3]) } :
+        { left: null, top: null, scale: null };
+}
+
+function _transform(left, top, scale) {
+    this.$contentElement.style.transform = `translate3d(${ left }px, ${ top }px, 0px) scale(${ scale })`;
 }
 
 export default DragScrollable;

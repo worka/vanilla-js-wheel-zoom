@@ -62,6 +62,20 @@
                 : false;
         target.addEventListener(type, listener, options);
     }
+    /**
+     * @param target
+     * @param type
+     * @param listener
+     * @param options
+     */
+
+    function off(target, type, listener) {
+        var options =
+            arguments.length > 3 && arguments[3] !== undefined
+                ? arguments[3]
+                : false;
+        target.removeEventListener(type, listener, options);
+    }
     function eventClientX(event) {
         return event instanceof TouchEvent
             ? event.changedTouches[0].clientX
@@ -71,6 +85,196 @@
         return event instanceof TouchEvent
             ? event.changedTouches[0].clientY
             : event.clientY;
+    }
+
+    /**
+     * @class DragScrollable
+     * @param {Element} $windowElement
+     * @param {Element} $contentElement
+     * @param {Object} options
+     * @constructor
+     */
+
+    function DragScrollable($windowElement, $contentElement) {
+        var _this = this;
+
+        var options =
+            arguments.length > 2 && arguments[2] !== undefined
+                ? arguments[2]
+                : {};
+        this._dropHandler = this._dropHandler.bind(this);
+        this._grabHandler = this._grabHandler.bind(this);
+        this._moveHandler = this._moveHandler.bind(this);
+        this.options = extendObject(
+            {
+                // smooth extinction moving element after set loose
+                smoothExtinction: false,
+                // callback triggered when grabbing an element
+                onGrab: null,
+                // callback triggered when moving an element
+                onMove: null,
+                // callback triggered when dropping an element
+                onDrop: null,
+            },
+            options
+        ); // check if we're using a touch screen
+
+        this.isTouch =
+            'ontouchstart' in window ||
+            navigator.MaxTouchPoints > 0 ||
+            navigator.msMaxTouchPoints > 0; // switch to touch events if using a touch screen
+
+        this.events = this.isTouch
+            ? {
+                  grab: 'touchstart',
+                  move: 'touchmove',
+                  drop: 'touchend',
+              }
+            : {
+                  grab: 'mousedown',
+                  move: 'mousemove',
+                  drop: 'mouseup',
+              }; // if using touch screen tells the browser that the default action will not be undone
+
+        this.events.options = this.isTouch
+            ? {
+                  passive: true,
+              }
+            : false;
+        this.$windowElement = $windowElement;
+        this.$contentElement = $contentElement;
+        on(
+            this.$contentElement,
+            this.events.grab,
+            function (event) {
+                // if touch started (only one finger) or pressed left mouse button
+                if (
+                    (_this.isTouch && event.touches.length === 1) ||
+                    event.buttons === 1
+                ) {
+                    _this._grabHandler(event);
+                }
+            },
+            this.events.options
+        );
+    }
+
+    DragScrollable.prototype = {
+        constructor: DragScrollable,
+        $windowElement: null,
+        $contentElement: null,
+        isTouch: false,
+        isGrab: false,
+        events: null,
+        moveTimer: null,
+        options: {},
+        coordinates: null,
+        speed: null,
+        _grabHandler: function _grabHandler(event) {
+            if (!this.isTouch) event.preventDefault();
+            this.isGrab = true;
+            this.coordinates = {
+                left: eventClientX(event),
+                top: eventClientY(event),
+            };
+            this.speed = {
+                x: 0,
+                y: 0,
+            };
+            on(
+                document,
+                this.events.drop,
+                this._dropHandler,
+                this.events.options
+            );
+            on(
+                document,
+                this.events.move,
+                this._moveHandler,
+                this.events.options
+            );
+
+            if (typeof this.options.onGrab === 'function') {
+                this.options.onGrab();
+            }
+        },
+        _dropHandler: function _dropHandler(event) {
+            if (!this.isTouch) event.preventDefault();
+            this.isGrab = false; // if (this.options.smoothExtinction) {
+            //     _moveExtinction.call(this, 'scrollLeft', numberExtinction(this.speed.x));
+            //     _moveExtinction.call(this, 'scrollTop', numberExtinction(this.speed.y));
+            // }
+
+            off(document, this.events.drop, this._dropHandler);
+            off(document, this.events.move, this._moveHandler);
+
+            if (typeof this.options.onDrop === 'function') {
+                this.options.onDrop();
+            }
+        },
+        _moveHandler: function _moveHandler(event) {
+            if (!this.isTouch) event.preventDefault(); // speed of change of the coordinate of the mouse cursor along the X/Y axis
+
+            this.speed.x = eventClientX(event) - this.coordinates.left;
+            this.speed.y = eventClientY(event) - this.coordinates.top;
+            clearTimeout(this.moveTimer); // reset speed data if cursor stops
+
+            this.moveTimer = setTimeout(
+                function () {
+                    this.speed = {
+                        x: 0,
+                        y: 0,
+                    };
+                }.bind(this),
+                50
+            );
+            console.log(_getTransform.call(this));
+
+            var transformParams = _getTransform.call(this);
+
+            if (transformParams.left || transformParams.top) {
+                _transform.call(
+                    this,
+                    transformParams.left + this.speed.x,
+                    transformParams.top + this.speed.y,
+                    transformParams.scale
+                );
+            } // this.scrollable.scrollLeft = this.scrollable.scrollLeft - this.speed.x;
+            // this.scrollable.scrollTop = this.scrollable.scrollTop - this.speed.y;
+
+            this.coordinates = {
+                left: eventClientX(event),
+                top: eventClientY(event),
+            };
+
+            if (typeof this.options.onMove === 'function') {
+                this.options.onMove();
+            }
+        },
+    };
+
+    function _getTransform() {
+        var match = this.$contentElement.style.transform.match(
+            /translate3d\((-?\d+(?:.\d+)?)px, (-?\d+(?:.\d+)?)px, 0px\) scale\((\d+(?:.\d+)?)\)/
+        );
+        return match
+            ? {
+                  left: parseFloat(match[1]),
+                  top: parseFloat(match[2]),
+                  scale: parseFloat(match[3]),
+              }
+            : {
+                  left: null,
+                  top: null,
+                  scale: null,
+              };
+    }
+
+    function _transform(left, top, scale) {
+        this.$contentElement.style.transform = 'translate3d('
+            .concat(left, 'px, ')
+            .concat(top, 'px, 0px) scale(')
+            .concat(scale, ')');
     }
 
     /**
@@ -91,6 +295,9 @@
         this._computeNewPosition = this._computeNewPosition.bind(this);
         this._transform = this._transform.bind(this);
         var defaults = {
+            type: 'image',
+            width: null,
+            height: null,
             // drag scrollable content
             dragScrollable: true,
             // options for the DragScrollable module
@@ -128,7 +335,7 @@
 
             this.window.$element = this.content.$element.parentNode;
 
-            if (this.content.$element.tagName === 'IMG') {
+            if (this.options.type === 'image') {
                 // if the `image` has already been loaded
                 if (this.content.$element.complete) {
                     this._init();
@@ -158,6 +365,14 @@
 
             this._prepare();
 
+            if (this.options.dragScrollable === true) {
+                new DragScrollable(
+                    this.window.$element,
+                    this.content.$element,
+                    this.options.dragScrollableOptions
+                );
+            }
+
             on(this.window.$element, 'wheel', function (event) {
                 event.preventDefault();
 
@@ -175,13 +390,6 @@
                 event.preventDefault();
 
                 _this._prepare();
-
-                _this._transform(
-                    _this._computeNewPosition(_this.content.minScale, {
-                        x: eventClientX(event),
-                        y: eventClientY(event),
-                    })
-                );
             }); // processing of the event "max / min zoom" begin only if there was really just a click
             // so as not to interfere with the DragScrollable module
 
@@ -228,34 +436,19 @@
             this.window.originalWidth = this.window.$element.offsetWidth;
             this.window.originalHeight = this.window.$element.offsetHeight;
             this.window.positionLeft = windowPosition.left;
-            this.window.positionTop = windowPosition.top; // original content sizes and minScale && maxScale
+            this.window.positionTop = windowPosition.top; // original content sizes
 
-            if (this.content.$element.tagName === 'IMG') {
-                this.content.originalWidth = this.content.$element.naturalWidth;
-                this.content.originalHeight = this.content.$element.naturalHeight;
+            if (this.options.type === 'image') {
+                this.content.originalWidth =
+                    this.options.width || this.content.$element.naturalWidth;
+                this.content.originalHeight =
+                    this.options.height || this.content.$element.naturalHeight;
             } else {
-                ////////
-                ////////
-                var $image = this.content.$element.querySelector('img');
-
-                if ($image) {
-                    this.content.originalWidth = $image.naturalWidth;
-                    this.content.originalHeight = $image.naturalHeight;
-                    this.content.$element.style.minWidth = ''.concat(
-                        $image.naturalWidth,
-                        'px'
-                    );
-                    this.content.$element.style.minHeight = ''.concat(
-                        $image.naturalHeight,
-                        'px'
-                    );
-                } else {
-                    ////////
-                    ////////
-                    this.content.originalWidth = this.content.$element.offsetWidth;
-                    this.content.originalHeight = this.content.$element.offsetHeight;
-                }
-            }
+                this.content.originalWidth =
+                    this.options.width || this.content.$element.offsetWidth;
+                this.content.originalHeight =
+                    this.options.height || this.content.$element.offsetHeight;
+            } // minScale && maxScale
 
             this.content.minScale = round(
                 Math.min(
@@ -281,7 +474,7 @@
                 0,
                 (this.window.originalHeight - this.content.currentHeight) / 2
             );
-            this.content.$element.style.transform = 'scale('.concat(
+            this.content.$element.style.transform = 'translate3d(0px, 0px, 0px) scale('.concat(
                 this.content.minScale,
                 ')'
             );
@@ -311,9 +504,20 @@
                 correctX = this.correctX,
                 correctY = this.correctY;
             var contentNewWidth = content.originalWidth * contentNewScale;
-            var contentNewHeight = content.originalHeight * contentNewScale; // calculate the parameters along the X axis
+            var contentNewHeight = content.originalHeight * contentNewScale;
+            var _document = document,
+                body = _document.body,
+                documentElement = _document.documentElement;
+            var scrollLeft =
+                window.pageXOffset ||
+                documentElement.scrollLeft ||
+                body.scrollLeft;
+            var scrollTop =
+                window.pageYOffset ||
+                documentElement.scrollTop ||
+                body.scrollTop; // calculate the parameters along the X axis
 
-            var leftWindowShiftX = x - window.positionLeft;
+            var leftWindowShiftX = x + scrollLeft - window.positionLeft;
             var centerWindowShiftX =
                 window.originalWidth / 2 - leftWindowShiftX;
             var centerContentShiftX = centerWindowShiftX + content.currentLeft;
@@ -332,7 +536,7 @@
                     contentNewLeft = contentNewLeft * -1;
             } // calculate the parameters along the Y axis
 
-            var topWindowShiftY = y - window.positionTop;
+            var topWindowShiftY = y + scrollTop - window.positionTop;
             var centerWindowShiftY =
                 window.originalHeight / 2 - topWindowShiftY;
             var centerContentShiftY = centerWindowShiftY + content.currentTop;

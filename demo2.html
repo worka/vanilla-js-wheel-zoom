@@ -20,14 +20,10 @@
             position: relative;
             display: flex;
             align-items: center;
-            /*min-width: 2500px;*/
-            /*min-height: 1500px;*/
         }
 
         #myContent img {
             display: block;
-            max-width: 100%;
-            max-height: 100%;
             width: auto;
             height: auto;
             margin: auto;
@@ -35,7 +31,7 @@
             flex-shrink: 0;
         }
 
-        #myContent #myBadge {
+        #myContent div {
             position: absolute;
         }
     </style>
@@ -52,15 +48,15 @@
             <!--                        </a>-->
             <!--                    </p>-->
 
-            <!--            <div class="d-flex my-3">-->
-            <!--                <button data-zoom-down class="btn btn-info">Zoom Down</button>-->
-            <!--                <button data-zoom-up class="btn btn-info ml-auto">Zoom Up</button>-->
-            <!--            </div>-->
+            <div class="d-flex my-3">
+                <button data-zoom-down class="btn btn-info">Zoom Down</button>
+                <button data-zoom-up class="btn btn-info ml-auto">Zoom Up</button>
+            </div>
 
             <div class="embed-responsive embed-responsive-4by3 rounded bg-secondary">
                 <div id="myWindow" class="embed-responsive-item">
                     <div id="myContent">
-                        <div id="myBadge" class="border border-primary rounded bg-primary"
+                        <div class="border border-primary rounded bg-primary"
                              style="width:100px;height:170px;left:915px;top:670px"></div>
                         <img src="https://placehold.it/2500x1500" alt="image"/>
                     </div>
@@ -74,26 +70,37 @@
 
 <script type="text/javascript">
     document.addEventListener('DOMContentLoaded', function () {
-        var badge = document.getElementById('myBadge');
+        var imageElement = document.getElementById('myContent').querySelector('img');
 
-        var jcWheelZoom = JcWheelZoom.create('#myContent', {
-            //     dragScrollableOptions: {
-            //         onGrab: function () {
-            //             document.querySelector('.embed-responsive-item').style.cursor = 'grabbing';
-            //         },
-            //         onDrop: function () {
-            //             document.querySelector('.embed-responsive-item').style.cursor = 'grab';
-            //         }
-            //     }
-        });
+        if (imageElement.complete) {
+            init();
+        } else {
+            imageElement.onload = init;
+        }
 
-        // document.querySelector('[data-zoom-up]').addEventListener('click', function () {
-        //     jcWheelZoom.zoomUp();
-        // });
-        //
-        // document.querySelector('[data-zoom-down]').addEventListener('click', function () {
-        //     jcWheelZoom.zoomDown();
-        // });
+        function init() {
+            var jcWheelZoom = JcWheelZoom.create('#myContent', {
+                type: 'html',
+                width: imageElement.naturalWidth,
+                height: imageElement.naturalHeight,
+                dragScrollableOptions: {
+                    onGrab: function () {
+                        document.querySelector('.embed-responsive-item').style.cursor = 'grabbing';
+                    },
+                    onDrop: function () {
+                        document.querySelector('.embed-responsive-item').style.cursor = 'grab';
+                    }
+                }
+            });
+
+            document.querySelector('[data-zoom-up]').addEventListener('click', function () {
+                jcWheelZoom.zoomUp();
+            });
+
+            document.querySelector('[data-zoom-down]').addEventListener('click', function () {
+                jcWheelZoom.zoomDown();
+            });
+        }
     });
 </script>
 </body>

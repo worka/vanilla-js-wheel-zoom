@@ -54,14 +54,14 @@
 <script type="text/javascript">
     document.addEventListener('DOMContentLoaded', function () {
         var jcWheelZoom = JcWheelZoom.create('#myContent', {
-            //     dragScrollableOptions: {
-            //         onGrab: function () {
-            //             document.querySelector('.embed-responsive-item').style.cursor = 'grabbing';
-            //         },
-            //         onDrop: function () {
-            //             document.querySelector('.embed-responsive-item').style.cursor = 'grab';
-            //         }
-            //     }
+            dragScrollableOptions: {
+                onGrab: function () {
+                    document.getElementById('myWindow').style.cursor = 'grabbing';
+                },
+                onDrop: function () {
+                    document.getElementById('myWindow').style.cursor = 'grab';
+                }
+            }
         });
 
         document.querySelector('[data-zoom-up]').addEventListener('click', function () {
