@@ -97,9 +97,9 @@ export function numberExtinction(number) {
 }
 
 export function eventClientX(event) {
-    return event instanceof TouchEvent ? event.changedTouches[0].clientX : event.clientX;
+    return event.type === 'wheel' ? event.clientX : event.changedTouches[0].clientX;
 }
 
 export function eventClientY(event) {
-    return event instanceof TouchEvent ? event.changedTouches[0].clientY : event.clientY;
+    return event.type === 'wheel' ? event.clientY : event.changedTouches[0].clientY;
 }
