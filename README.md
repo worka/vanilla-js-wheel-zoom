@@ -34,7 +34,7 @@ yarn add vanilla-js-wheel-zoom
 ```
 
 ``` javascript
-JcWheelZoom.create('img');
+WZoom.create('img');
 ```
 
 ![](https://worka.github.io/files/wheel-zoom.gif)
@@ -93,7 +93,7 @@ var defaults = {
 document.addEventListener('DOMContentLoaded', () => {
     const badge = document.querySelector('.badge');
 
-    const jcWheelZoom = JcWheelZoom.create('img', {
+    const WZoom = WZoom.create('img', {
         prepare: function (scale, correctX, correctY) {
             // do smth when image prepared
 
@@ -129,24 +129,24 @@ document.addEventListener('DOMContentLoaded', () => {
 ```
 
 ``` javascript
-const jcWheelZoom = JcWheelZoom.create('img');
+const WZoom = WZoom.create('img');
 
 document.querySelector('[data-zoom-up]').addEventListener('click', () => {
-    jcWheelZoom.zoomUp();
+    WZoom.zoomUp();
 });
 
 document.querySelector('[data-zoom-down]').addEventListener('click', () => {
-    jcWheelZoom.zoomDown();
+    WZoom.zoomDown();
 });
 ```
 
 #### On window resize
 
 ``` javascript
-const jcWheelZoom = JcWheelZoom.create('img');
+const WZoom = WZoom.create('img');
 
 window.addEventListener('resize', () => {
-    jcWheelZoom.prepare();
+    WZoom.prepare();
 });
 ```
 

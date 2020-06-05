@@ -3,7 +3,7 @@
         ? (module.exports = factory())
         : typeof define === 'function' && define.amd
         ? define(factory)
-        : ((global = global || self), (global.JcWheelZoom = factory()));
+        : ((global = global || self), (global.WZoom = factory()));
 })(this, function () {
     'use strict';
 
@@ -286,13 +286,13 @@
     };
 
     /**
-     * @class JcWheelZoom
+     * @class WZoom
      * @param {string} selector
      * @param {Object} options
      * @constructor
      */
 
-    function JcWheelZoom(selector) {
+    function WZoom(selector) {
         var options =
             arguments.length > 1 && arguments[1] !== undefined
                 ? arguments[1]
@@ -357,8 +357,8 @@
         }
     }
 
-    JcWheelZoom.prototype = {
-        constructor: JcWheelZoom,
+    WZoom.prototype = {
+        constructor: WZoom,
         isTouch: false,
         events: null,
         content: {},
@@ -625,15 +625,15 @@
         },
     };
     /**
-     * Create JcWheelZoom instance
+     * Create WZoom instance
      * @param {string} selector
      * @param {Object} [options]
-     * @returns {JcWheelZoom}
+     * @returns {WZoom}
      */
 
-    JcWheelZoom.create = function (selector, options) {
-        return new JcWheelZoom(selector, options);
+    WZoom.create = function (selector, options) {
+        return new WZoom(selector, options);
     };
 
-    return JcWheelZoom;
+    return WZoom;
 });

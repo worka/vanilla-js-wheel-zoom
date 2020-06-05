@@ -79,7 +79,7 @@
         }
 
         function init() {
-            var jcWheelZoom = JcWheelZoom.create('#myContent', {
+            var WZoom = WZoom.create('#myContent', {
                 type: 'html',
                 width: imageElement.naturalWidth,
                 height: imageElement.naturalHeight,
@@ -94,11 +94,11 @@
             });
 
             document.querySelector('[data-zoom-up]').addEventListener('click', function () {
-                jcWheelZoom.zoomUp();
+                WZoom.zoomUp();
             });
 
             document.querySelector('[data-zoom-down]').addEventListener('click', function () {
-                jcWheelZoom.zoomDown();
+                WZoom.zoomDown();
             });
         }
     });

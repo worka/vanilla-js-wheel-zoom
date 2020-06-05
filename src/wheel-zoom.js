@@ -10,12 +10,12 @@ import {
 import DragScrollable from './drag-scrollable';
 
 /**
- * @class JcWheelZoom
+ * @class WZoom
  * @param {string} selector
  * @param {Object} options
  * @constructor
  */
-function JcWheelZoom(selector, options = {}) {
+function WZoom(selector, options = {}) {
     this._init = this._init.bind(this);
     this._prepare = this._prepare.bind(this);
     this._computeNewScale = this._computeNewScale.bind(this);
@@ -68,8 +68,8 @@ function JcWheelZoom(selector, options = {}) {
     }
 }
 
-JcWheelZoom.prototype = {
-    constructor: JcWheelZoom,
+WZoom.prototype = {
+    constructor: WZoom,
     isTouch: false,
     events: null,
     content: {},
@@ -261,13 +261,13 @@ JcWheelZoom.prototype = {
 };
 
 /**
- * Create JcWheelZoom instance
+ * Create WZoom instance
  * @param {string} selector
  * @param {Object} [options]
- * @returns {JcWheelZoom}
+ * @returns {WZoom}
  */
-JcWheelZoom.create = function (selector, options) {
-    return new JcWheelZoom(selector, options);
+WZoom.create = function (selector, options) {
+    return new WZoom(selector, options);
 };
 
-export default JcWheelZoom;
+export default WZoom;
