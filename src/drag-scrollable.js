@@ -121,11 +121,15 @@ function _moveExtinction(field, speedArray) {
 }
 
 function _getClientX(event) {
-    return event.type === 'wheel' ? event.clientX : event.changedTouches[0].clientX;
+    return event.type === 'mousedown' ||
+    event.type === 'mousemove' ||
+    event.type === 'mouseup' ? event.clientX : event.changedTouches[0].clientX;
 }
 
 function _getClientY(event) {
-    return event.type === 'wheel' ? event.clientY : event.changedTouches[0].clientY;
+    return event.type === 'mousedown' ||
+    event.type === 'mousemove' ||
+    event.type === 'mouseup' ? event.clientY : event.changedTouches[0].clientY;
 }
 
 export default DragScrollable;

@@ -293,13 +293,17 @@
     }
 
     function _getClientX(event) {
-        return event.type === 'wheel'
+        return event.type === 'mousedown' ||
+            event.type === 'mousemove' ||
+            event.type === 'mouseup'
             ? event.clientX
             : event.changedTouches[0].clientX;
     }
 
     function _getClientY(event) {
-        return event.type === 'wheel'
+        return event.type === 'mousedown' ||
+            event.type === 'mousemove' ||
+            event.type === 'mouseup'
             ? event.clientY
             : event.changedTouches[0].clientY;
     }
