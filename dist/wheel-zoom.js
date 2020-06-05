@@ -76,26 +76,55 @@
                 : false;
         target.removeEventListener(type, listener, options);
     }
+    function isTouch() {
+        return (
+            'ontouchstart' in window ||
+            navigator.MaxTouchPoints > 0 ||
+            navigator.msMaxTouchPoints > 0
+        );
+    }
     function eventClientX(event) {
-        return event.type === 'wheel'
+        return event.type === 'wheel' ||
+            event.type === 'mousedown' ||
+            event.type === 'mousemove' ||
+            event.type === 'mouseup'
             ? event.clientX
             : event.changedTouches[0].clientX;
     }
     function eventClientY(event) {
-        return event.type === 'wheel'
+        return event.type === 'wheel' ||
+            event.type === 'mousedown' ||
+            event.type === 'mousemove' ||
+            event.type === 'mouseup'
             ? event.clientY
             : event.changedTouches[0].clientY;
+    }
+    function getElementTransform($element) {
+        var match = $element.style.transform.match(
+            /^translate3d\((-?\d+(?:.\d+)?)px, (-?\d+(?:.\d+)?)px, 0px\) scale\((\d+(?:.\d+)?)\)$/
+        );
+        return match
+            ? {
+                  left: parseFloat(match[1]),
+                  top: parseFloat(match[2]),
+                  scale: parseFloat(match[3]),
+              }
+            : {
+                  left: null,
+                  top: null,
+                  scale: null,
+              };
     }
 
     /**
      * @class DragScrollable
-     * @param {Element} $windowElement
-     * @param {Element} $contentElement
+     * @param {Element} $window
+     * @param {Element} $content
      * @param {Object} options
      * @constructor
      */
 
-    function DragScrollable($windowElement, $contentElement) {
+    function DragScrollable($window, $content) {
         var _this = this;
 
         var options =
@@ -119,10 +148,7 @@
             options
         ); // check if we're using a touch screen
 
-        this.isTouch =
-            'ontouchstart' in window ||
-            navigator.MaxTouchPoints > 0 ||
-            navigator.msMaxTouchPoints > 0; // switch to touch events if using a touch screen
+        this.isTouch = isTouch(); // switch to touch events if using a touch screen
 
         this.events = this.isTouch
             ? {
@@ -141,10 +167,10 @@
                   passive: true,
               }
             : false;
-        this.$windowElement = $windowElement;
-        this.$contentElement = $contentElement;
+        this.$window = $window;
+        this.$content = $content;
         on(
-            this.$contentElement,
+            this.$content,
             this.events.grab,
             function (event) {
                 // if touch started (only one finger) or pressed left mouse button
@@ -161,8 +187,8 @@
 
     DragScrollable.prototype = {
         constructor: DragScrollable,
-        $windowElement: null,
-        $contentElement: null,
+        $window: null,
+        $content: null,
         isTouch: false,
         isGrab: false,
         events: null,
@@ -228,15 +254,15 @@
                 }.bind(this),
                 50
             );
-            console.log(_getTransform.call(this));
-
-            var transformParams = _getTransform.call(this);
+            var transformParams = getElementTransform(this.$content);
 
             if (transformParams.left || transformParams.top) {
-                _transform.call(
-                    this,
-                    transformParams.left + this.speed.x,
-                    transformParams.top + this.speed.y,
+                var contentNewLeft = transformParams.left + this.speed.x;
+                var contentNewTop = transformParams.top + this.speed.y;
+
+                this._transform(
+                    contentNewLeft,
+                    contentNewTop,
                     transformParams.scale
                 );
             } // this.scrollable.scrollLeft = this.scrollable.scrollLeft - this.speed.x;
@@ -251,31 +277,13 @@
                 this.options.onMove();
             }
         },
+        _transform: function _transform(left, top, scale) {
+            this.$content.style.transform = 'translate3d('
+                .concat(left, 'px, ')
+                .concat(top, 'px, 0px) scale(')
+                .concat(scale, ')');
+        },
     };
-
-    function _getTransform() {
-        var match = this.$contentElement.style.transform.match(
-            /translate3d\((-?\d+(?:.\d+)?)px, (-?\d+(?:.\d+)?)px, 0px\) scale\((\d+(?:.\d+)?)\)/
-        );
-        return match
-            ? {
-                  left: parseFloat(match[1]),
-                  top: parseFloat(match[2]),
-                  scale: parseFloat(match[3]),
-              }
-            : {
-                  left: null,
-                  top: null,
-                  scale: null,
-              };
-    }
-
-    function _transform(left, top, scale) {
-        this.$contentElement.style.transform = 'translate3d('
-            .concat(left, 'px, ')
-            .concat(top, 'px, 0px) scale(')
-            .concat(scale, ')');
-    }
 
     /**
      * @class JcWheelZoom
@@ -295,8 +303,11 @@
         this._computeNewPosition = this._computeNewPosition.bind(this);
         this._transform = this._transform.bind(this);
         var defaults = {
+            // type content: `image` - only one image, `html` - any HTML content
             type: 'image',
+            // for type `image` computed auto (if width set null), for type `html` need set real html content width
             width: null,
+            // for type `image` computed auto (if height set null), for type `html` need set real html content height
             height: null,
             // drag scrollable content
             dragScrollable: true,
@@ -309,10 +320,7 @@
         };
         this.content.$element = document.querySelector(selector); // check if we're using a touch screen
 
-        this.isTouch =
-            'ontouchstart' in window ||
-            navigator.MaxTouchPoints > 0 ||
-            navigator.msMaxTouchPoints > 0; // switch to touch events if using a touch screen
+        this.isTouch = isTouch(); // switch to touch events if using a touch screen
 
         this.events = this.isTouch
             ? {
@@ -366,6 +374,8 @@
             this._prepare();
 
             if (this.options.dragScrollable === true) {
+                this.options.dragScrollableOptions.correctX = this.correctX;
+                this.options.dragScrollableOptions.correctY = this.correctY;
                 new DragScrollable(
                     this.window.$element,
                     this.content.$element,
@@ -411,6 +421,13 @@
                 this.window.$element,
                 this.events.up,
                 function (event) {
+                    var transformParams = getElementTransform(
+                        _this.content.$element
+                    ); // update data on the location of content after a possible change by dragging and dropping
+
+                    _this.content.currentLeft = transformParams.left;
+                    _this.content.currentTop = transformParams.top;
+
                     if (!clickExpired) {
                         _this._transform(
                             _this._computeNewPosition(
@@ -424,7 +441,7 @@
                             )
                         );
 
-                        _this.direction = _this.direction * -1;
+                        _this.direction *= -1;
                     }
                 },
                 this.events.options
@@ -450,11 +467,9 @@
                     this.options.height || this.content.$element.offsetHeight;
             } // minScale && maxScale
 
-            this.content.minScale = round(
-                Math.min(
-                    this.window.originalWidth / this.content.originalWidth,
-                    this.window.originalHeight / this.content.originalHeight
-                )
+            this.content.minScale = Math.min(
+                this.window.originalWidth / this.content.originalWidth,
+                this.window.originalHeight / this.content.originalHeight
             );
             this.content.maxScale = this.options.maxScale; // current content sizes and transform data
 
@@ -560,19 +575,24 @@
                 contentNewLeft = contentNewTop = 0;
             }
 
+            console.log(
+                contentNewLeft,
+                contentNewTop,
+                this.content.$element.style.transform
+            );
             var response = {
                 currentLeft: content.currentLeft,
-                newLeft: round(contentNewLeft),
+                newLeft: contentNewLeft,
                 currentTop: content.currentTop,
-                newTop: round(contentNewTop),
+                newTop: contentNewTop,
                 currentScale: content.currentScale,
-                newScale: round(contentNewScale),
+                newScale: contentNewScale,
             };
-            content.currentWidth = round(contentNewWidth);
-            content.currentHeight = round(contentNewHeight);
-            content.currentLeft = round(contentNewLeft);
-            content.currentTop = round(contentNewTop);
-            content.currentScale = round(contentNewScale);
+            content.currentWidth = contentNewWidth;
+            content.currentHeight = contentNewHeight;
+            content.currentLeft = contentNewLeft;
+            content.currentTop = contentNewTop;
+            content.currentScale = contentNewScale;
             return response;
         },
         _transform: function _transform(_ref2) {
@@ -604,10 +624,6 @@
             this._zoom(1);
         },
     };
-
-    function round(_float) {
-        return _float; // return Math.ceil(float * 10) / 10;
-    }
     /**
      * Create JcWheelZoom instance
      * @param {string} selector

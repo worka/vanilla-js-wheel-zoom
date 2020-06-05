@@ -96,10 +96,28 @@ export function numberExtinction(number) {
     return numbers.length ? numbers.concat(generateTail(forTail)) : [];
 }
 
+export function isTouch() {
+    return 'ontouchstart' in window || navigator.MaxTouchPoints > 0 || navigator.msMaxTouchPoints > 0;
+}
+
 export function eventClientX(event) {
-    return event.type === 'wheel' ? event.clientX : event.changedTouches[0].clientX;
+    return event.type === 'wheel' ||
+    event.type === 'mousedown' ||
+    event.type === 'mousemove' ||
+    event.type === 'mouseup' ? event.clientX : event.changedTouches[0].clientX;
 }
 
 export function eventClientY(event) {
-    return event.type === 'wheel' ? event.clientY : event.changedTouches[0].clientY;
+    return event.type === 'wheel' ||
+    event.type === 'mousedown' ||
+    event.type === 'mousemove' ||
+    event.type === 'mouseup' ? event.clientY : event.changedTouches[0].clientY;
+}
+
+export function getElementTransform($element) {
+    const match = $element.style.transform.match(/^translate3d\((-?\d+(?:.\d+)?)px, (-?\d+(?:.\d+)?)px, 0px\) scale\((\d+(?:.\d+)?)\)$/);
+
+    return match ?
+        { left: parseFloat(match[1]), top: parseFloat(match[2]), scale: parseFloat(match[3]) } :
+        { left: null, top: null, scale: null };
 }

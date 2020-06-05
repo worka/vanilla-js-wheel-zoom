@@ -1,13 +1,22 @@
-import { extendObject, on, off, numberExtinction, eventClientX, eventClientY } from './toolkit';
+import {
+    extendObject,
+    on,
+    off,
+    numberExtinction,
+    eventClientX,
+    eventClientY,
+    isTouch,
+    getElementTransform
+} from './toolkit';
 
 /**
  * @class DragScrollable
- * @param {Element} $windowElement
- * @param {Element} $contentElement
+ * @param {Element} $window
+ * @param {Element} $content
  * @param {Object} options
  * @constructor
  */
-function DragScrollable($windowElement, $contentElement, options = {}) {
+function DragScrollable($window, $content, options = {}) {
     this._dropHandler = this._dropHandler.bind(this);
     this._grabHandler = this._grabHandler.bind(this);
     this._moveHandler = this._moveHandler.bind(this);
@@ -24,20 +33,18 @@ function DragScrollable($windowElement, $contentElement, options = {}) {
     }, options);
 
     // check if we're using a touch screen
-    this.isTouch = 'ontouchstart' in window || navigator.MaxTouchPoints > 0 || navigator.msMaxTouchPoints > 0;
-
+    this.isTouch = isTouch();
     // switch to touch events if using a touch screen
     this.events = this.isTouch ?
         { grab: 'touchstart', move: 'touchmove', drop: 'touchend' } :
         { grab: 'mousedown', move: 'mousemove', drop: 'mouseup' };
-
     // if using touch screen tells the browser that the default action will not be undone
     this.events.options = this.isTouch ? { passive: true } : false;
 
-    this.$windowElement = $windowElement;
-    this.$contentElement = $contentElement;
+    this.$window = $window;
+    this.$content = $content;
 
-    on(this.$contentElement, this.events.grab, event => {
+    on(this.$content, this.events.grab, event => {
         // if touch started (only one finger) or pressed left mouse button
         if ((this.isTouch && event.touches.length === 1) || event.buttons === 1) {
             this._grabHandler(event);
@@ -47,8 +54,8 @@ function DragScrollable($windowElement, $contentElement, options = {}) {
 
 DragScrollable.prototype = {
     constructor: DragScrollable,
-    $windowElement: null,
-    $contentElement: null,
+    $window: null,
+    $content: null,
     isTouch: false,
     isGrab: false,
     events: null,
@@ -101,12 +108,13 @@ DragScrollable.prototype = {
             this.speed = { x: 0, y: 0 };
         }).bind(this), 50);
 
-        console.log(_getTransform.call(this));
-
-        const transformParams = _getTransform.call(this);
+        const transformParams = getElementTransform(this.$content);
 
         if (transformParams.left || transformParams.top) {
-            _transform.call(this, transformParams.left + this.speed.x, transformParams.top + this.speed.y, transformParams.scale);
+            const contentNewLeft = transformParams.left + this.speed.x;
+            const contentNewTop = transformParams.top + this.speed.y;
+
+            this._transform(contentNewLeft, contentNewTop, transformParams.scale);
         }
 
         // this.scrollable.scrollLeft = this.scrollable.scrollLeft - this.speed.x;
@@ -117,30 +125,21 @@ DragScrollable.prototype = {
         if (typeof this.options.onMove === 'function') {
             this.options.onMove();
         }
+    },
+    _transform(left, top, scale) {
+        this.$content.style.transform = `translate3d(${ left }px, ${ top }px, 0px) scale(${ scale })`;
     }
 };
 
 function _moveExtinction(field, speedArray) {
     // !this.isGrab - stop moving if there was a new grab
     if (!this.isGrab && speedArray.length) {
-        this.scrollable[field] = this.scrollable[field] - speedArray.shift();
+        this.$content[field] = this.$content[field] - speedArray.shift();
 
         if (speedArray.length) {
             window.requestAnimationFrame(_moveExtinction.bind(this, field, speedArray));
         }
     }
-}
-
-function _getTransform() {
-    const match = this.$contentElement.style.transform.match(/translate3d\((-?\d+(?:.\d+)?)px, (-?\d+(?:.\d+)?)px, 0px\) scale\((\d+(?:.\d+)?)\)/);
-
-    return match ?
-        { left: parseFloat(match[1]), top: parseFloat(match[2]), scale: parseFloat(match[3]) } :
-        { left: null, top: null, scale: null };
-}
-
-function _transform(left, top, scale) {
-    this.$contentElement.style.transform = `translate3d(${ left }px, ${ top }px, 0px) scale(${ scale })`;
 }
 
 export default DragScrollable;

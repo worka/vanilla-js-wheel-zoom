@@ -1,5 +1,13 @@
+import {
+    getElementPosition,
+    extendObject,
+    on,
+    eventClientX,
+    eventClientY,
+    isTouch,
+    getElementTransform
+} from './toolkit';
 import DragScrollable from './drag-scrollable';
-import { getElementPosition, extendObject, on, eventClientX, eventClientY } from './toolkit';
 
 /**
  * @class JcWheelZoom
@@ -15,8 +23,11 @@ function JcWheelZoom(selector, options = {}) {
     this._transform = this._transform.bind(this);
 
     const defaults = {
+        // type content: `image` - only one image, `html` - any HTML content
         type: 'image',
+        // for type `image` computed auto (if width set null), for type `html` need set real html content width
         width: null,
+        // for type `image` computed auto (if height set null), for type `html` need set real html content height
         height: null,
         // drag scrollable content
         dragScrollable: true,
@@ -31,7 +42,7 @@ function JcWheelZoom(selector, options = {}) {
     this.content.$element = document.querySelector(selector);
 
     // check if we're using a touch screen
-    this.isTouch = 'ontouchstart' in window || navigator.MaxTouchPoints > 0 || navigator.msMaxTouchPoints > 0;
+    this.isTouch = isTouch();
     // switch to touch events if using a touch screen
     this.events = this.isTouch ? { down: 'touchstart', up: 'touchend' } : { down: 'mousedown', up: 'mouseup' };
     // if using touch screen tells the browser that the default action will not be undone
@@ -72,6 +83,9 @@ JcWheelZoom.prototype = {
         this._prepare();
 
         if (this.options.dragScrollable === true) {
+            this.options.dragScrollableOptions.correctX = this.correctX;
+            this.options.dragScrollableOptions.correctY = this.correctY;
+
             new DragScrollable(this.window.$element, this.content.$element, this.options.dragScrollableOptions);
         }
 
@@ -104,6 +118,12 @@ JcWheelZoom.prototype = {
         }, this.events.options);
 
         on(this.window.$element, this.events.up, event => {
+            const transformParams = getElementTransform(this.content.$element);
+
+            // update data on the location of content after a possible change by dragging and dropping
+            this.content.currentLeft = transformParams.left;
+            this.content.currentTop = transformParams.top;
+
             if (!clickExpired) {
                 this._transform(
                     this._computeNewPosition(
@@ -113,7 +133,7 @@ JcWheelZoom.prototype = {
                         }
                     )
                 );
-                this.direction = this.direction * -1;
+                this.direction *= -1;
             }
         }, this.events.options);
     },
@@ -136,7 +156,7 @@ JcWheelZoom.prototype = {
         }
 
         // minScale && maxScale
-        this.content.minScale = round(Math.min(this.window.originalWidth / this.content.originalWidth, this.window.originalHeight / this.content.originalHeight));
+        this.content.minScale = Math.min(this.window.originalWidth / this.content.originalWidth, this.window.originalHeight / this.content.originalHeight);
         this.content.maxScale = this.options.maxScale;
 
         // current content sizes and transform data
@@ -200,20 +220,22 @@ JcWheelZoom.prototype = {
             contentNewLeft = contentNewTop = 0;
         }
 
+        console.log(contentNewLeft, contentNewTop, this.content.$element.style.transform);
+
         const response = {
             currentLeft: content.currentLeft,
-            newLeft: round(contentNewLeft),
+            newLeft: contentNewLeft,
             currentTop: content.currentTop,
-            newTop: round(contentNewTop),
+            newTop: contentNewTop,
             currentScale: content.currentScale,
-            newScale: round(contentNewScale)
+            newScale: contentNewScale
         };
 
-        content.currentWidth = round(contentNewWidth);
-        content.currentHeight = round(contentNewHeight);
-        content.currentLeft = round(contentNewLeft);
-        content.currentTop = round(contentNewTop);
-        content.currentScale = round(contentNewScale);
+        content.currentWidth = contentNewWidth;
+        content.currentHeight = contentNewHeight;
+        content.currentLeft = contentNewLeft;
+        content.currentTop = contentNewTop;
+        content.currentScale = contentNewScale;
 
         return response;
     },
@@ -237,11 +259,6 @@ JcWheelZoom.prototype = {
         this._zoom(1);
     }
 };
-
-function round(float) {
-    return float;
-    // return Math.ceil(float * 10) / 10;
-}
 
 /**
  * Create JcWheelZoom instance
