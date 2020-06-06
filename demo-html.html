@@ -42,11 +42,11 @@
         <div class="col-12 col-lg-8">
             <h1>vanilla-js-wheel-zoom</h1>
 
-            <!--                    <p class="lead mb-4" style="word-wrap:break-word">-->
-            <!--                        <a href="https://github.com/worka/vanilla-js-wheel-zoom">-->
-            <!--                            https://github.com/worka/vanilla-js-wheel-zoom-->
-            <!--                        </a>-->
-            <!--                    </p>-->
+            <p class="lead mb-4" style="word-wrap:break-word">
+                <a href="https://github.com/worka/vanilla-js-wheel-zoom">
+                    https://github.com/worka/vanilla-js-wheel-zoom
+                </a>
+            </p>
 
             <div class="d-flex my-3">
                 <button data-zoom-down class="btn btn-info">Zoom Down</button>
@@ -99,6 +99,10 @@
 
             document.querySelector('[data-zoom-down]').addEventListener('click', function () {
                 wzoom.zoomDown();
+            });
+
+            window.addEventListener('resize', () => {
+                wzoom.prepare();
             });
         }
     });

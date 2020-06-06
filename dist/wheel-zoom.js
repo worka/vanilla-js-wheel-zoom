@@ -298,9 +298,9 @@
         var defaults = {
             // type content: `image` - only one image, `html` - any HTML content
             type: 'image',
-            // for type `image` computed auto (if width set null), for type `html` need set real html content width
+            // for type `image` computed auto (if width set null), for type `html` need set real html content width, else computed auto
             width: null,
-            // for type `image` computed auto (if height set null), for type `html` need set real html content height
+            // for type `image` computed auto (if height set null), for type `html` need set real html content height, else computed auto
             height: null,
             // drag scrollable content
             dragScrollable: true,
@@ -384,11 +384,6 @@
                         }
                     )
                 );
-            });
-            on(self, 'resize', function (event) {
-                event.preventDefault();
-
-                _this._prepare();
             }); // processing of the event "max / min zoom" begin only if there was really just a click
             // so as not to interfere with the DragScrollable module
 
@@ -475,6 +470,10 @@
                 this.content.minScale,
                 ')'
             );
+
+            if (typeof this.options.prepare === 'function') {
+                this.options.prepare();
+            }
         },
         _computeNewScale: function _computeNewScale(delta) {
             this.direction = delta < 0 ? 1 : -1;
@@ -585,6 +584,10 @@
                 .concat(newLeft, 'px, ')
                 .concat(newTop, 'px, 0px) scale(')
                 .concat(newScale, ')');
+
+            if (typeof this.options.rescale === 'function') {
+                this.options.rescale();
+            }
         },
         _zoom: function _zoom(direction) {
             var windowPosition = getElementPosition(this.window.$element);
@@ -595,6 +598,9 @@
                     y: windowPosition.top + this.window.originalHeight / 2,
                 })
             );
+        },
+        prepare: function prepare() {
+            this._prepare();
         },
         zoomUp: function zoomUp() {
             this._zoom(-1);

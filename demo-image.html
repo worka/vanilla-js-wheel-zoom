@@ -71,6 +71,10 @@
         document.querySelector('[data-zoom-down]').addEventListener('click', function () {
             wzoom.zoomDown();
         });
+
+        window.addEventListener('resize', () => {
+            wzoom.prepare();
+        });
     });
 </script>
 </body>
