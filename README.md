@@ -86,14 +86,9 @@ var defaults = {
     
 ``` javascript
 WZoom.create('#myContent', {
-    dragScrollableOptions: {
-        onGrab: function () {
-            document.getElementById('myWindow').style.cursor = 'grabbing';
-        },
-        onDrop: function () {
-            document.getElementById('myWindow').style.cursor = 'grab';
-        }
-    }
+    type: 'html',
+    width: 2500,
+    height: 1500
 });
 ```
 
