@@ -85,10 +85,10 @@
                 height: imageElement.naturalHeight,
                 dragScrollableOptions: {
                     onGrab: function () {
-                        document.querySelector('.embed-responsive-item').style.cursor = 'grabbing';
+                        document.getElementById('myWindow').style.cursor = 'grabbing';
                     },
                     onDrop: function () {
-                        document.querySelector('.embed-responsive-item').style.cursor = 'grab';
+                        document.getElementById('myWindow').style.cursor = 'grab';
                     }
                 }
             });

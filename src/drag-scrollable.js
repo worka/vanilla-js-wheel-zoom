@@ -1,13 +1,4 @@
-import {
-    extendObject,
-    on,
-    off,
-    numberExtinction,
-    eventClientX,
-    eventClientY,
-    isTouch,
-    getElementTransform
-} from './toolkit';
+import { extendObject, on, off, numberExtinction, eventClientX, eventClientY, isTouch } from './toolkit';
 
 /**
  * @class DragScrollable
@@ -97,49 +88,50 @@ DragScrollable.prototype = {
     _moveHandler(event) {
         if (!this.isTouch) event.preventDefault();
 
+        const { window, content, speed, coordinates, options } = this;
+
         // speed of change of the coordinate of the mouse cursor along the X/Y axis
-        this.speed.x = eventClientX(event) - this.coordinates.left;
-        this.speed.y = eventClientY(event) - this.coordinates.top;
+        speed.x = eventClientX(event) - coordinates.left;
+        speed.y = eventClientY(event) - coordinates.top;
 
         clearTimeout(this.moveTimer);
 
         // reset speed data if cursor stops
-        this.moveTimer = setTimeout((function () {
-            this.speed = { x: 0, y: 0 };
-        }).bind(this), 50);
+        this.moveTimer = setTimeout(() => {
+            speed.x = 0;
+            speed.y = 0;
+        }, 50);
 
-        const transformParams = getElementTransform(this.content.$element);
+        const contentNewLeft = content.currentLeft + speed.x;
+        const contentNewTop = content.currentTop + speed.y;
 
-        if (transformParams.left || transformParams.top) {
-            this.content.currentLeft = transformParams.left + this.speed.x;
-            this.content.currentTop = transformParams.top + this.speed.y;
+        let maxAvailableLeft = (content.currentWidth - window.originalWidth) / 2 + content.correctX;
+        let maxAvailableTop = (content.currentHeight - window.originalHeight) / 2 + content.correctY;
 
-            let maxLeft = (this.content.currentWidth - this.window.originalWidth) / 2 + this.content.correctX;
-            let maxTop = (this.content.currentHeight - this.window.originalHeight) / 2 + this.content.correctY;
+        // if we do not go beyond the permissible boundaries of the window
+        if (Math.abs(contentNewLeft) <= maxAvailableLeft) content.currentLeft = contentNewLeft;
 
-            if (Math.abs(this.content.currentLeft) > maxLeft) {
-                if (this.content.currentLeft < 0) maxLeft *= -1;
-                this.content.currentLeft = maxLeft;
-            }
+        // if we do not go beyond the permissible boundaries of the window
+        if (Math.abs(contentNewTop) <= maxAvailableTop) content.currentTop = contentNewTop;
 
-            if (Math.abs(this.content.currentTop) > maxTop) {
-                if (this.content.currentTop < 0) maxTop *= -1;
-                this.content.currentTop = maxTop;
-            }
+        _transform(content.$element, {
+            left: content.currentLeft,
+            top: content.currentTop,
+            scale: content.currentScale
+        });
 
-            this._transform(this.content.currentLeft, this.content.currentTop, transformParams.scale);
+        coordinates.left = eventClientX(event);
+        coordinates.top = eventClientY(event);
+
+        if (typeof options.onMove === 'function') {
+            options.onMove();
         }
-
-        this.coordinates = { left: eventClientX(event), top: eventClientY(event) };
-
-        if (typeof this.options.onMove === 'function') {
-            this.options.onMove();
-        }
-    },
-    _transform(left, top, scale) {
-        this.content.$element.style.transform = `translate3d(${ left }px, ${ top }px, 0px) scale(${ scale })`;
     }
 };
+
+function _transform($element, { left, top, scale }) {
+    $element.style.transform = `translate3d(${ left }px, ${ top }px, 0px) scale(${ scale })`;
+}
 
 // function _moveExtinction(field, speedArray) {
 //     // !this.isGrab - stop moving if there was a new grab

@@ -99,22 +99,6 @@
             ? event.clientY
             : event.changedTouches[0].clientY;
     }
-    function getElementTransform($element) {
-        var match = $element.style.transform.match(
-            /^translate3d\((-?\d+(?:.\d+)?)px, (-?\d+(?:.\d+)?)px, 0px\) scale\((\d+(?:.\d+)?)\)$/
-        );
-        return match
-            ? {
-                  left: parseFloat(match[1]),
-                  top: parseFloat(match[2]),
-                  scale: parseFloat(match[3]),
-              }
-            : {
-                  left: null,
-                  top: null,
-                  scale: null,
-              };
-    }
 
     /**
      * @class DragScrollable
@@ -239,68 +223,60 @@
             }
         },
         _moveHandler: function _moveHandler(event) {
-            if (!this.isTouch) event.preventDefault(); // speed of change of the coordinate of the mouse cursor along the X/Y axis
+            if (!this.isTouch) event.preventDefault();
+            var window = this.window,
+                content = this.content,
+                speed = this.speed,
+                coordinates = this.coordinates,
+                options = this.options; // speed of change of the coordinate of the mouse cursor along the X/Y axis
 
-            this.speed.x = eventClientX(event) - this.coordinates.left;
-            this.speed.y = eventClientY(event) - this.coordinates.top;
+            speed.x = eventClientX(event) - coordinates.left;
+            speed.y = eventClientY(event) - coordinates.top;
             clearTimeout(this.moveTimer); // reset speed data if cursor stops
 
-            this.moveTimer = setTimeout(
-                function () {
-                    this.speed = {
-                        x: 0,
-                        y: 0,
-                    };
-                }.bind(this),
-                50
-            );
-            var transformParams = getElementTransform(this.content.$element);
+            this.moveTimer = setTimeout(function () {
+                speed.x = 0;
+                speed.y = 0;
+            }, 50);
+            var contentNewLeft = content.currentLeft + speed.x;
+            var contentNewTop = content.currentTop + speed.y;
+            var maxAvailableLeft =
+                (content.currentWidth - window.originalWidth) / 2 +
+                content.correctX;
+            var maxAvailableTop =
+                (content.currentHeight - window.originalHeight) / 2 +
+                content.correctY; // if we do not go beyond the permissible boundaries of the window
 
-            if (transformParams.left || transformParams.top) {
-                this.content.currentLeft = transformParams.left + this.speed.x;
-                this.content.currentTop = transformParams.top + this.speed.y;
-                var maxLeft =
-                    (this.content.currentWidth - this.window.originalWidth) /
-                        2 +
-                    this.content.correctX;
-                var maxTop =
-                    (this.content.currentHeight - this.window.originalHeight) /
-                        2 +
-                    this.content.correctY;
+            if (Math.abs(contentNewLeft) <= maxAvailableLeft)
+                content.currentLeft = contentNewLeft; // if we do not go beyond the permissible boundaries of the window
 
-                if (Math.abs(this.content.currentLeft) > maxLeft) {
-                    if (this.content.currentLeft < 0) maxLeft *= -1;
-                    this.content.currentLeft = maxLeft;
-                }
+            if (Math.abs(contentNewTop) <= maxAvailableTop)
+                content.currentTop = contentNewTop;
 
-                if (Math.abs(this.content.currentTop) > maxTop) {
-                    if (this.content.currentTop < 0) maxTop *= -1;
-                    this.content.currentTop = maxTop;
-                }
+            _transform(content.$element, {
+                left: content.currentLeft,
+                top: content.currentTop,
+                scale: content.currentScale,
+            });
 
-                this._transform(
-                    this.content.currentLeft,
-                    this.content.currentTop,
-                    transformParams.scale
-                );
-            }
+            coordinates.left = eventClientX(event);
+            coordinates.top = eventClientY(event);
 
-            this.coordinates = {
-                left: eventClientX(event),
-                top: eventClientY(event),
-            };
-
-            if (typeof this.options.onMove === 'function') {
-                this.options.onMove();
+            if (typeof options.onMove === 'function') {
+                options.onMove();
             }
         },
-        _transform: function _transform(left, top, scale) {
-            this.content.$element.style.transform = 'translate3d('
-                .concat(left, 'px, ')
-                .concat(top, 'px, 0px) scale(')
-                .concat(scale, ')');
-        },
-    }; // function _moveExtinction(field, speedArray) {
+    };
+
+    function _transform($element, _ref) {
+        var left = _ref.left,
+            top = _ref.top,
+            scale = _ref.scale;
+        $element.style.transform = 'translate3d('
+            .concat(left, 'px, ')
+            .concat(top, 'px, 0px) scale(')
+            .concat(scale, ')');
+    } // function _moveExtinction(field, speedArray) {
 
     /**
      * @class WZoom

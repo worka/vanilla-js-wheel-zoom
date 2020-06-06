@@ -113,11 +113,3 @@ export function eventClientY(event) {
     event.type === 'mousemove' ||
     event.type === 'mouseup' ? event.clientY : event.changedTouches[0].clientY;
 }
-
-export function getElementTransform($element) {
-    const match = $element.style.transform.match(/^translate3d\((-?\d+(?:.\d+)?)px, (-?\d+(?:.\d+)?)px, 0px\) scale\((\d+(?:.\d+)?)\)$/);
-
-    return match ?
-        { left: parseFloat(match[1]), top: parseFloat(match[2]), scale: parseFloat(match[3]) } :
-        { left: null, top: null, scale: null };
-}
