@@ -32,13 +32,13 @@ yarn add vanilla-js-wheel-zoom
 ### Get started
 
 ```html
-<div style="width:600px;height:600px;overflow:auto;background:#999;position:relative;cursor:move">
-    <img src="https://placehold.it/2400x1400" alt="" />
+<div style="display:flex;align-items:center;justify-content:center;width:600px;height:600px;background:#999;overflow:hidden">
+    <img id="myContent" src="https://placehold.it/2400x1400" style="position:relative;display:flex;align-items:center" alt="" />
 </div>
 ```
 
 ``` javascript
-WZoom.create('img');
+WZoom.create('#myContent');
 ```
 
 ![](https://worka.github.io/files/wheel-zoom.gif)
@@ -76,26 +76,11 @@ var defaults = {
 #### Badge on the image
 
 ``` html
-<style>
-    .container {
-        width: 600px;
-        height: 600px;
-        overflow: auto;
-        background: #999;
-        position: relative;
-        cursor: move
-    }
-
-    .badge {
-        border: solid 1px blue;
-        position: absolute
-    }
-</style>
-
-<div class="container">
-    <div class="badge" style="width:50px;height:60px;top:500px;left:600px"></div>
-
-    <img src="https://placehold.it/2400x1400" alt=""/>
+<div style="display:flex;align-items:center;justify-content:center;width:600px;height:600px;overflow:hidden;background:beige">
+    <div id="myContent" style="position:relative;display:flex;align-items:center">
+        <div style="width:100px;height:170px;left:915px;top:670px;position:absolute;border:solid 2px red"></div>
+        <img src="https://placehold.it/2500x1500" style="display:block;width:auto;height:auto;margin:auto;align-self:center;flex-shrink:0" alt="image"/>
+    </div>
 </div>
 ```
     
