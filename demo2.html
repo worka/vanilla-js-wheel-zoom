@@ -79,7 +79,7 @@
         }
 
         function init() {
-            var WZoom = WZoom.create('#myContent', {
+            var wzoom = WZoom.create('#myContent', {
                 type: 'html',
                 width: imageElement.naturalWidth,
                 height: imageElement.naturalHeight,
@@ -94,11 +94,11 @@
             });
 
             document.querySelector('[data-zoom-up]').addEventListener('click', function () {
-                WZoom.zoomUp();
+                wzoom.zoomUp();
             });
 
             document.querySelector('[data-zoom-down]').addEventListener('click', function () {
-                WZoom.zoomDown();
+                wzoom.zoomDown();
             });
         }
     });

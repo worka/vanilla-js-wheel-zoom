@@ -11,12 +11,12 @@ import {
 
 /**
  * @class DragScrollable
- * @param {Element} $window
- * @param {Element} $content
+ * @param {Object} windowObject
+ * @param {Object} contentObject
  * @param {Object} options
  * @constructor
  */
-function DragScrollable($window, $content, options = {}) {
+function DragScrollable(windowObject, contentObject, options = {}) {
     this._dropHandler = this._dropHandler.bind(this);
     this._grabHandler = this._grabHandler.bind(this);
     this._moveHandler = this._moveHandler.bind(this);
@@ -41,10 +41,10 @@ function DragScrollable($window, $content, options = {}) {
     // if using touch screen tells the browser that the default action will not be undone
     this.events.options = this.isTouch ? { passive: true } : false;
 
-    this.$window = $window;
-    this.$content = $content;
+    this.window = windowObject;
+    this.content = contentObject;
 
-    on(this.$content, this.events.grab, event => {
+    on(this.content.$element, this.events.grab, event => {
         // if touch started (only one finger) or pressed left mouse button
         if ((this.isTouch && event.touches.length === 1) || event.buttons === 1) {
             this._grabHandler(event);
@@ -54,8 +54,8 @@ function DragScrollable($window, $content, options = {}) {
 
 DragScrollable.prototype = {
     constructor: DragScrollable,
-    $window: null,
-    $content: null,
+    window: null,
+    content: null,
     isTouch: false,
     isGrab: false,
     events: null,
@@ -108,17 +108,27 @@ DragScrollable.prototype = {
             this.speed = { x: 0, y: 0 };
         }).bind(this), 50);
 
-        const transformParams = getElementTransform(this.$content);
+        const transformParams = getElementTransform(this.content.$element);
 
         if (transformParams.left || transformParams.top) {
-            const contentNewLeft = transformParams.left + this.speed.x;
-            const contentNewTop = transformParams.top + this.speed.y;
+            this.content.currentLeft = transformParams.left + this.speed.x;
+            this.content.currentTop = transformParams.top + this.speed.y;
 
-            this._transform(contentNewLeft, contentNewTop, transformParams.scale);
+            let maxLeft = (this.content.currentWidth - this.window.originalWidth) / 2 + this.content.correctX;
+            let maxTop = (this.content.currentHeight - this.window.originalHeight) / 2 + this.content.correctY;
+
+            if (Math.abs(this.content.currentLeft) > maxLeft) {
+                if (this.content.currentLeft < 0) maxLeft *= -1;
+                this.content.currentLeft = maxLeft;
+            }
+
+            if (Math.abs(this.content.currentTop) > maxTop) {
+                if (this.content.currentTop < 0) maxTop *= -1;
+                this.content.currentTop = maxTop;
+            }
+
+            this._transform(this.content.currentLeft, this.content.currentTop, transformParams.scale);
         }
-
-        // this.scrollable.scrollLeft = this.scrollable.scrollLeft - this.speed.x;
-        // this.scrollable.scrollTop = this.scrollable.scrollTop - this.speed.y;
 
         this.coordinates = { left: eventClientX(event), top: eventClientY(event) };
 
@@ -127,19 +137,19 @@ DragScrollable.prototype = {
         }
     },
     _transform(left, top, scale) {
-        this.$content.style.transform = `translate3d(${ left }px, ${ top }px, 0px) scale(${ scale })`;
+        this.content.$element.style.transform = `translate3d(${ left }px, ${ top }px, 0px) scale(${ scale })`;
     }
 };
 
-function _moveExtinction(field, speedArray) {
-    // !this.isGrab - stop moving if there was a new grab
-    if (!this.isGrab && speedArray.length) {
-        this.$content[field] = this.$content[field] - speedArray.shift();
-
-        if (speedArray.length) {
-            window.requestAnimationFrame(_moveExtinction.bind(this, field, speedArray));
-        }
-    }
-}
+// function _moveExtinction(field, speedArray) {
+//     // !this.isGrab - stop moving if there was a new grab
+//     if (!this.isGrab && speedArray.length) {
+//         this.content.$element[field] = this.content.$element[field] - speedArray.shift();
+//
+//         if (speedArray.length) {
+//             window.requestAnimationFrame(_moveExtinction.bind(this, field, speedArray));
+//         }
+//     }
+// }
 
 export default DragScrollable;

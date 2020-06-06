@@ -118,13 +118,13 @@
 
     /**
      * @class DragScrollable
-     * @param {Element} $window
-     * @param {Element} $content
+     * @param {Object} windowObject
+     * @param {Object} contentObject
      * @param {Object} options
      * @constructor
      */
 
-    function DragScrollable($window, $content) {
+    function DragScrollable(windowObject, contentObject) {
         var _this = this;
 
         var options =
@@ -167,10 +167,10 @@
                   passive: true,
               }
             : false;
-        this.$window = $window;
-        this.$content = $content;
+        this.window = windowObject;
+        this.content = contentObject;
         on(
-            this.$content,
+            this.content.$element,
             this.events.grab,
             function (event) {
                 // if touch started (only one finger) or pressed left mouse button
@@ -187,8 +187,8 @@
 
     DragScrollable.prototype = {
         constructor: DragScrollable,
-        $window: null,
-        $content: null,
+        window: null,
+        content: null,
         isTouch: false,
         isGrab: false,
         events: null,
@@ -254,19 +254,36 @@
                 }.bind(this),
                 50
             );
-            var transformParams = getElementTransform(this.$content);
+            var transformParams = getElementTransform(this.content.$element);
 
             if (transformParams.left || transformParams.top) {
-                var contentNewLeft = transformParams.left + this.speed.x;
-                var contentNewTop = transformParams.top + this.speed.y;
+                this.content.currentLeft = transformParams.left + this.speed.x;
+                this.content.currentTop = transformParams.top + this.speed.y;
+                var maxLeft =
+                    (this.content.currentWidth - this.window.originalWidth) /
+                        2 +
+                    this.content.correctX;
+                var maxTop =
+                    (this.content.currentHeight - this.window.originalHeight) /
+                        2 +
+                    this.content.correctY;
+
+                if (Math.abs(this.content.currentLeft) > maxLeft) {
+                    if (this.content.currentLeft < 0) maxLeft *= -1;
+                    this.content.currentLeft = maxLeft;
+                }
+
+                if (Math.abs(this.content.currentTop) > maxTop) {
+                    if (this.content.currentTop < 0) maxTop *= -1;
+                    this.content.currentTop = maxTop;
+                }
 
                 this._transform(
-                    contentNewLeft,
-                    contentNewTop,
+                    this.content.currentLeft,
+                    this.content.currentTop,
                     transformParams.scale
                 );
-            } // this.scrollable.scrollLeft = this.scrollable.scrollLeft - this.speed.x;
-            // this.scrollable.scrollTop = this.scrollable.scrollTop - this.speed.y;
+            }
 
             this.coordinates = {
                 left: eventClientX(event),
@@ -278,12 +295,12 @@
             }
         },
         _transform: function _transform(left, top, scale) {
-            this.$content.style.transform = 'translate3d('
+            this.content.$element.style.transform = 'translate3d('
                 .concat(left, 'px, ')
                 .concat(top, 'px, 0px) scale(')
                 .concat(scale, ')');
         },
-    };
+    }; // function _moveExtinction(field, speedArray) {
 
     /**
      * @class WZoom
@@ -365,8 +382,6 @@
         window: {},
         direction: 1,
         options: null,
-        correctX: null,
-        correctY: null,
         stack: [],
         _init: function _init() {
             var _this = this;
@@ -374,11 +389,9 @@
             this._prepare();
 
             if (this.options.dragScrollable === true) {
-                this.options.dragScrollableOptions.correctX = this.correctX;
-                this.options.dragScrollableOptions.correctY = this.correctY;
                 new DragScrollable(
-                    this.window.$element,
-                    this.content.$element,
+                    this.window,
+                    this.content,
                     this.options.dragScrollableOptions
                 );
             }
@@ -421,13 +434,6 @@
                 this.window.$element,
                 this.events.up,
                 function (event) {
-                    var transformParams = getElementTransform(
-                        _this.content.$element
-                    ); // update data on the location of content after a possible change by dragging and dropping
-
-                    _this.content.currentLeft = transformParams.left;
-                    _this.content.currentTop = transformParams.top;
-
                     if (!clickExpired) {
                         _this._transform(
                             _this._computeNewPosition(
@@ -481,11 +487,11 @@
             this.content.currentTop = 0;
             this.content.currentScale = this.content.minScale; // calculate indent-left and indent-top to of content from window borders
 
-            this.correctX = Math.max(
+            this.content.correctX = Math.max(
                 0,
                 (this.window.originalWidth - this.content.currentWidth) / 2
             );
-            this.correctY = Math.max(
+            this.content.correctY = Math.max(
                 0,
                 (this.window.originalHeight - this.content.currentHeight) / 2
             );
@@ -515,9 +521,7 @@
             var x = _ref.x,
                 y = _ref.y;
             var window = this.window,
-                content = this.content,
-                correctX = this.correctX,
-                correctY = this.correctY;
+                content = this.content;
             var contentNewWidth = content.originalWidth * contentNewScale;
             var contentNewHeight = content.originalHeight * contentNewScale;
             var _document = document,
@@ -542,11 +546,13 @@
                 content.currentLeft; // check that the content does not go beyond the X axis
 
             if (
-                (contentNewWidth - window.originalWidth) / 2 + correctX <
+                (contentNewWidth - window.originalWidth) / 2 +
+                    content.correctX <
                 Math.abs(centerContentShiftX - centerWindowShiftX)
             ) {
                 contentNewLeft =
-                    (contentNewWidth - window.originalWidth) / 2 + correctX;
+                    (contentNewWidth - window.originalWidth) / 2 +
+                    content.correctX;
                 if (centerContentShiftX - centerWindowShiftX < 0)
                     contentNewLeft = contentNewLeft * -1;
             } // calculate the parameters along the Y axis
@@ -562,11 +568,13 @@
                 content.currentTop; // check that the content does not go beyond the Y axis
 
             if (
-                (contentNewHeight - window.originalHeight) / 2 + correctY <
+                (contentNewHeight - window.originalHeight) / 2 +
+                    content.correctY <
                 Math.abs(centerContentShiftY - centerWindowShiftY)
             ) {
                 contentNewTop =
-                    (contentNewHeight - window.originalHeight) / 2 + correctY;
+                    (contentNewHeight - window.originalHeight) / 2 +
+                    content.correctY;
                 if (centerContentShiftY - centerWindowShiftY < 0)
                     contentNewTop = contentNewTop * -1;
             }
@@ -575,11 +583,6 @@
                 contentNewLeft = contentNewTop = 0;
             }
 
-            console.log(
-                contentNewLeft,
-                contentNewTop,
-                this.content.$element.style.transform
-            );
             var response = {
                 currentLeft: content.currentLeft,
                 newLeft: contentNewLeft,

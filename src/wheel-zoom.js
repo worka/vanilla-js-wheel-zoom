@@ -1,12 +1,4 @@
-import {
-    getElementPosition,
-    extendObject,
-    on,
-    eventClientX,
-    eventClientY,
-    isTouch,
-    getElementTransform
-} from './toolkit';
+import { getElementPosition, extendObject, on, eventClientX, eventClientY, isTouch } from './toolkit';
 import DragScrollable from './drag-scrollable';
 
 /**
@@ -76,17 +68,12 @@ WZoom.prototype = {
     window: {},
     direction: 1,
     options: null,
-    correctX: null,
-    correctY: null,
     stack: [],
     _init() {
         this._prepare();
 
         if (this.options.dragScrollable === true) {
-            this.options.dragScrollableOptions.correctX = this.correctX;
-            this.options.dragScrollableOptions.correctY = this.correctY;
-
-            new DragScrollable(this.window.$element, this.content.$element, this.options.dragScrollableOptions);
+            new DragScrollable(this.window, this.content, this.options.dragScrollableOptions);
         }
 
         on(this.window.$element, 'wheel', event => {
@@ -118,12 +105,6 @@ WZoom.prototype = {
         }, this.events.options);
 
         on(this.window.$element, this.events.up, event => {
-            const transformParams = getElementTransform(this.content.$element);
-
-            // update data on the location of content after a possible change by dragging and dropping
-            this.content.currentLeft = transformParams.left;
-            this.content.currentTop = transformParams.top;
-
             if (!clickExpired) {
                 this._transform(
                     this._computeNewPosition(
@@ -167,8 +148,8 @@ WZoom.prototype = {
         this.content.currentScale = this.content.minScale;
 
         // calculate indent-left and indent-top to of content from window borders
-        this.correctX = Math.max(0, (this.window.originalWidth - this.content.currentWidth) / 2);
-        this.correctY = Math.max(0, (this.window.originalHeight - this.content.currentHeight) / 2);
+        this.content.correctX = Math.max(0, (this.window.originalWidth - this.content.currentWidth) / 2);
+        this.content.correctY = Math.max(0, (this.window.originalHeight - this.content.currentHeight) / 2);
 
         this.content.$element.style.transform = `translate3d(0px, 0px, 0px) scale(${ this.content.minScale })`;
     },
@@ -182,7 +163,7 @@ WZoom.prototype = {
         return contentNewScale < minScale ? minScale : (contentNewScale > maxScale ? maxScale : contentNewScale);
     },
     _computeNewPosition(contentNewScale, { x, y }) {
-        const { window, content, correctX, correctY } = this;
+        const { window, content } = this;
 
         const contentNewWidth = content.originalWidth * contentNewScale;
         const contentNewHeight = content.originalHeight * contentNewScale;
@@ -199,8 +180,8 @@ WZoom.prototype = {
         let contentNewLeft = centerContentShiftX * (contentNewWidth / content.currentWidth) - centerContentShiftX + content.currentLeft;
 
         // check that the content does not go beyond the X axis
-        if ((contentNewWidth - window.originalWidth) / 2 + correctX < Math.abs(centerContentShiftX - centerWindowShiftX)) {
-            contentNewLeft = (contentNewWidth - window.originalWidth) / 2 + correctX;
+        if ((contentNewWidth - window.originalWidth) / 2 + content.correctX < Math.abs(centerContentShiftX - centerWindowShiftX)) {
+            contentNewLeft = (contentNewWidth - window.originalWidth) / 2 + content.correctX;
             if (centerContentShiftX - centerWindowShiftX < 0) contentNewLeft = contentNewLeft * -1;
         }
 
@@ -211,16 +192,14 @@ WZoom.prototype = {
         let contentNewTop = centerContentShiftY * (contentNewHeight / content.currentHeight) - centerContentShiftY + content.currentTop;
 
         // check that the content does not go beyond the Y axis
-        if ((contentNewHeight - window.originalHeight) / 2 + correctY < Math.abs(centerContentShiftY - centerWindowShiftY)) {
-            contentNewTop = (contentNewHeight - window.originalHeight) / 2 + correctY;
+        if ((contentNewHeight - window.originalHeight) / 2 + content.correctY < Math.abs(centerContentShiftY - centerWindowShiftY)) {
+            contentNewTop = (contentNewHeight - window.originalHeight) / 2 + content.correctY;
             if (centerContentShiftY - centerWindowShiftY < 0) contentNewTop = contentNewTop * -1;
         }
 
         if (contentNewScale === this.content.minScale) {
             contentNewLeft = contentNewTop = 0;
         }
-
-        console.log(contentNewLeft, contentNewTop, this.content.$element.style.transform);
 
         const response = {
             currentLeft: content.currentLeft,
