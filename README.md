@@ -31,9 +31,25 @@ yarn add vanilla-js-wheel-zoom
 
 ### Get started
 
+```css
+#myWindow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: #999;
+}
+
+#myContent {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+```
+
 ```html
-<div style="display:flex;align-items:center;justify-content:center;width:600px;height:600px;background:#999;overflow:hidden">
-    <img id="myContent" src="https://placehold.it/2400x1400" style="position:relative;display:flex;align-items:center" alt="" />
+<div id="myWindow" style="width:600px;height:600px;">
+    <img id="myContent" src="https://placehold.it/2400x1400" alt="image" />
 </div>
 ```
 
@@ -75,11 +91,42 @@ var defaults = {
 
 #### Badge on the image
 
+```css
+#myWindow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: aqua;
+}
+
+#myContent {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+#myBadge {
+    position: absolute;
+    border: solid 2px red;
+    font-size: 80px;
+}
+
+#myImage {
+    display: block;
+    width: auto;
+    height: auto;
+    margin: auto;
+    align-self: center;
+    flex-shrink: 0;
+}
+```
+
 ``` html
-<div style="display:flex;align-items:center;justify-content:center;width:600px;height:600px;overflow:hidden;background:beige">
-    <div id="myContent" style="position:relative;display:flex;align-items:center">
-        <div style="width:100px;height:170px;left:915px;top:670px;position:absolute;border:solid 2px red"></div>
-        <img src="https://placehold.it/2500x1500" style="display:block;width:auto;height:auto;margin:auto;align-self:center;flex-shrink:0" alt="image"/>
+<div id="myWindow" style="width:600px;height:600px;">
+    <div id="myContent">
+        <div id="myBadge" style="left:900px;top:500px;">Badge</div>
+        <img id="myImage" src="https://placehold.it/2500x1500" alt="image"/>
     </div>
 </div>
 ```
