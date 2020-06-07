@@ -105,7 +105,7 @@
                 wzoom.zoomDown();
             });
 
-            window.addEventListener('resize', () => {
+            window.addEventListener('resize', function () {
                 wzoom.prepare();
             });
         }

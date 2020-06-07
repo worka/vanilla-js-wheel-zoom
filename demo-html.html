@@ -58,7 +58,8 @@
                 <div id="myWindow" class="embed-responsive-item">
                     <div id="myContent">
                         <div class="border border-primary rounded bg-primary"
-                             style="left:850px;top:500px">Badge</div>
+                             style="left:850px;top:500px">Badge
+                        </div>
                         <img src="https://placehold.it/2500x1500" alt="image"/>
                     </div>
                 </div>
@@ -104,7 +105,7 @@
                 wzoom.zoomDown();
             });
 
-            window.addEventListener('resize', () => {
+            window.addEventListener('resize', function () {
                 wzoom.prepare();
             });
         }
