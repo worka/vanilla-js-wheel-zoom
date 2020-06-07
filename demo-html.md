@@ -1,3 +1,4 @@
+```html
 <html lang="en">
 <head>
     <title>worka/vanilla-js-wheel-zoom</title>
@@ -112,3 +113,4 @@
 </script>
 </body>
 </html>
+```

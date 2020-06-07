@@ -92,7 +92,7 @@ WZoom.prototype = {
         let clickExpired = true;
 
         on(this.window.$element, this.events.down, event => {
-            if (event.buttons === 1) {
+            if ((this.isTouch && event.touches.length === 1) || event.buttons === 1) {
                 clickExpired = false;
                 setTimeout(() => clickExpired = true, 150);
             }

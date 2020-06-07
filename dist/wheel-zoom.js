@@ -392,7 +392,10 @@
                 this.window.$element,
                 this.events.down,
                 function (event) {
-                    if (event.buttons === 1) {
+                    if (
+                        (_this.isTouch && event.touches.length === 1) ||
+                        event.buttons === 1
+                    ) {
                         clickExpired = false;
                         setTimeout(function () {
                             return (clickExpired = true);
