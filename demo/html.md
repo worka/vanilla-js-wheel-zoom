@@ -1,3 +1,4 @@
+```html
 <html lang="en">
 <head>
     <title>worka/vanilla-js-wheel-zoom</title>
@@ -58,19 +59,18 @@
                 <div id="myWindow" class="embed-responsive-item">
                     <div id="myContent">
                         <div class="border border-primary rounded bg-primary"
-                             style="left:850px;top:500px">Badge
-                        </div>
+                             style="left:850px;top:500px">Badge</div>
                         <img src="https://placehold.it/2500x1500" alt="image"/>
                     </div>
                 </div>
             </div>
 
-            <a href="https://worka.github.io/vanilla-js-wheel-zoom/demo-html.md" class="d-block mt-3">Code</a>
+            <a href="https://worka.github.io/vanilla-js-wheel-zoom/demo/html.md" class="d-block mt-3">Code</a>
         </div>
     </div>
 </div>
 
-<script src="dist/wheel-zoom.min.js" type="text/javascript"></script>
+<script src="../dist/wheel-zoom.min.js" type="text/javascript"></script>
 
 <script type="text/javascript">
     document.addEventListener('DOMContentLoaded', function () {
@@ -113,3 +113,4 @@
 </script>
 </body>
 </html>
+```

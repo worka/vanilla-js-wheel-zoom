@@ -1,3 +1,4 @@
+```html
 <html lang="en">
 <head>
     <title>worka/vanilla-js-wheel-zoom</title>
@@ -46,12 +47,12 @@
                 </div>
             </div>
 
-            <a href="https://worka.github.io/vanilla-js-wheel-zoom/demo-image.md" class="d-block mt-3">Code</a>
+            <a href="https://worka.github.io/vanilla-js-wheel-zoom/demo/image.md" class="d-block mt-3">Code</a>
         </div>
     </div>
 </div>
 
-<script src="dist/wheel-zoom.min.js" type="text/javascript"></script>
+<script src="../dist/wheel-zoom.min.js" type="text/javascript"></script>
 
 <script type="text/javascript">
     document.addEventListener('DOMContentLoaded', function () {
@@ -81,3 +82,4 @@
 </script>
 </body>
 </html>
+```
