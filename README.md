@@ -15,9 +15,9 @@ Advantages:
 
 > The examples are shown without IE11 support, if you need to support this browser, then this can be fixed using css styles, you just need to center the content in another way.
 
-<a href="https://worka.github.io/vanilla-js-wheel-zoom/demo/image.html">Demo (only one image)</a>
+<a href="https://worka.github.io/vanilla-js-wheel-zoom/demo-image.html">Demo (only one image)</a>
 
-<a href="https://worka.github.io/vanilla-js-wheel-zoom/demo/html.html">Demo (html)</a>
+<a href="https://worka.github.io/vanilla-js-wheel-zoom/demo-html.html">Demo (html)</a>
 
 ### Install
 
