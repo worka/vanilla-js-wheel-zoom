@@ -1,9 +1,9 @@
 /**
- * Get element coordinates (with support old browsers)
+ * Get element position (with support old browsers)
  * @param {Element} element
  * @returns {{top: number, left: number}}
  */
-export function getElementCoordinates(element) {
+export function getElementPosition(element) {
     const box = element.getBoundingClientRect();
 
     const { body, documentElement } = document;
@@ -94,4 +94,22 @@ export function numberExtinction(number) {
     }
 
     return numbers.length ? numbers.concat(generateTail(forTail)) : [];
+}
+
+export function isTouch() {
+    return 'ontouchstart' in window || navigator.MaxTouchPoints > 0 || navigator.msMaxTouchPoints > 0;
+}
+
+export function eventClientX(event) {
+    return event.type === 'wheel' ||
+    event.type === 'mousedown' ||
+    event.type === 'mousemove' ||
+    event.type === 'mouseup' ? event.clientX : event.changedTouches[0].clientX;
+}
+
+export function eventClientY(event) {
+    return event.type === 'wheel' ||
+    event.type === 'mousedown' ||
+    event.type === 'mousemove' ||
+    event.type === 'mouseup' ? event.clientY : event.changedTouches[0].clientY;
 }

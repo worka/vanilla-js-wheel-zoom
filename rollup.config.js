@@ -5,7 +5,7 @@ module.exports = {
     output: {
         file: 'dist/wheel-zoom.js',
         format: 'umd',
-        name: 'JcWheelZoom'
+        name: 'WZoom'
     },
     plugins: [
         babel()

@@ -1,15 +1,16 @@
-import { extendObject, on, off, numberExtinction } from './toolkit';
+import { extendObject, on, off, numberExtinction, eventClientX, eventClientY, isTouch } from './toolkit';
 
 /**
  * @class DragScrollable
- * @param {Element} scrollable
+ * @param {Object} windowObject
+ * @param {Object} contentObject
  * @param {Object} options
  * @constructor
  */
-function DragScrollable(scrollable, options = {}) {
-    this.dropHandler = this.dropHandler.bind(this);
-    this.grabHandler = this.grabHandler.bind(this);
-    this.moveHandler = this.moveHandler.bind(this);
+function DragScrollable(windowObject, contentObject, options = {}) {
+    this._dropHandler = this._dropHandler.bind(this);
+    this._grabHandler = this._grabHandler.bind(this);
+    this._moveHandler = this._moveHandler.bind(this);
 
     this.options = extendObject({
         // smooth extinction moving element after set loose
@@ -23,113 +24,124 @@ function DragScrollable(scrollable, options = {}) {
     }, options);
 
     // check if we're using a touch screen
-    this.isTouch = 'ontouchstart' in window || navigator.MaxTouchPoints > 0 || navigator.msMaxTouchPoints > 0;
-
+    this.isTouch = isTouch();
     // switch to touch events if using a touch screen
     this.events = this.isTouch ?
         { grab: 'touchstart', move: 'touchmove', drop: 'touchend' } :
         { grab: 'mousedown', move: 'mousemove', drop: 'mouseup' };
-
     // if using touch screen tells the browser that the default action will not be undone
     this.events.options = this.isTouch ? { passive: true } : false;
 
-    this.scrollable = scrollable;
+    this.window = windowObject;
+    this.content = contentObject;
 
-    on(this.scrollable, this.events.grab, event => {
+    on(this.content.$element, this.events.grab, event => {
         // if touch started (only one finger) or pressed left mouse button
         if ((this.isTouch && event.touches.length === 1) || event.buttons === 1) {
-            this.grabHandler(event);
+            this._grabHandler(event);
         }
     }, this.events.options);
 }
 
 DragScrollable.prototype = {
     constructor: DragScrollable,
+    window: null,
+    content: null,
     isTouch: false,
     isGrab: false,
     events: null,
-    scrollable: null,
     moveTimer: null,
     options: {},
     coordinates: null,
     speed: null,
-    grabHandler(event) {
+    _grabHandler(event) {
         if (!this.isTouch) event.preventDefault();
 
         this.isGrab = true;
-        this.coordinates = { left: _getClientX(event), top: _getClientY(event) };
+        this.coordinates = { left: eventClientX(event), top: eventClientY(event) };
         this.speed = { x: 0, y: 0 };
 
-        on(document, this.events.drop, this.dropHandler, this.events.options);
-        on(document, this.events.move, this.moveHandler, this.events.options);
+        on(document, this.events.drop, this._dropHandler, this.events.options);
+        on(document, this.events.move, this._moveHandler, this.events.options);
 
         if (typeof this.options.onGrab === 'function') {
             this.options.onGrab();
         }
     },
-    dropHandler(event) {
+    _dropHandler(event) {
         if (!this.isTouch) event.preventDefault();
 
         this.isGrab = false;
 
-        if (this.options.smoothExtinction) {
-            _moveExtinction.call(this, 'scrollLeft', numberExtinction(this.speed.x));
-            _moveExtinction.call(this, 'scrollTop', numberExtinction(this.speed.y));
-        }
+        // if (this.options.smoothExtinction) {
+        //     _moveExtinction.call(this, 'scrollLeft', numberExtinction(this.speed.x));
+        //     _moveExtinction.call(this, 'scrollTop', numberExtinction(this.speed.y));
+        // }
 
-        off(document, this.events.drop, this.dropHandler);
-        off(document, this.events.move, this.moveHandler);
+        off(document, this.events.drop, this._dropHandler);
+        off(document, this.events.move, this._moveHandler);
 
         if (typeof this.options.onDrop === 'function') {
             this.options.onDrop();
         }
     },
-    moveHandler(event) {
+    _moveHandler(event) {
         if (!this.isTouch) event.preventDefault();
 
+        const { window, content, speed, coordinates, options } = this;
+
         // speed of change of the coordinate of the mouse cursor along the X/Y axis
-        this.speed.x = _getClientX(event) - this.coordinates.left;
-        this.speed.y = _getClientY(event) - this.coordinates.top;
+        speed.x = eventClientX(event) - coordinates.left;
+        speed.y = eventClientY(event) - coordinates.top;
 
         clearTimeout(this.moveTimer);
 
         // reset speed data if cursor stops
-        this.moveTimer = setTimeout((function () {
-            this.speed = { x: 0, y: 0 };
-        }).bind(this), 50);
+        this.moveTimer = setTimeout(() => {
+            speed.x = 0;
+            speed.y = 0;
+        }, 50);
 
-        this.scrollable.scrollLeft = this.scrollable.scrollLeft - this.speed.x;
-        this.scrollable.scrollTop = this.scrollable.scrollTop - this.speed.y;
+        const contentNewLeft = content.currentLeft + speed.x;
+        const contentNewTop = content.currentTop + speed.y;
 
-        this.coordinates = { left: _getClientX(event), top: _getClientY(event) };
+        let maxAvailableLeft = (content.currentWidth - window.originalWidth) / 2 + content.correctX;
+        let maxAvailableTop = (content.currentHeight - window.originalHeight) / 2 + content.correctY;
 
-        if (typeof this.options.onMove === 'function') {
-            this.options.onMove();
+        // if we do not go beyond the permissible boundaries of the window
+        if (Math.abs(contentNewLeft) <= maxAvailableLeft) content.currentLeft = contentNewLeft;
+
+        // if we do not go beyond the permissible boundaries of the window
+        if (Math.abs(contentNewTop) <= maxAvailableTop) content.currentTop = contentNewTop;
+
+        _transform(content.$element, {
+            left: content.currentLeft,
+            top: content.currentTop,
+            scale: content.currentScale
+        });
+
+        coordinates.left = eventClientX(event);
+        coordinates.top = eventClientY(event);
+
+        if (typeof options.onMove === 'function') {
+            options.onMove();
         }
     }
 };
 
-function _moveExtinction(field, speedArray) {
-    // !this.isGrab - stop moving if there was a new grab
-    if (!this.isGrab && speedArray.length) {
-        this.scrollable[field] = this.scrollable[field] - speedArray.shift();
-
-        if (speedArray.length) {
-            window.requestAnimationFrame(_moveExtinction.bind(this, field, speedArray));
-        }
-    }
+function _transform($element, { left, top, scale }) {
+    $element.style.transform = `translate3d(${ left }px, ${ top }px, 0px) scale(${ scale })`;
 }
 
-function _getClientX(event) {
-    return event.type === 'mousedown' ||
-    event.type === 'mousemove' ||
-    event.type === 'mouseup' ? event.clientX : event.changedTouches[0].clientX;
-}
-
-function _getClientY(event) {
-    return event.type === 'mousedown' ||
-    event.type === 'mousemove' ||
-    event.type === 'mouseup' ? event.clientY : event.changedTouches[0].clientY;
-}
+// function _moveExtinction(field, speedArray) {
+//     // !this.isGrab - stop moving if there was a new grab
+//     if (!this.isGrab && speedArray.length) {
+//         this.content.$element[field] = this.content.$element[field] - speedArray.shift();
+//
+//         if (speedArray.length) {
+//             window.requestAnimationFrame(_moveExtinction.bind(this, field, speedArray));
+//         }
+//     }
+// }
 
 export default DragScrollable;

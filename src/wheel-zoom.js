@@ -1,214 +1,257 @@
+import { getElementPosition, extendObject, on, eventClientX, eventClientY, isTouch } from './toolkit';
 import DragScrollable from './drag-scrollable';
-import { getElementCoordinates, extendObject, on } from './toolkit';
 
 /**
- * @class JcWheelZoom
+ * @class WZoom
  * @param {string} selector
  * @param {Object} options
  * @constructor
  */
-function JcWheelZoom(selector, options = {}) {
+function WZoom(selector, options = {}) {
     this._init = this._init.bind(this);
     this._prepare = this._prepare.bind(this);
-    this._rescale = this._rescale.bind(this);
+    this._computeNewScale = this._computeNewScale.bind(this);
+    this._computeNewPosition = this._computeNewPosition.bind(this);
+    this._transform = this._transform.bind(this);
 
     const defaults = {
-        // drag scrollable image
+        // type content: `image` - only one image, `html` - any HTML content
+        type: 'image',
+        // for type `image` computed auto (if width set null), for type `html` need set real html content width, else computed auto
+        width: null,
+        // for type `image` computed auto (if height set null), for type `html` need set real html content height, else computed auto
+        height: null,
+        // drag scrollable content
         dragScrollable: true,
         // options for the DragScrollable module
         dragScrollableOptions: {},
         // maximum allowed proportion of scale
         maxScale: 1,
-        // image resizing speed
-        speed: 10
+        // content resizing speed
+        speed: 50
     };
 
-    this.image = document.querySelector(selector);
-    this.options = extendObject(defaults, options);
+    this.content.$element = document.querySelector(selector);
 
-    if (this.image !== null) {
+    // check if we're using a touch screen
+    this.isTouch = isTouch();
+    // switch to touch events if using a touch screen
+    this.events = this.isTouch ? { down: 'touchstart', up: 'touchend' } : { down: 'mousedown', up: 'mouseup' };
+    // if using touch screen tells the browser that the default action will not be undone
+    this.events.options = this.isTouch ? { passive: true } : false;
+
+    if (this.content.$element) {
+        this.options = extendObject(defaults, options);
+
         // for window take just the parent
-        this.window = this.image.parentNode;
+        this.window.$element = this.content.$element.parentNode;
 
-        // if the image has already been loaded
-        if (this.image.complete) {
-            this._init();
+        if (this.options.type === 'image') {
+            // if the `image` has already been loaded
+            if (this.content.$element.complete) {
+                this._init();
+            } else {
+                // if suddenly the `image` has not loaded yet, then wait
+                this.content.$element.onload = this._init;
+            }
         } else {
-            // if suddenly the image has not loaded yet, then wait
-            this.image.onload = this._init;
+            this._init();
         }
     }
 }
 
-JcWheelZoom.prototype = {
-    constructor: JcWheelZoom,
-    image: null,
-    container: null,
-    window: null,
-    original: { image: {}, window: {} },
+WZoom.prototype = {
+    constructor: WZoom,
+    isTouch: false,
+    events: null,
+    content: {},
+    window: {},
+    direction: 1,
     options: null,
-    correctX: null,
-    correctY: null,
-    /**
-     * @private
-     */
-    _init: function () {
-        // original image sizes
-        this.original.image = {
-            width: this.image.offsetWidth,
-            height: this.image.offsetHeight
-        };
-
-        // will move this container, and will center the image in it
-        this.container = document.createElement('div');
-
-        this.window.appendChild(this.container);
-        this.container.appendChild(this.image);
-
+    stack: [],
+    _init() {
         this._prepare();
 
         if (this.options.dragScrollable === true) {
-            new DragScrollable(this.window, this.options.dragScrollableOptions);
+            new DragScrollable(this.window, this.content, this.options.dragScrollableOptions);
         }
 
-        on(this.window, 'wheel', this._rescale);
-        on(window, 'resize', this._rescale);
+        on(this.window.$element, 'wheel', event => {
+            event.preventDefault();
+
+            this._transform(
+                this._computeNewPosition(
+                    this._computeNewScale(event.deltaY),
+                    { x: eventClientX(event), y: eventClientY(event) }
+                )
+            );
+        });
+
+        // processing of the event "max / min zoom" begin only if there was really just a click
+        // so as not to interfere with the DragScrollable module
+        let clickExpired = true;
+
+        on(this.window.$element, this.events.down, event => {
+            if ((this.isTouch && event.touches.length === 1) || event.buttons === 1) {
+                clickExpired = false;
+                setTimeout(() => clickExpired = true, 150);
+            }
+        }, this.events.options);
+
+        on(this.window.$element, this.events.up, event => {
+            if (!clickExpired) {
+                this._transform(
+                    this._computeNewPosition(
+                        this.direction === 1 ? this.content.maxScale : this.content.minScale, {
+                            x: eventClientX(event),
+                            y: eventClientY(event)
+                        }
+                    )
+                );
+                this.direction *= -1;
+            }
+        }, this.events.options);
     },
-    /**
-     * @private
-     */
-    _prepare: function () {
-        // original window sizes
-        this.original.window = {
-            width: this.window.offsetWidth,
-            height: this.window.offsetHeight
-        };
+    _prepare() {
+        const windowPosition = getElementPosition(this.window.$element);
 
-        // minimum allowed proportion of scale
-        const minScale = Math.min(this.original.window.width / this.original.image.width, this.original.window.height / this.original.image.height);
+        // original window sizes and position
+        this.window.originalWidth = this.window.$element.offsetWidth;
+        this.window.originalHeight = this.window.$element.offsetHeight;
+        this.window.positionLeft = windowPosition.left;
+        this.window.positionTop = windowPosition.top;
 
-        // calculate margin-left and margin-top to center the image
-        this.correctX = Math.max(0, (this.original.window.width - this.original.image.width * minScale) / 2);
-        this.correctY = Math.max(0, (this.original.window.height - this.original.image.height * minScale) / 2);
+        // original content sizes
+        if (this.options.type === 'image') {
+            this.content.originalWidth = this.options.width || this.content.$element.naturalWidth;
+            this.content.originalHeight = this.options.height || this.content.$element.naturalHeight;
+        } else {
+            this.content.originalWidth = this.options.width || this.content.$element.offsetWidth;
+            this.content.originalHeight = this.options.height || this.content.$element.offsetHeight;
+        }
 
-        // set new image dimensions to fit it into the container
-        this.image.width = this.original.image.width * minScale;
-        this.image.height = this.original.image.height * minScale;
+        // minScale && maxScale
+        this.content.minScale = Math.min(this.window.originalWidth / this.content.originalWidth, this.window.originalHeight / this.content.originalHeight);
+        this.content.maxScale = this.options.maxScale;
 
-        // center the image
-        this.image.style.marginLeft = `${ this.correctX }px`;
-        this.image.style.marginTop = `${ this.correctY }px`;
+        // current content sizes and transform data
+        this.content.currentWidth = this.content.originalWidth * this.content.minScale;
+        this.content.currentHeight = this.content.originalHeight * this.content.minScale;
+        this.content.currentLeft = 0;
+        this.content.currentTop = 0;
+        this.content.currentScale = this.content.minScale;
 
-        this.container.style.width = `${ this.image.width + (this.correctX * 2) }px`;
-        this.container.style.height = `${ this.image.height + (this.correctY * 2) }px`;
+        // calculate indent-left and indent-top to of content from window borders
+        this.content.correctX = Math.max(0, (this.window.originalWidth - this.content.currentWidth) / 2);
+        this.content.correctY = Math.max(0, (this.window.originalHeight - this.content.currentHeight) / 2);
+
+        this.content.$element.style.transform = `translate3d(0px, 0px, 0px) scale(${ this.content.minScale })`;
 
         if (typeof this.options.prepare === 'function') {
-            this.options.prepare(minScale, this.correctX, this.correctY);
+            this.options.prepare();
         }
     },
-    /**
-     * @private
-     */
-    _rescale: function (event) {
-        event.preventDefault();
+    _computeNewScale(delta) {
+        this.direction = delta < 0 ? 1 : -1;
 
-        const delta = event.deltaY < 0 ? 1 : -1;
+        const { minScale, maxScale, currentScale } = this.content;
 
-        // the size of the image at the moment
-        const imageCurrentWidth = this.image.width;
-        const imageCurrentHeight = this.image.height;
+        let contentNewScale = currentScale + (this.direction / this.options.speed);
 
-        // current proportion of scale
-        const scale = imageCurrentWidth / this.original.image.width;
-        // minimum allowed proportion of scale
-        const minScale = Math.min(this.original.window.width / this.original.image.width, this.original.window.height / this.original.image.height);
-        // new allowed proportion of scale
-        let newScale = scale + (delta / this.options.speed);
+        return contentNewScale < minScale ? minScale : (contentNewScale > maxScale ? maxScale : contentNewScale);
+    },
+    _computeNewPosition(contentNewScale, { x, y }) {
+        const { window, content } = this;
 
-        newScale = (newScale < minScale) ? minScale : (newScale > this.options.maxScale ? this.options.maxScale : newScale);
+        const contentNewWidth = content.originalWidth * contentNewScale;
+        const contentNewHeight = content.originalHeight * contentNewScale;
 
-        // scroll along the X axis before resizing
-        const scrollLeftBeforeRescale = this.window.scrollLeft;
-        // scroll along the Y axis before resizing
-        const scrollTopBeforeRescale = this.window.scrollTop;
+        const { body, documentElement } = document;
 
-        // new image sizes that will be set
-        const imageNewWidth = this.image.width = this.original.image.width * newScale;
-        const imageNewHeight = this.image.height = this.original.image.height * newScale;
+        const scrollLeft = window.pageXOffset || documentElement.scrollLeft || body.scrollLeft;
+        const scrollTop = window.pageYOffset || documentElement.scrollTop || body.scrollTop;
 
-        const containerNewWidth = imageNewWidth + (this.correctX * 2);
-        const containerNewHeight = imageNewHeight + (this.correctY * 2);
+        // calculate the parameters along the X axis
+        const leftWindowShiftX = x + scrollLeft - window.positionLeft;
+        const centerWindowShiftX = window.originalWidth / 2 - leftWindowShiftX;
+        const centerContentShiftX = centerWindowShiftX + content.currentLeft;
+        let contentNewLeft = centerContentShiftX * (contentNewWidth / content.currentWidth) - centerContentShiftX + content.currentLeft;
 
-        this.container.style.width = `${ containerNewWidth }px`;
-        this.container.style.height = `${ containerNewHeight }px`;
+        // check that the content does not go beyond the X axis
+        if ((contentNewWidth - window.originalWidth) / 2 + content.correctX < Math.abs(centerContentShiftX - centerWindowShiftX)) {
+            contentNewLeft = (contentNewWidth - window.originalWidth) / 2 + content.correctX;
+            if (centerContentShiftX - centerWindowShiftX < 0) contentNewLeft = contentNewLeft * -1;
+        }
+
+        // calculate the parameters along the Y axis
+        const topWindowShiftY = y + scrollTop - window.positionTop;
+        const centerWindowShiftY = window.originalHeight / 2 - topWindowShiftY;
+        const centerContentShiftY = centerWindowShiftY + content.currentTop;
+        let contentNewTop = centerContentShiftY * (contentNewHeight / content.currentHeight) - centerContentShiftY + content.currentTop;
+
+        // check that the content does not go beyond the Y axis
+        if ((contentNewHeight - window.originalHeight) / 2 + content.correctY < Math.abs(centerContentShiftY - centerWindowShiftY)) {
+            contentNewTop = (contentNewHeight - window.originalHeight) / 2 + content.correctY;
+            if (centerContentShiftY - centerWindowShiftY < 0) contentNewTop = contentNewTop * -1;
+        }
+
+        if (contentNewScale === this.content.minScale) {
+            contentNewLeft = contentNewTop = 0;
+        }
+
+        const response = {
+            currentLeft: content.currentLeft,
+            newLeft: contentNewLeft,
+            currentTop: content.currentTop,
+            newTop: contentNewTop,
+            currentScale: content.currentScale,
+            newScale: contentNewScale
+        };
+
+        content.currentWidth = contentNewWidth;
+        content.currentHeight = contentNewHeight;
+        content.currentLeft = contentNewLeft;
+        content.currentTop = contentNewTop;
+        content.currentScale = contentNewScale;
+
+        return response;
+    },
+    _transform({ currentLeft, newLeft, currentTop, newTop, currentScale, newScale }, iterations = 1) {
+        this.content.$element.style.transform = `translate3d(${ newLeft }px, ${ newTop }px, 0px) scale(${ newScale })`;
 
         if (typeof this.options.rescale === 'function') {
-            this.options.rescale(newScale, this.correctX, this.correctY, minScale);
+            this.options.rescale();
         }
-
-        // scroll on the X axis after resized
-        const scrollLeftAfterRescale = this.window.scrollLeft;
-        // scroll on the Y axis after resized
-        const scrollTopAfterRescale = this.window.scrollTop;
-
-        const windowCoords = getElementCoordinates(this.window);
-
-        const x = Math.round(event.pageX - windowCoords.left + this.window.scrollLeft - this.correctX);
-        const newX = Math.round(imageNewWidth * x / imageCurrentWidth);
-        const shiftX = newX - x;
-
-        this.window.scrollLeft += shiftX + (scrollLeftBeforeRescale - scrollLeftAfterRescale);
-
-        const y = Math.round(event.pageY - windowCoords.top + this.window.scrollTop - this.correctY);
-        const newY = Math.round(imageNewHeight * y / imageCurrentHeight);
-        const shiftY = newY - y;
-
-        this.window.scrollTop += shiftY + (scrollTopBeforeRescale - scrollTopAfterRescale);
     },
-    /**
-     * @public
-     */
-    prepare: function () {
+    _zoom(direction) {
+        const windowPosition = getElementPosition(this.window.$element);
+
+        this._transform(
+            this._computeNewPosition(
+                this._computeNewScale(direction), {
+                    x: windowPosition.left + (this.window.originalWidth / 2),
+                    y: windowPosition.top + (this.window.originalHeight / 2)
+                }));
+    },
+    prepare() {
         this._prepare();
     },
-    /**
-     * @public
-     */
-    zoomUp: function () {
-        const windowCoords = getElementCoordinates(this.window);
-
-        const event = new Event('wheel');
-
-        event.deltaY = -1;
-        event.pageX = windowCoords.left + (this.original.window.width / 2);
-        event.pageY = windowCoords.top + (this.original.window.height / 2);
-
-        this._rescale(event);
+    zoomUp() {
+        this._zoom(-1);
     },
-    /**
-     * @public
-     */
-    zoomDown: function () {
-        const windowCoords = getElementCoordinates(this.window);
-
-        const event = new Event('wheel');
-
-        event.deltaY = 1;
-        event.pageX = windowCoords.left + (this.original.window.width / 2);
-        event.pageY = windowCoords.top + (this.original.window.height / 2);
-
-        this._rescale(event);
+    zoomDown() {
+        this._zoom(1);
     }
 };
 
 /**
- * Create JcWheelZoom instance
+ * Create WZoom instance
  * @param {string} selector
  * @param {Object} [options]
- * @returns {JcWheelZoom}
+ * @returns {WZoom}
  */
-JcWheelZoom.create = function (selector, options) {
-    return new JcWheelZoom(selector, options);
+WZoom.create = function (selector, options) {
+    return new WZoom(selector, options);
 };
 
-export default JcWheelZoom;
+export default WZoom;

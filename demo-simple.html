@@ -1,0 +1,70 @@
+<html lang="en">
+<head>
+    <title>worka/vanilla-js-wheel-zoom</title>
+
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+
+    <style>
+        #myWindow {
+            cursor: grab;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 600px;
+            height: 600px;
+            overflow: hidden;
+            background: beige;
+        }
+
+        #myContent {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        #myHTML {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate3d(-50%, -50%, 0);
+        }
+
+        #myContent img {
+            display: block;
+            width: auto;
+            height: auto;
+            margin: auto;
+            align-self: center;
+            flex-shrink: 0;
+        }
+
+        #myBadge {
+            position: absolute;
+            border: solid 2px red;
+            font-size: 80px;
+        }
+    </style>
+</head>
+<body>
+<div id="myWindow">
+    <div id="myContent">
+        <div id="myHTML">
+            <div id="myBadge" style="left:900px;top:500px">Badge</div>
+            <img src="https://placehold.it/2500x1500" alt="image"/>
+        </div>
+    </div>
+</div>
+
+<script src="dist/wheel-zoom.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', function () {
+        WZoom.create('#myContent', {
+            type: 'html',
+            width: 2500,
+            height: 1500
+        });
+    });
+</script>
+</body>
+</html>
