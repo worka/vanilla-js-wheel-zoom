@@ -529,10 +529,11 @@
                     content.correctX <
                     Math.abs(contentNewLeft)
             ) {
+                var positive = contentNewLeft < 0 ? -1 : 1;
                 contentNewLeft =
-                    (contentNewWidth - window.originalWidth) / 2 +
-                    content.correctX;
-                if (contentNewLeft < 0) contentNewLeft = contentNewLeft * -1;
+                    ((contentNewWidth - window.originalWidth) / 2 +
+                        content.correctX) *
+                    positive;
             } // calculate the parameters along the Y axis
 
             var topWindowShiftY = y + scrollTop - window.positionTop;
@@ -551,10 +552,12 @@
                     content.correctY <
                     Math.abs(contentNewTop)
             ) {
+                var _positive = contentNewLeft < 0 ? -1 : 1;
+
                 contentNewTop =
-                    (contentNewHeight - window.originalHeight) / 2 +
-                    content.correctY;
-                if (contentNewTop < 0) contentNewTop = contentNewTop * -1;
+                    ((contentNewHeight - window.originalHeight) / 2 +
+                        content.correctY) *
+                    _positive;
             }
 
             if (contentNewScale === this.content.minScale) {

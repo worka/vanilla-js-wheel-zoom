@@ -179,8 +179,8 @@ WZoom.prototype = {
 
         // check that the content does not go beyond the X axis
         if (this.direction === -1 && (contentNewWidth - window.originalWidth) / 2 + content.correctX < Math.abs(contentNewLeft)) {
-            contentNewLeft = (contentNewWidth - window.originalWidth) / 2 + content.correctX;
-            if (contentNewLeft < 0) contentNewLeft = contentNewLeft * -1;
+            const positive = contentNewLeft < 0 ? -1 : 1;
+            contentNewLeft = ((contentNewWidth - window.originalWidth) / 2 + content.correctX) * positive;
         }
 
         // calculate the parameters along the Y axis
@@ -191,8 +191,8 @@ WZoom.prototype = {
 
         // check that the content does not go beyond the Y axis
         if (this.direction === -1 && (contentNewHeight - window.originalHeight) / 2 + content.correctY < Math.abs(contentNewTop)) {
-            contentNewTop = (contentNewHeight - window.originalHeight) / 2 + content.correctY;
-            if (contentNewTop < 0) contentNewTop = contentNewTop * -1;
+            const positive = contentNewLeft < 0 ? -1 : 1;
+            contentNewTop = ((contentNewHeight - window.originalHeight) / 2 + content.correctY) * positive;
         }
 
         if (contentNewScale === this.content.minScale) {
