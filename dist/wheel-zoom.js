@@ -552,7 +552,7 @@
                     content.correctY <
                     Math.abs(contentNewTop)
             ) {
-                var _positive = contentNewLeft < 0 ? -1 : 1;
+                var _positive = contentNewTop < 0 ? -1 : 1;
 
                 contentNewTop =
                     ((contentNewHeight - window.originalHeight) / 2 +

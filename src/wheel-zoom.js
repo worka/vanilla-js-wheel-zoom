@@ -191,7 +191,7 @@ WZoom.prototype = {
 
         // check that the content does not go beyond the Y axis
         if (this.direction === -1 && (contentNewHeight - window.originalHeight) / 2 + content.correctY < Math.abs(contentNewTop)) {
-            const positive = contentNewLeft < 0 ? -1 : 1;
+            const positive = contentNewTop < 0 ? -1 : 1;
             contentNewTop = ((contentNewHeight - window.originalHeight) / 2 + content.correctY) * positive;
         }
 
