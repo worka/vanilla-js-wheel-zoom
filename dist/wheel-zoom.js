@@ -524,15 +524,15 @@
                 content.currentLeft; // check that the content does not go beyond the X axis
 
             if (
+                this.direction === -1 &&
                 (contentNewWidth - window.originalWidth) / 2 +
                     content.correctX <
-                Math.abs(centerContentShiftX - centerWindowShiftX)
+                    Math.abs(contentNewLeft)
             ) {
                 contentNewLeft =
                     (contentNewWidth - window.originalWidth) / 2 +
                     content.correctX;
-                if (centerContentShiftX - centerWindowShiftX < 0)
-                    contentNewLeft = contentNewLeft * -1;
+                if (contentNewLeft < 0) contentNewLeft = contentNewLeft * -1;
             } // calculate the parameters along the Y axis
 
             var topWindowShiftY = y + scrollTop - window.positionTop;
@@ -546,15 +546,15 @@
                 content.currentTop; // check that the content does not go beyond the Y axis
 
             if (
+                this.direction === -1 &&
                 (contentNewHeight - window.originalHeight) / 2 +
                     content.correctY <
-                Math.abs(centerContentShiftY - centerWindowShiftY)
+                    Math.abs(contentNewTop)
             ) {
                 contentNewTop =
                     (contentNewHeight - window.originalHeight) / 2 +
                     content.correctY;
-                if (centerContentShiftY - centerWindowShiftY < 0)
-                    contentNewTop = contentNewTop * -1;
+                if (contentNewTop < 0) contentNewTop = contentNewTop * -1;
             }
 
             if (contentNewScale === this.content.minScale) {
