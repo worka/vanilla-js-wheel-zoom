@@ -13,6 +13,10 @@ Advantages:
 
 > Starting with version 5, the plugin switched to using `style transform`. To use the plugin in older browsers, switch to earlier versions.
 
+> You need to center the image (or any HTML content) in the "window" in which scaling will take place. The "window" is taken automatically as the parent of the image in DOM.
+
+> HTML content can be of any structure, but the topmost child element in the “window” must be one. In the example with "badge" below, it will be more clear what is meant.
+
 <a href="https://worka.github.io/vanilla-js-wheel-zoom/demo-image.html">Demo (only one image)</a>
 
 <a href="https://worka.github.io/vanilla-js-wheel-zoom/demo-html.html">Demo (html)</a>
