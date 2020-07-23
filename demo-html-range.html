@@ -1,0 +1,151 @@
+<html lang="en">
+<head>
+    <title>worka/vanilla-js-wheel-zoom</title>
+
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0">
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <style>
+        #myWindow {
+            cursor: grab;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #myContent {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        #myImage {
+            display: block;
+            width: auto;
+            height: auto;
+            margin: auto;
+            align-self: center;
+            flex-shrink: 0;
+        }
+
+        #myBadge {
+            position: absolute;
+            top: 1200px;
+            left: 1200px;
+            font-size: 80px;
+        }
+    </style>
+</head>
+<body>
+<div class="container py-3">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-8">
+            <h1>vanilla-js-wheel-zoom</h1>
+
+            <p class="lead mb-4" style="word-wrap:break-word">
+                <a href="https://github.com/worka/vanilla-js-wheel-zoom">
+                    https://github.com/worka/vanilla-js-wheel-zoom
+                </a>
+            </p>
+
+            <div class="d-flex my-3">
+                <button data-zoom-down class="btn btn-info">Zoom Down</button>
+
+                <input data-zoom-range type="range" class="form-control-range" min="0.175" max="1" step=".001">
+
+                <button data-zoom-up class="btn btn-info ml-auto">Zoom Up</button>
+            </div>
+
+            <div class="embed-responsive embed-responsive-4by3 rounded bg-secondary">
+                <div id="myWindow" class="embed-responsive-item">
+                    <div id="myContent">
+                        <div id="myBadge" class="border border-primary rounded-circle p-5 bg-primary">
+                          Badge
+                        </div>
+
+                        <img id="myImage" src="https://worka.github.io/files/wheel_zoom_example.jpg" alt="image"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="dist/wheel-zoom.min.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', () => {
+      initImageElement();
+    });
+
+    let wzoom;
+    let rangeElement = document.querySelector('[data-zoom-range]');
+    // standard range default is midpoint of `min` and `max`, setting it to `min` instead
+    rangeElement.defaultValue = rangeElement.min;
+
+    const initImageElement = () => {
+      let imageElement = document.getElementById('myContent').querySelector('img');
+
+      imageElement
+        .decode()
+        .then( () => {
+          initWheelZoom(imageElement);
+        })
+        .catch( (error) => {
+          let console = window.console || {log:()=>{}};
+          console.log('image encoding error:', error);
+        });
+    }
+
+    const initWheelZoom = (image) => {
+      let options = {
+        type: 'html',
+        width: image.naturalWidth,
+        height: image.naturalHeight,
+        dragScrollableOptions: {
+          onGrab: () => {
+            document.getElementById('myWindow').style.cursor = 'grabbing';
+          },
+          onDrop: () => {
+            document.getElementById('myWindow').style.cursor = 'grab';
+          }
+        },
+        rescale: () => {
+          handleImageRescale();
+        }
+      };
+
+      wzoom = WZoom.create('#myContent', options);
+
+      document.querySelector('[data-zoom-up]').addEventListener('click', () => {
+        wzoom.zoomUp();
+      });
+
+      document.querySelector('[data-zoom-down]').addEventListener('click', () => {
+        wzoom.zoomDown();
+      });
+
+      window.addEventListener('resize', () => {
+        wzoom.prepare();
+      });
+    }
+
+    rangeElement.addEventListener('input', () => {
+      let newScale = Number(rangeElement.value);
+
+      if ( newScale > wzoom.content.currentScale ) {
+        wzoom.zoomUp();
+      } else {
+        wzoom.zoomDown();
+      }
+    });
+
+    const handleImageRescale = () => {      
+      rangeElement.value = wzoom.content.currentScale;
+    }
+</script>
+</body>
+</html>

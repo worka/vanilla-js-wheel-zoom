@@ -16,7 +16,7 @@
             justify-content: center;
         }
 
-        #myContent {
+        #myImage {
             position: relative;
             display: flex;
             align-items: center;
@@ -35,7 +35,9 @@
                 </a>
             </p>
 
-            <a href="https://worka.github.io/vanilla-js-wheel-zoom/demo-html-ie.html"><strong>Demo with support IE10/11</strong></a>
+            <a href="https://worka.github.io/vanilla-js-wheel-zoom/demo-html-ie.html">
+                <strong>Demo with support IE10/11</strong>
+            </a>
 
             <div class="d-flex my-3">
                 <button data-zoom-down class="btn btn-info">Zoom Down</button>
@@ -44,7 +46,7 @@
 
             <div class="embed-responsive embed-responsive-4by3 rounded bg-secondary">
                 <div id="myWindow" class="embed-responsive-item">
-                    <img id="myContent" src="https://worka.github.io/files/wheel_zoom_example.jpg" alt="image"/>
+                    <img id="myImage" src="https://worka.github.io/files/wheel_zoom_example.jpg" alt="image"/>
                 </div>
             </div>
         </div>
@@ -54,30 +56,37 @@
 <script src="dist/wheel-zoom.min.js" type="text/javascript"></script>
 
 <script type="text/javascript">
-    document.addEventListener('DOMContentLoaded', function () {
-        var wzoom = WZoom.create('#myContent', {
+    document.addEventListener('DOMContentLoaded', () => {
+        initWheelZoom();
+    });
+
+    const initWheelZoom = () => {
+        let myWindow = document.getElementById('myWindow');
+        let options = {
             dragScrollableOptions: {
-                onGrab: function () {
-                    document.getElementById('myWindow').style.cursor = 'grabbing';
+                onGrab: () => {
+                    myWindow.style.cursor = 'grabbing';
                 },
-                onDrop: function () {
-                    document.getElementById('myWindow').style.cursor = 'grab';
+                onDrop: () => {
+                    myWindow.style.cursor = 'grab';
                 }
             }
-        });
+        };
 
-        document.querySelector('[data-zoom-up]').addEventListener('click', function () {
+        let wzoom = WZoom.create('#myImage', options);
+
+        document.querySelector('[data-zoom-up]').addEventListener('click', () => {
             wzoom.zoomUp();
         });
 
-        document.querySelector('[data-zoom-down]').addEventListener('click', function () {
+        document.querySelector('[data-zoom-down]').addEventListener('click', () => {
             wzoom.zoomDown();
         });
 
-        window.addEventListener('resize', function () {
+        window.addEventListener('resize', () => {
             wzoom.prepare();
         });
-    });
+    }
 </script>
 </body>
 </html>

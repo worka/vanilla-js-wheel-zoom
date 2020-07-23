@@ -447,10 +447,12 @@
                     this.options.height || this.content.$element.offsetHeight;
             } // minScale && maxScale
 
-            this.content.minScale = Math.min(
-                this.window.originalWidth / this.content.originalWidth,
-                this.window.originalHeight / this.content.originalHeight
-            );
+            this.content.minScale =
+                this.options.minScale ||
+                Math.min(
+                    this.window.originalWidth / this.content.originalWidth,
+                    this.window.originalHeight / this.content.originalHeight
+                );
             this.content.maxScale = this.options.maxScale; // current content sizes and transform data
 
             this.content.currentWidth =
