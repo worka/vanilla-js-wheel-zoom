@@ -84,6 +84,8 @@ var defaults = {
         // callback triggered when dropping an element
         onDrop: null
     },
+    // minimum allowed proportion of scale
+    minScale: null,
     // maximum allowed proportion of scale
     maxScale: 1,
     // image resizing speed
@@ -182,6 +184,7 @@ window.addEventListener('resize', () => {
 | dragScrollableOptions._onGrab_           | _Function_ | `undefined` | Сalled after grabbing an element.                                                                                                                                                                                                                                                                     |
 | dragScrollableOptions._onMove_           | _Function_ | `undefined` | Called on every tick when moving element.                                                                                                                                                                                                                                                             |
 | dragScrollableOptions._onDrop_           | _Function_ | `undefined` | Сalled after dropping an element.                                                                                                                                                                                                                                                                     |
+| minScale                                 | _Integer_  | `null`      | The minimum scale to which the image can be zoomed.<br>If `falsy` or greater than `maxScale` then computed auto.                                                                                                                                                                            |
 | maxScale                                 | _Integer_  | `1`         | The maximum scale to which the image can be zoomed.<br>`1` means that the image can be maximized to 100%, `2` - 200%, etc.                                                                                                                                                                            |
 | speed                                    | _Integer_  | `10`        | Step with which the image will be scaled. Measured in relative units.<br>The larger the value, the smaller the step and vice versa.                                                                                                                                                                   |
 | prepare                                  | _Function_ | `undefined` | Сalled after the script is initialized when the image is scaled and fit into the container.                                                                                                                                                                                                           |

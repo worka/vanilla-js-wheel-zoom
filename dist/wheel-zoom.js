@@ -3,7 +3,9 @@
         ? (module.exports = factory())
         : typeof define === 'function' && define.amd
         ? define(factory)
-        : ((global = global || self), (global.WZoom = factory()));
+        : ((global =
+              typeof globalThis !== 'undefined' ? globalThis : global || self),
+          (global.WZoom = factory()));
 })(this, function () {
     'use strict';
 
@@ -306,6 +308,8 @@
             dragScrollable: true,
             // options for the DragScrollable module
             dragScrollableOptions: {},
+            // minimum allowed proportion of scale
+            minScale: null,
             // maximum allowed proportion of scale
             maxScale: 1,
             // content resizing speed
@@ -332,7 +336,14 @@
             : false;
 
         if (this.content.$element) {
-            this.options = extendObject(defaults, options); // for window take just the parent
+            this.options = extendObject(defaults, options);
+
+            if (
+                this.options.minScale &&
+                this.options.minScale >= this.options.maxScale
+            ) {
+                this.options.minScale = null;
+            } // for window take just the parent
 
             this.window.$element = this.content.$element.parentNode;
 
@@ -447,11 +458,14 @@
                     this.options.height || this.content.$element.offsetHeight;
             } // minScale && maxScale
 
-            this.content.minScale = Math.min(
-                this.window.originalWidth / this.content.originalWidth,
-                this.window.originalHeight / this.content.originalHeight
-            );
-            this.content.maxScale = this.options.maxScale; // current content sizes and transform data
+            this.content.minScale =
+                this.options.minScale ||
+                Math.min(
+                    this.window.originalWidth / this.content.originalWidth,
+                    this.window.originalHeight / this.content.originalHeight
+                );
+            this.content.maxScale = this.options.maxScale;
+            console.log(this.content.minScale); // current content sizes and transform data
 
             this.content.currentWidth =
                 this.content.originalWidth * this.content.minScale;
