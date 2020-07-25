@@ -140,8 +140,6 @@ WZoom.prototype = {
         this.content.minScale = this.options.minScale || Math.min(this.window.originalWidth / this.content.originalWidth, this.window.originalHeight / this.content.originalHeight);
         this.content.maxScale = this.options.maxScale;
 
-        console.log(this.content.minScale);
-
         // current content sizes and transform data
         this.content.currentWidth = this.content.originalWidth * this.content.minScale;
         this.content.currentHeight = this.content.originalHeight * this.content.minScale;

@@ -53,6 +53,7 @@
 
             <div class="d-flex my-3">
                 <button data-zoom-down class="btn btn-info">Zoom Down</button>
+                <input data-zoom-range type="range" class="form-control-range"/>
                 <button data-zoom-up class="btn btn-info ml-auto">Zoom Up</button>
             </div>
 
@@ -83,6 +84,8 @@
         }
 
         function init() {
+            var rangeElement = document.querySelector('[data-zoom-range]');
+
             var wzoom = WZoom.create('#myContent', {
                 type: 'html',
                 width: imageElement.naturalWidth,
@@ -94,6 +97,17 @@
                     onDrop: function () {
                         document.getElementById('myWindow').style.cursor = 'grab';
                     }
+                },
+                prepare: function () {
+                    setTimeout(() => {
+                        rangeElement.min = wzoom.content.minScale;
+                        rangeElement.defaultValue = wzoom.content.minScale;
+                        rangeElement.max = wzoom.content.maxScale;
+                        rangeElement.step = 1 / this.speed;
+                    }, 0);
+                },
+                rescale: function () {
+                    rangeElement.value = wzoom.content.currentScale;
                 }
             });
 
@@ -107,6 +121,16 @@
 
             window.addEventListener('resize', function () {
                 wzoom.prepare();
+            });
+
+            rangeElement.addEventListener('input', function () {
+                let newScale = Number(rangeElement.value);
+
+                if (newScale > wzoom.content.currentScale) {
+                    wzoom.zoomUp();
+                } else {
+                    wzoom.zoomDown();
+                }
             });
         }
     });

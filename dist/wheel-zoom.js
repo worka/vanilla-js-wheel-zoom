@@ -464,8 +464,7 @@
                     this.window.originalWidth / this.content.originalWidth,
                     this.window.originalHeight / this.content.originalHeight
                 );
-            this.content.maxScale = this.options.maxScale;
-            console.log(this.content.minScale); // current content sizes and transform data
+            this.content.maxScale = this.options.maxScale; // current content sizes and transform data
 
             this.content.currentWidth =
                 this.content.originalWidth * this.content.minScale;
