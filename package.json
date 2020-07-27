@@ -31,7 +31,7 @@
         "drag scrollable image"
     ],
     "author": "worka",
-    "license": "ISC",
+    "license": "GPLv3",
     "bugs": {
         "url": "https://github.com/worka/vanilla-js-wheel-zoom/issues"
     },
