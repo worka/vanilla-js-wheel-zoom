@@ -197,6 +197,7 @@ window.addEventListener('resize', () => {
 | .prepare()  | Reinitialize script                       |
 | .zoomUp()   | Zoom on one step (see option `speed`)     |
 | .zoomDown() | Zoom out on one step (see option `speed`) |
+| .destroy()  | Destroy object                            |
 
 ### LICENSE
 
