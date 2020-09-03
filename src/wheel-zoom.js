@@ -1,4 +1,4 @@
-import { getElementPosition, extendObject, on, eventClientX, eventClientY, isTouch } from './toolkit';
+import { getElementPosition, extendObject, on, off, eventClientX, eventClientY, isTouch } from './toolkit';
 import DragScrollable from './drag-scrollable';
 
 /**
@@ -13,6 +13,10 @@ function WZoom(selector, options = {}) {
     this._computeNewScale = this._computeNewScale.bind(this);
     this._computeNewPosition = this._computeNewPosition.bind(this);
     this._transform = this._transform.bind(this);
+
+    this._wheelHandler = _wheelHandler.bind(this);
+    this._downHandler = _downHandler.bind(this);
+    this._upHandler = _upHandler.bind(this);
 
     const defaults = {
         // type content: `image` - only one image, `html` - any HTML content
@@ -74,49 +78,20 @@ WZoom.prototype = {
     window: {},
     direction: 1,
     options: null,
-    stack: [],
+    dragScrollable: null,
+    // processing of the event "max / min zoom" begin only if there was really just a click
+    // so as not to interfere with the DragScrollable module
+    clickExpired: true,
     _init() {
         this._prepare();
 
         if (this.options.dragScrollable === true) {
-            new DragScrollable(this.window, this.content, this.options.dragScrollableOptions);
+            this.dragScrollable = new DragScrollable(this.window, this.content, this.options.dragScrollableOptions);
         }
 
-        on(this.window.$element, 'wheel', event => {
-            event.preventDefault();
-
-            this._transform(
-                this._computeNewPosition(
-                    this._computeNewScale(event.deltaY),
-                    { x: eventClientX(event), y: eventClientY(event) }
-                )
-            );
-        });
-
-        // processing of the event "max / min zoom" begin only if there was really just a click
-        // so as not to interfere with the DragScrollable module
-        let clickExpired = true;
-
-        on(this.window.$element, this.events.down, event => {
-            if ((this.isTouch && event.touches.length === 1) || event.buttons === 1) {
-                clickExpired = false;
-                setTimeout(() => clickExpired = true, 150);
-            }
-        }, this.events.options);
-
-        on(this.window.$element, this.events.up, event => {
-            if (!clickExpired) {
-                this._transform(
-                    this._computeNewPosition(
-                        this.direction === 1 ? this.content.maxScale : this.content.minScale, {
-                            x: eventClientX(event),
-                            y: eventClientY(event)
-                        }
-                    )
-                );
-                this.direction *= -1;
-            }
-        }, this.events.options);
+        on(this.window.$element, 'wheel', this._wheelHandler);
+        on(this.window.$element, this.events.down, this._downHandler, this.events.options);
+        on(this.window.$element, this.events.up, this._upHandler, this.events.options);
     },
     _prepare() {
         const windowPosition = getElementPosition(this.window.$element);
@@ -247,8 +222,56 @@ WZoom.prototype = {
     },
     zoomDown() {
         this._zoom(1);
+    },
+    destroy() {
+        off(this.window.$element, 'wheel', this._wheelHandler);
+        off(this.window.$element, this.events.down, this._downHandler, this.events.options);
+        off(this.window.$element, this.events.up, this._upHandler, this.events.options);
+
+        if (this.dragScrollable) {
+            this.dragScrollable.destroy();
+        }
+
+        for (let key in this) {
+            if (this.hasOwnProperty(key)) {
+                this[key] = null;
+            }
+        }
     }
 };
+
+function _wheelHandler(event) {
+    event.preventDefault();
+
+    this._transform(
+        this._computeNewPosition(
+            this._computeNewScale(event.deltaY),
+            { x: eventClientX(event), y: eventClientY(event) }
+        )
+    );
+}
+
+function _downHandler(event) {
+    if ((this.isTouch && event.touches.length === 1) || event.buttons === 1) {
+        this.clickExpired = false;
+        setTimeout(() => this.clickExpired = true, 150);
+    }
+}
+
+function _upHandler(event) {
+    if (!this.clickExpired) {
+        this._transform(
+            this._computeNewPosition(
+                this.direction === 1 ? this.content.maxScale : this.content.minScale, {
+                    x: eventClientX(event),
+                    y: eventClientY(event)
+                }
+            )
+        );
+
+        this.direction *= -1;
+    }
+}
 
 /**
  * Create WZoom instance

@@ -111,8 +111,6 @@
      */
 
     function DragScrollable(windowObject, contentObject) {
-        var _this = this;
-
         var options =
             arguments.length > 2 && arguments[2] !== undefined
                 ? arguments[2]
@@ -158,15 +156,7 @@
         on(
             this.content.$element,
             this.events.grab,
-            function (event) {
-                // if touch started (only one finger) or pressed left mouse button
-                if (
-                    (_this.isTouch && event.touches.length === 1) ||
-                    event.buttons === 1
-                ) {
-                    _this._grabHandler(event);
-                }
-            },
+            this._grabHandler,
             this.events.options
         );
     }
@@ -183,31 +173,37 @@
         coordinates: null,
         speed: null,
         _grabHandler: function _grabHandler(event) {
-            if (!this.isTouch) event.preventDefault();
-            this.isGrab = true;
-            this.coordinates = {
-                left: eventClientX(event),
-                top: eventClientY(event),
-            };
-            this.speed = {
-                x: 0,
-                y: 0,
-            };
-            on(
-                document,
-                this.events.drop,
-                this._dropHandler,
-                this.events.options
-            );
-            on(
-                document,
-                this.events.move,
-                this._moveHandler,
-                this.events.options
-            );
+            // if touch started (only one finger) or pressed left mouse button
+            if (
+                (this.isTouch && event.touches.length === 1) ||
+                event.buttons === 1
+            ) {
+                if (!this.isTouch) event.preventDefault();
+                this.isGrab = true;
+                this.coordinates = {
+                    left: eventClientX(event),
+                    top: eventClientY(event),
+                };
+                this.speed = {
+                    x: 0,
+                    y: 0,
+                };
+                on(
+                    document,
+                    this.events.drop,
+                    this._dropHandler,
+                    this.events.options
+                );
+                on(
+                    document,
+                    this.events.move,
+                    this._moveHandler,
+                    this.events.options
+                );
 
-            if (typeof this.options.onGrab === 'function') {
-                this.options.onGrab();
+                if (typeof this.options.onGrab === 'function') {
+                    this.options.onGrab();
+                }
             }
         },
         _dropHandler: function _dropHandler(event) {
@@ -268,6 +264,20 @@
                 options.onMove();
             }
         },
+        destroy: function destroy() {
+            off(
+                this.content.$element,
+                this.events.grab,
+                this._grabHandler,
+                this.events.options
+            );
+
+            for (var key in this) {
+                if (this.hasOwnProperty(key)) {
+                    this[key] = null;
+                }
+            }
+        },
     };
 
     function _transform($element, _ref) {
@@ -297,6 +307,9 @@
         this._computeNewScale = this._computeNewScale.bind(this);
         this._computeNewPosition = this._computeNewPosition.bind(this);
         this._transform = this._transform.bind(this);
+        this._wheelHandler = _wheelHandler.bind(this);
+        this._downHandler = _downHandler.bind(this);
+        this._upHandler = _upHandler.bind(this);
         var defaults = {
             // type content: `image` - only one image, `html` - any HTML content
             type: 'image',
@@ -369,72 +382,32 @@
         window: {},
         direction: 1,
         options: null,
-        stack: [],
+        dragScrollable: null,
+        // processing of the event "max / min zoom" begin only if there was really just a click
+        // so as not to interfere with the DragScrollable module
+        clickExpired: true,
         _init: function _init() {
-            var _this = this;
-
             this._prepare();
 
             if (this.options.dragScrollable === true) {
-                new DragScrollable(
+                this.dragScrollable = new DragScrollable(
                     this.window,
                     this.content,
                     this.options.dragScrollableOptions
                 );
             }
 
-            on(this.window.$element, 'wheel', function (event) {
-                event.preventDefault();
-
-                _this._transform(
-                    _this._computeNewPosition(
-                        _this._computeNewScale(event.deltaY),
-                        {
-                            x: eventClientX(event),
-                            y: eventClientY(event),
-                        }
-                    )
-                );
-            }); // processing of the event "max / min zoom" begin only if there was really just a click
-            // so as not to interfere with the DragScrollable module
-
-            var clickExpired = true;
+            on(this.window.$element, 'wheel', this._wheelHandler);
             on(
                 this.window.$element,
                 this.events.down,
-                function (event) {
-                    if (
-                        (_this.isTouch && event.touches.length === 1) ||
-                        event.buttons === 1
-                    ) {
-                        clickExpired = false;
-                        setTimeout(function () {
-                            return (clickExpired = true);
-                        }, 150);
-                    }
-                },
+                this._downHandler,
                 this.events.options
             );
             on(
                 this.window.$element,
                 this.events.up,
-                function (event) {
-                    if (!clickExpired) {
-                        _this._transform(
-                            _this._computeNewPosition(
-                                _this.direction === 1
-                                    ? _this.content.maxScale
-                                    : _this.content.minScale,
-                                {
-                                    x: eventClientX(event),
-                                    y: eventClientY(event),
-                                }
-                            )
-                        );
-
-                        _this.direction *= -1;
-                    }
-                },
+                this._upHandler,
                 this.events.options
             );
         },
@@ -627,7 +600,75 @@
         zoomDown: function zoomDown() {
             this._zoom(1);
         },
+        destroy: function destroy() {
+            off(this.window.$element, 'wheel', this._wheelHandler);
+            off(
+                this.window.$element,
+                this.events.down,
+                this._downHandler,
+                this.events.options
+            );
+            off(
+                this.window.$element,
+                this.events.up,
+                this._upHandler,
+                this.events.options
+            );
+
+            if (this.dragScrollable) {
+                this.dragScrollable.destroy();
+            }
+
+            for (var key in this) {
+                if (this.hasOwnProperty(key)) {
+                    this[key] = null;
+                }
+            }
+        },
     };
+
+    function _wheelHandler(event) {
+        event.preventDefault();
+
+        this._transform(
+            this._computeNewPosition(this._computeNewScale(event.deltaY), {
+                x: eventClientX(event),
+                y: eventClientY(event),
+            })
+        );
+    }
+
+    function _downHandler(event) {
+        var _this = this;
+
+        if (
+            (this.isTouch && event.touches.length === 1) ||
+            event.buttons === 1
+        ) {
+            this.clickExpired = false;
+            setTimeout(function () {
+                return (_this.clickExpired = true);
+            }, 150);
+        }
+    }
+
+    function _upHandler(event) {
+        if (!this.clickExpired) {
+            this._transform(
+                this._computeNewPosition(
+                    this.direction === 1
+                        ? this.content.maxScale
+                        : this.content.minScale,
+                    {
+                        x: eventClientX(event),
+                        y: eventClientY(event),
+                    }
+                )
+            );
+
+            this.direction *= -1;
+        }
+    }
     /**
      * Create WZoom instance
      * @param {string} selector

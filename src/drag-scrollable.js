@@ -35,12 +35,7 @@ function DragScrollable(windowObject, contentObject, options = {}) {
     this.window = windowObject;
     this.content = contentObject;
 
-    on(this.content.$element, this.events.grab, event => {
-        // if touch started (only one finger) or pressed left mouse button
-        if ((this.isTouch && event.touches.length === 1) || event.buttons === 1) {
-            this._grabHandler(event);
-        }
-    }, this.events.options);
+    on(this.content.$element, this.events.grab, this._grabHandler, this.events.options);
 }
 
 DragScrollable.prototype = {
@@ -55,17 +50,20 @@ DragScrollable.prototype = {
     coordinates: null,
     speed: null,
     _grabHandler(event) {
-        if (!this.isTouch) event.preventDefault();
+        // if touch started (only one finger) or pressed left mouse button
+        if ((this.isTouch && event.touches.length === 1) || event.buttons === 1) {
+            if (!this.isTouch) event.preventDefault();
 
-        this.isGrab = true;
-        this.coordinates = { left: eventClientX(event), top: eventClientY(event) };
-        this.speed = { x: 0, y: 0 };
+            this.isGrab = true;
+            this.coordinates = { left: eventClientX(event), top: eventClientY(event) };
+            this.speed = { x: 0, y: 0 };
 
-        on(document, this.events.drop, this._dropHandler, this.events.options);
-        on(document, this.events.move, this._moveHandler, this.events.options);
+            on(document, this.events.drop, this._dropHandler, this.events.options);
+            on(document, this.events.move, this._moveHandler, this.events.options);
 
-        if (typeof this.options.onGrab === 'function') {
-            this.options.onGrab();
+            if (typeof this.options.onGrab === 'function') {
+                this.options.onGrab();
+            }
         }
     },
     _dropHandler(event) {
@@ -125,6 +123,15 @@ DragScrollable.prototype = {
 
         if (typeof options.onMove === 'function') {
             options.onMove();
+        }
+    },
+    destroy() {
+        off(this.content.$element, this.events.grab, this._grabHandler, this.events.options);
+
+        for (let key in this) {
+            if (this.hasOwnProperty(key)) {
+                this[key] = null;
+            }
         }
     }
 };
