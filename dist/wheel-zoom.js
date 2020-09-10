@@ -327,6 +327,8 @@
             maxScale: 1,
             // content resizing speed
             speed: 50,
+            // zoom to maximum (minimum) size on click
+            zoomOnClick: true,
         };
         this.content.$element = document.querySelector(selector); // check if we're using a touch screen
 
@@ -398,18 +400,21 @@
             }
 
             on(this.window.$element, 'wheel', this._wheelHandler);
-            on(
-                this.window.$element,
-                this.events.down,
-                this._downHandler,
-                this.events.options
-            );
-            on(
-                this.window.$element,
-                this.events.up,
-                this._upHandler,
-                this.events.options
-            );
+
+            if (this.options.zoomOnClick) {
+                on(
+                    this.window.$element,
+                    this.events.down,
+                    this._downHandler,
+                    this.events.options
+                );
+                on(
+                    this.window.$element,
+                    this.events.up,
+                    this._upHandler,
+                    this.events.options
+                );
+            }
         },
         _prepare: function _prepare() {
             var windowPosition = getElementPosition(this.window.$element); // original window sizes and position
@@ -602,18 +607,21 @@
         },
         destroy: function destroy() {
             off(this.window.$element, 'wheel', this._wheelHandler);
-            off(
-                this.window.$element,
-                this.events.down,
-                this._downHandler,
-                this.events.options
-            );
-            off(
-                this.window.$element,
-                this.events.up,
-                this._upHandler,
-                this.events.options
-            );
+
+            if (this.options.zoomOnClick) {
+                off(
+                    this.window.$element,
+                    this.events.down,
+                    this._downHandler,
+                    this.events.options
+                );
+                off(
+                    this.window.$element,
+                    this.events.up,
+                    this._upHandler,
+                    this.events.options
+                );
+            }
 
             if (this.dragScrollable) {
                 this.dragScrollable.destroy();

@@ -34,7 +34,9 @@ function WZoom(selector, options = {}) {
         // maximum allowed proportion of scale
         maxScale: 1,
         // content resizing speed
-        speed: 50
+        speed: 50,
+        // zoom to maximum (minimum) size on click
+        zoomOnClick: true
     };
 
     this.content.$element = document.querySelector(selector);
@@ -90,8 +92,11 @@ WZoom.prototype = {
         }
 
         on(this.window.$element, 'wheel', this._wheelHandler);
-        on(this.window.$element, this.events.down, this._downHandler, this.events.options);
-        on(this.window.$element, this.events.up, this._upHandler, this.events.options);
+
+        if (this.options.zoomOnClick) {
+            on(this.window.$element, this.events.down, this._downHandler, this.events.options);
+            on(this.window.$element, this.events.up, this._upHandler, this.events.options);
+        }
     },
     _prepare() {
         const windowPosition = getElementPosition(this.window.$element);
@@ -225,8 +230,11 @@ WZoom.prototype = {
     },
     destroy() {
         off(this.window.$element, 'wheel', this._wheelHandler);
-        off(this.window.$element, this.events.down, this._downHandler, this.events.options);
-        off(this.window.$element, this.events.up, this._upHandler, this.events.options);
+
+        if (this.options.zoomOnClick) {
+            off(this.window.$element, this.events.down, this._downHandler, this.events.options);
+            off(this.window.$element, this.events.up, this._upHandler, this.events.options);
+        }
 
         if (this.dragScrollable) {
             this.dragScrollable.destroy();
