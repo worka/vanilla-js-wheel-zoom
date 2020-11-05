@@ -144,6 +144,12 @@ WZoom.prototype = {
 
         let contentNewScale = currentScale + (this.direction / this.options.speed);
 
+        if (contentNewScale < minScale) {
+            this.direction = 1;
+        } else if (contentNewScale > maxScale) {
+            this.direction = -1;
+        }
+
         return contentNewScale < minScale ? minScale : (contentNewScale > maxScale ? maxScale : contentNewScale);
     },
     _computeNewPosition(contentNewScale, { x, y }) {
@@ -212,11 +218,17 @@ WZoom.prototype = {
     _zoom(direction) {
         const windowPosition = getElementPosition(this.window.$element);
 
+        const { window } = this;
+        const { body, documentElement } = document;
+
+        const scrollLeft = window.pageXOffset || documentElement.scrollLeft || body.scrollLeft;
+        const scrollTop = window.pageYOffset || documentElement.scrollTop || body.scrollTop;
+
         this._transform(
             this._computeNewPosition(
                 this._computeNewScale(direction), {
-                    x: windowPosition.left + (this.window.originalWidth / 2),
-                    y: windowPosition.top + (this.window.originalHeight / 2)
+                    x: windowPosition.left + (this.window.originalWidth / 2) - scrollLeft,
+                    y: windowPosition.top + (this.window.originalHeight / 2) - scrollTop
                 }));
     },
     prepare() {

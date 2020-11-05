@@ -477,6 +477,13 @@
                 currentScale = _this$content.currentScale;
             var contentNewScale =
                 currentScale + this.direction / this.options.speed;
+
+            if (contentNewScale < minScale) {
+                this.direction = 1;
+            } else if (contentNewScale > maxScale) {
+                this.direction = -1;
+            }
+
             return contentNewScale < minScale
                 ? minScale
                 : contentNewScale > maxScale
@@ -588,11 +595,29 @@
         },
         _zoom: function _zoom(direction) {
             var windowPosition = getElementPosition(this.window.$element);
+            var window = this.window;
+            var _document2 = document,
+                body = _document2.body,
+                documentElement = _document2.documentElement;
+            var scrollLeft =
+                window.pageXOffset ||
+                documentElement.scrollLeft ||
+                body.scrollLeft;
+            var scrollTop =
+                window.pageYOffset ||
+                documentElement.scrollTop ||
+                body.scrollTop;
 
             this._transform(
                 this._computeNewPosition(this._computeNewScale(direction), {
-                    x: windowPosition.left + this.window.originalWidth / 2,
-                    y: windowPosition.top + this.window.originalHeight / 2,
+                    x:
+                        windowPosition.left +
+                        this.window.originalWidth / 2 -
+                        scrollLeft,
+                    y:
+                        windowPosition.top +
+                        this.window.originalHeight / 2 -
+                        scrollTop,
                 })
             );
         },

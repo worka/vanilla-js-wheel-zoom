@@ -2,11 +2,11 @@
     "name": "vanilla-js-wheel-zoom",
     "version": "6.2.0",
     "devDependencies": {
-        "@babel/core": "^7.11.6",
-        "@babel/preset-env": "^7.11.5",
+        "@babel/core": "^7.12.3",
+        "@babel/preset-env": "^7.12.1",
         "babel-minify": "^0.5.1",
-        "prettier": "2.1.1",
-        "rollup": "^2.26.11",
+        "prettier": "2.1.2",
+        "rollup": "^2.33.1",
         "rollup-plugin-babel": "^4.4.0"
     },
     "scripts": {
