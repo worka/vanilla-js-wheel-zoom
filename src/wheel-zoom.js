@@ -241,6 +241,8 @@ WZoom.prototype = {
         this._zoom(1);
     },
     destroy() {
+        this.content.$element.style.transform = '';
+
         off(this.window.$element, 'wheel', this._wheelHandler);
 
         if (this.options.zoomOnClick) {
