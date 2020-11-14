@@ -47,6 +47,11 @@
                     <img id="myContent" src="https://worka.github.io/files/wheel_zoom_example.jpg" alt="image"/>
                 </div>
             </div>
+
+            <div class="d-flex my-3">
+                <button data-destroy class="btn btn-info">Destroy</button>
+                <button data-change-image class="btn btn-info ml-auto">Change image</button>
+            </div>
         </div>
     </div>
 </div>
@@ -72,6 +77,18 @@
 
         document.querySelector('[data-zoom-down]').addEventListener('click', function () {
             wzoom.zoomDown();
+        });
+
+        document.querySelector('[data-destroy]').addEventListener('click', function () {
+            wzoom.destroy();
+            this.remove();
+            document.querySelector('[data-zoom-up]').remove();
+            document.querySelector('[data-zoom-down]').remove();
+            document.querySelector('[data-change-image]').remove();
+        });
+
+        document.querySelector('[data-change-image]').addEventListener('click', function () {
+            document.getElementById('myContent').src = 'https://worka.github.io/files/wheel_zoom_example_2.jpg';
         });
 
         window.addEventListener('resize', function () {

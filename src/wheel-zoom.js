@@ -62,10 +62,10 @@ function WZoom(selector, options = {}) {
             // if the `image` has already been loaded
             if (this.content.$element.complete) {
                 this._init();
-            } else {
-                // if suddenly the `image` has not loaded yet, then wait
-                on(this.content.$element, 'load', this._init);
             }
+
+            // even if the `image` has already been loaded (for "hot" change of src support)
+            on(this.content.$element, 'load', this._init);
         } else {
             this._init();
         }
