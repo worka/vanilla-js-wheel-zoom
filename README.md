@@ -61,6 +61,8 @@ yarn add vanilla-js-wheel-zoom
 WZoom.create('#myContent');
 ```
 
+Supported "hot" change src of image (when type = image). You can do `document.getElementById('myContent').src = "_new_path_"` after initializing the plugin.
+
 #### Default params
 
 ``` javascript

@@ -64,7 +64,7 @@ function WZoom(selector, options = {}) {
                 this._init();
             } else {
                 // if suddenly the `image` has not loaded yet, then wait
-                this.content.$element.onload = this._init;
+                on(this.content.$element, 'load', this._init);
             }
         } else {
             this._init();
@@ -88,6 +88,11 @@ WZoom.prototype = {
         this._prepare();
 
         if (this.options.dragScrollable === true) {
+            // this can happen if the src of this.content.$element (when type = image) is changed and repeat event load at image
+            if (this.dragScrollable) {
+                this.dragScrollable.destroy();
+            }
+
             this.dragScrollable = new DragScrollable(this.window, this.content, this.options.dragScrollableOptions);
         }
 
@@ -242,6 +247,10 @@ WZoom.prototype = {
     },
     destroy() {
         this.content.$element.style.transform = '';
+
+        if (this.options.type === 'image') {
+            off(this.content.$element, 'load', this._init);
+        }
 
         off(this.window.$element, 'wheel', this._wheelHandler);
 
