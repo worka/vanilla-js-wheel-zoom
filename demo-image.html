@@ -60,39 +60,60 @@
 
 <script type="text/javascript">
     document.addEventListener('DOMContentLoaded', function () {
+        var win = document.getElementById('myWindow');
+        var image = document.getElementById('myContent');
+
+        var zoomUpButton = document.querySelector('[data-zoom-up]');
+        var zoomDownButton = document.querySelector('[data-zoom-down]');
+        var destroyButton = document.querySelector('[data-destroy]');
+        var changeImageButton = document.querySelector('[data-change-image]');
+
+        var imagesStore = ['https://worka.github.io/files/wheel_zoom_example_2.jpg', image.src];
+
         var wzoom = WZoom.create('#myContent', {
             dragScrollableOptions: {
                 onGrab: function () {
-                    document.getElementById('myWindow').style.cursor = 'grabbing';
+                    win.style.cursor = 'grabbing';
                 },
                 onDrop: function () {
-                    document.getElementById('myWindow').style.cursor = 'grab';
+                    win.style.cursor = 'grab';
                 }
             }
         });
 
-        document.querySelector('[data-zoom-up]').addEventListener('click', function () {
+        zoomUpButton.addEventListener('click', function () {
             wzoom.zoomUp();
         });
 
-        document.querySelector('[data-zoom-down]').addEventListener('click', function () {
+        zoomDownButton.addEventListener('click', function () {
             wzoom.zoomDown();
         });
 
-        document.querySelector('[data-destroy]').addEventListener('click', function () {
+        destroyButton.addEventListener('click', function () {
             wzoom.destroy();
+            wzoom = null;
+
             this.remove();
-            document.querySelector('[data-zoom-up]').remove();
-            document.querySelector('[data-zoom-down]').remove();
-            document.querySelector('[data-change-image]').remove();
+            zoomUpButton.remove();
+            zoomDownButton.remove();
+            changeImageButton.remove();
         });
 
-        document.querySelector('[data-change-image]').addEventListener('click', function () {
-            document.getElementById('myContent').src = 'https://worka.github.io/files/wheel_zoom_example_2.jpg';
+        changeImageButton.addEventListener('click', function () {
+            changeImageButton.innerHTML = 'Loading...';
+
+            var newImagePath = imagesStore.shift();
+            imagesStore.push(newImagePath);
+
+            image.addEventListener('load', function () {
+                changeImageButton.innerHTML = 'Change image';
+            }, { once: true });
+
+            image.src = newImagePath;
         });
 
         window.addEventListener('resize', function () {
-            wzoom.prepare();
+            if (wzoom) wzoom.prepare();
         });
     });
 </script>

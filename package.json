@@ -6,7 +6,7 @@
         "@babel/preset-env": "^7.12.1",
         "babel-minify": "^0.5.1",
         "prettier": "2.1.2",
-        "rollup": "^2.33.1",
+        "rollup": "^2.33.2",
         "rollup-plugin-babel": "^4.4.0"
     },
     "scripts": {

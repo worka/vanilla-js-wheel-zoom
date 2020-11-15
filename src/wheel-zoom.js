@@ -96,11 +96,11 @@ WZoom.prototype = {
             this.dragScrollable = new DragScrollable(this.window, this.content, this.options.dragScrollableOptions);
         }
 
-        on(this.window.$element, 'wheel', this._wheelHandler);
+        on(this.content.$element, 'wheel', this._wheelHandler);
 
         if (this.options.zoomOnClick) {
-            on(this.window.$element, this.events.down, this._downHandler, this.events.options);
-            on(this.window.$element, this.events.up, this._upHandler, this.events.options);
+            on(this.content.$element, this.events.down, this._downHandler, this.events.options);
+            on(this.content.$element, this.events.up, this._upHandler, this.events.options);
         }
     },
     _prepare() {
