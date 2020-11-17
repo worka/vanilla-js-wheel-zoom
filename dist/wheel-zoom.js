@@ -329,6 +329,9 @@
             speed: 50,
             // zoom to maximum (minimum) size on click
             zoomOnClick: true,
+            // if is true, then when the source image changes, the plugin will automatically restart init function (used with type = image)
+            // attention: if false, it will work correctly only if the images are of the same size
+            watchImageChange: true,
         };
         this.content.$element = document.querySelector(selector); // check if we're using a touch screen
 
@@ -363,12 +366,30 @@
             this.window.$element = this.content.$element.parentNode;
 
             if (this.options.type === 'image') {
-                // if the `image` has already been loaded
+                var initAlreadyDone = false; // if the `image` has already been loaded
+
                 if (this.content.$element.complete) {
                     this._init();
-                } // even if the `image` has already been loaded (for "hot" change of src support)
 
-                on(this.content.$element, 'load', this._init);
+                    initAlreadyDone = true;
+                }
+
+                if (
+                    !initAlreadyDone ||
+                    this.options.watchImageChange === true
+                ) {
+                    // even if the `image` has already been loaded (for "hotswap" of src support)
+                    on(
+                        this.content.$element,
+                        'load',
+                        this._init, // if watchImageChange == false listen add only until the first call
+                        this.options.watchImageChange
+                            ? false
+                            : {
+                                  once: true,
+                              }
+                    );
+                }
             } else {
                 this._init();
             }
