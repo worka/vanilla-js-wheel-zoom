@@ -310,6 +310,24 @@
         this._wheelHandler = _wheelHandler.bind(this);
         this._downHandler = _downHandler.bind(this);
         this._upHandler = _upHandler.bind(this);
+        /********************/
+
+        /********************/
+
+        this.content = {};
+        this.window = {};
+        this.isTouch = false;
+        this.events = null;
+        this.direction = 1;
+        this.options = null;
+        this.dragScrollable = null; // processing of the event "max / min zoom" begin only if there was really just a click
+        // so as not to interfere with the DragScrollable module
+
+        this.clickExpired = true;
+        /********************/
+
+        /********************/
+
         var defaults = {
             // type content: `image` - only one image, `html` - any HTML content
             type: 'image',
@@ -398,16 +416,6 @@
 
     WZoom.prototype = {
         constructor: WZoom,
-        isTouch: false,
-        events: null,
-        content: {},
-        window: {},
-        direction: 1,
-        options: null,
-        dragScrollable: null,
-        // processing of the event "max / min zoom" begin only if there was really just a click
-        // so as not to interfere with the DragScrollable module
-        clickExpired: true,
         _init: function _init() {
             this._prepare();
 
@@ -603,12 +611,12 @@
             return response;
         },
         _transform: function _transform(_ref2) {
-            var currentLeft = _ref2.currentLeft,
-                newLeft = _ref2.newLeft,
-                currentTop = _ref2.currentTop,
-                newTop = _ref2.newTop,
-                currentScale = _ref2.currentScale,
-                newScale = _ref2.newScale;
+            _ref2.currentLeft;
+            var newLeft = _ref2.newLeft;
+            _ref2.currentTop;
+            var newTop = _ref2.newTop;
+            _ref2.currentScale;
+            var newScale = _ref2.newScale;
             this.content.$element.style.transform = 'translate3d('
                 .concat(newLeft, 'px, ')
                 .concat(newTop, 'px, 0px) scale(')

@@ -66,7 +66,7 @@ export function numberExtinction(number) {
     const k = 2;
     const maxAvailableLength = 12 * k;
     const minAvailableLength = k;
-    const forTail = [20, 7, 6, 5, 4];
+    const forTail = [ 20, 7, 6, 5, 4 ];
 
     const numbers = [];
     const direction = number > 0 ? 1 : -1;

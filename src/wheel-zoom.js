@@ -18,6 +18,22 @@ function WZoom(selector, options = {}) {
     this._downHandler = _downHandler.bind(this);
     this._upHandler = _upHandler.bind(this);
 
+    /********************/
+    /********************/
+    this.content = {};
+    this.window = {};
+
+    this.isTouch = false;
+    this.events = null;
+    this.direction = 1;
+    this.options = null;
+    this.dragScrollable = null;
+    // processing of the event "max / min zoom" begin only if there was really just a click
+    // so as not to interfere with the DragScrollable module
+    this.clickExpired = true;
+    /********************/
+    /********************/
+
     const defaults = {
         // type content: `image` - only one image, `html` - any HTML content
         type: 'image',
@@ -86,16 +102,6 @@ function WZoom(selector, options = {}) {
 
 WZoom.prototype = {
     constructor: WZoom,
-    isTouch: false,
-    events: null,
-    content: {},
-    window: {},
-    direction: 1,
-    options: null,
-    dragScrollable: null,
-    // processing of the event "max / min zoom" begin only if there was really just a click
-    // so as not to interfere with the DragScrollable module
-    clickExpired: true,
     _init() {
         this._prepare();
 
