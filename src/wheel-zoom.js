@@ -3,11 +3,11 @@ import DragScrollable from './drag-scrollable';
 
 /**
  * @class WZoom
- * @param {string} selector
+ * @param {string|HTMLElement} selectorOrHTMLElement
  * @param {Object} options
  * @constructor
  */
-function WZoom(selector, options = {}) {
+function WZoom(selectorOrHTMLElement, options = {}) {
     this._init = this._init.bind(this);
     this._prepare = this._prepare.bind(this);
     this._computeNewScale = this._computeNewScale.bind(this);
@@ -58,7 +58,13 @@ function WZoom(selector, options = {}) {
         watchImageChange: true
     };
 
-    this.content.$element = document.querySelector(selector);
+    if (typeof selectorOrHTMLElement === 'string') {
+        this.content.$element = document.querySelector(selectorOrHTMLElement);
+    } else if (selectorOrHTMLElement instanceof HTMLElement) {
+        this.content.$element = selectorOrHTMLElement;
+    } else {
+        throw `WZoom: \`selectorOrHTMLElement\` must be selector or HTMLElement, and not ${ {}.toString.call(selectorOrHTMLElement) }`;
+    }
 
     // check if we're using a touch screen
     this.isTouch = isTouch();
@@ -324,12 +330,12 @@ function _upHandler(event) {
 
 /**
  * Create WZoom instance
- * @param {string} selector
+ * @param {string|HTMLElement} selectorOrHTMLElement
  * @param {Object} [options]
  * @returns {WZoom}
  */
-WZoom.create = function (selector, options) {
-    return new WZoom(selector, options);
+WZoom.create = function (selectorOrHTMLElement, options) {
+    return new WZoom(selectorOrHTMLElement, options);
 };
 
 export default WZoom;

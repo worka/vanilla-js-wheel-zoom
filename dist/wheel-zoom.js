@@ -292,12 +292,12 @@
 
     /**
      * @class WZoom
-     * @param {string} selector
+     * @param {string|HTMLElement} selectorOrHTMLElement
      * @param {Object} options
      * @constructor
      */
 
-    function WZoom(selector) {
+    function WZoom(selectorOrHTMLElement) {
         var options =
             arguments.length > 1 && arguments[1] !== undefined
                 ? arguments[1]
@@ -351,7 +351,18 @@
             // attention: if false, it will work correctly only if the images are of the same size
             watchImageChange: true,
         };
-        this.content.$element = document.querySelector(selector); // check if we're using a touch screen
+
+        if (typeof selectorOrHTMLElement === 'string') {
+            this.content.$element = document.querySelector(
+                selectorOrHTMLElement
+            );
+        } else if (selectorOrHTMLElement instanceof HTMLElement) {
+            this.content.$element = selectorOrHTMLElement;
+        } else {
+            throw 'WZoom: `selectorOrHTMLElement` must be selector or HTMLElement, and not '.concat(
+                {}.toString.call(selectorOrHTMLElement)
+            );
+        } // check if we're using a touch screen
 
         this.isTouch = isTouch(); // switch to touch events if using a touch screen
 
@@ -743,13 +754,13 @@
     }
     /**
      * Create WZoom instance
-     * @param {string} selector
+     * @param {string|HTMLElement} selectorOrHTMLElement
      * @param {Object} [options]
      * @returns {WZoom}
      */
 
-    WZoom.create = function (selector, options) {
-        return new WZoom(selector, options);
+    WZoom.create = function (selectorOrHTMLElement, options) {
+        return new WZoom(selectorOrHTMLElement, options);
     };
 
     return WZoom;

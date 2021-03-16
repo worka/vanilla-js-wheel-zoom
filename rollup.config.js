@@ -11,6 +11,10 @@ module.exports = {
         babel()
     ],
     watch: {
-        clearScreen: false
+        exclude: 'node_modules/**',
+        clearScreen: false,
+        chokidar: {
+            usePolling: true
+        }
     }
 };
