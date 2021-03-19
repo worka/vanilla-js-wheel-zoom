@@ -63,6 +63,8 @@ WZoom.create('#myContent');
 
 Supported "hotswap" src of image (when type = image). You can do `document.getElementById('myContent').src = "_new_path_"` after initializing the plugin.
 
+#### Syntax & Parameters
+
 ```javascript
 /**
  * Create WZoom instance
@@ -70,7 +72,7 @@ Supported "hotswap" src of image (when type = image). You can do `document.getEl
  * @param {Object} [options]
  * @returns {WZoom}
  */
-WZoom.create(selectorOrHTMLElement[, options]);
+var wzoom = WZoom.create(selectorOrHTMLElement[, options]);
 ```
 
 #### Default options
