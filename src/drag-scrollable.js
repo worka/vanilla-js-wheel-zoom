@@ -29,8 +29,8 @@ function DragScrollable(windowObject, contentObject, options = {}) {
     this.events = this.isTouch ?
         { grab: 'touchstart', move: 'touchmove', drop: 'touchend' } :
         { grab: 'mousedown', move: 'mousemove', drop: 'mouseup' };
-    // if using touch screen tells the browser that the default action will not be undone
-    this.events.options = this.isTouch ? { passive: true } : false;
+    // for the touch screen we set the parameter forcibly
+    this.events.options = this.isTouch ? { passive: false } : false;
 
     this.window = windowObject;
     this.content = contentObject;
@@ -52,7 +52,7 @@ DragScrollable.prototype = {
     _grabHandler(event) {
         // if touch started (only one finger) or pressed left mouse button
         if ((this.isTouch && event.touches.length === 1) || event.buttons === 1) {
-            if (!this.isTouch) event.preventDefault();
+            event.preventDefault();
 
             this.isGrab = true;
             this.coordinates = { left: eventClientX(event), top: eventClientY(event) };
@@ -67,7 +67,7 @@ DragScrollable.prototype = {
         }
     },
     _dropHandler(event) {
-        if (!this.isTouch) event.preventDefault();
+        event.preventDefault();
 
         this.isGrab = false;
 
@@ -84,7 +84,7 @@ DragScrollable.prototype = {
         }
     },
     _moveHandler(event) {
-        if (!this.isTouch) event.preventDefault();
+        event.preventDefault();
 
         const { window, content, speed, coordinates, options } = this;
 

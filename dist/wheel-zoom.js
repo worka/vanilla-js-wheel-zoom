@@ -144,11 +144,11 @@
                   grab: 'mousedown',
                   move: 'mousemove',
                   drop: 'mouseup',
-              }; // if using touch screen tells the browser that the default action will not be undone
+              }; // for the touch screen we set the parameter forcibly
 
         this.events.options = this.isTouch
             ? {
-                  passive: true,
+                  passive: false,
               }
             : false;
         this.window = windowObject;
@@ -178,7 +178,7 @@
                 (this.isTouch && event.touches.length === 1) ||
                 event.buttons === 1
             ) {
-                if (!this.isTouch) event.preventDefault();
+                event.preventDefault();
                 this.isGrab = true;
                 this.coordinates = {
                     left: eventClientX(event),
@@ -207,7 +207,7 @@
             }
         },
         _dropHandler: function _dropHandler(event) {
-            if (!this.isTouch) event.preventDefault();
+            event.preventDefault();
             this.isGrab = false; // if (this.options.smoothExtinction) {
             //     _moveExtinction.call(this, 'scrollLeft', numberExtinction(this.speed.x));
             //     _moveExtinction.call(this, 'scrollTop', numberExtinction(this.speed.y));
@@ -221,7 +221,7 @@
             }
         },
         _moveHandler: function _moveHandler(event) {
-            if (!this.isTouch) event.preventDefault();
+            event.preventDefault();
             var window = this.window,
                 content = this.content,
                 speed = this.speed,
