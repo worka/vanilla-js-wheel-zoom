@@ -84,6 +84,9 @@ DragScrollable.prototype = {
         }
     },
     _moveHandler(event) {
+        // so that it does not move when the touch screen and more than one finger
+        if (this.isTouch && event.touches.length > 1) return false;
+
         event.preventDefault();
 
         const { window, content, speed, coordinates, options } = this;

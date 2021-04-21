@@ -18,6 +18,9 @@ function WZoom(selectorOrHTMLElement, options = {}) {
     this._downHandler = _downHandler.bind(this);
     this._upHandler = _upHandler.bind(this);
 
+    this._zoomTwoFingers_TouchmoveHandler = _zoomTwoFingers_TouchmoveHandler.bind(this);
+    this._zoomTwoFingers_TouchendHandler = _zoomTwoFingers_TouchendHandler.bind(this);
+
     /********************/
     /********************/
     this.content = {};
@@ -110,6 +113,15 @@ WZoom.prototype = {
     constructor: WZoom,
     _init() {
         this._prepare();
+
+        // support for zoom and pinch on touch screen devices
+        if (this.isTouch) {
+            this.fingersHypot = null;
+            this.zoomPinchWasDetected = false;
+
+            on(this.content.$element, 'touchmove', this._zoomTwoFingers_TouchmoveHandler);
+            on(this.content.$element, 'touchend', this._zoomTwoFingers_TouchendHandler);
+        }
 
         if (this.options.dragScrollable === true) {
             // this can happen if the src of this.content.$element (when type = image) is changed and repeat event load at image
@@ -276,6 +288,11 @@ WZoom.prototype = {
             off(this.content.$element, 'load', this._init);
         }
 
+        if (this.isTouch) {
+            off(this.content.$element, 'touchmove', this._zoomTwoFingers_TouchmoveHandler);
+            off(this.content.$element, 'touchend', this._zoomTwoFingers_TouchendHandler);
+        }
+
         off(this.window.$element, 'wheel', this._wheelHandler);
 
         if (this.options.zoomOnClick) {
@@ -325,6 +342,53 @@ function _upHandler(event) {
         );
 
         this.direction *= -1;
+    }
+}
+
+function _zoomTwoFingers_TouchmoveHandler(event) {
+    // detect two fingers
+    if (event.targetTouches.length === 2) {
+        const pageX1 = event.targetTouches[0].clientX;
+        const pageY1 = event.targetTouches[0].clientY;
+
+        const pageX2 = event.targetTouches[1].clientX;
+        const pageY2 = event.targetTouches[1].clientY;
+
+        // Math.hypot() analog
+        const fingersHypotNew = Math.round(Math.sqrt(
+            Math.pow(Math.abs(pageX1 - pageX2), 2) +
+            Math.pow(Math.abs(pageY1 - pageY2), 2)
+        ));
+
+        let direction = 0
+        if (fingersHypotNew > this.fingersHypot + 5) direction = -1;
+        if (fingersHypotNew < this.fingersHypot - 5) direction = 1;
+
+        if (direction !== 0) {
+            console.log('move', direction, this.fingersHypot, fingersHypotNew);
+
+            if (this.fingersHypot !== null || direction === 1) {
+                const eventEmulator = new Event('wheel');
+                // sized direction
+                eventEmulator.deltaY = direction;
+                // middle position between fingers
+                eventEmulator.clientX = Math.min(pageX1, pageX2) + (Math.abs(pageX1 - pageX2) / 2);
+                eventEmulator.clientY = Math.min(pageY1, pageY2) + (Math.abs(pageY1 - pageY2) / 2);
+
+                this._wheelHandler(eventEmulator);
+            }
+
+            this.fingersHypot = fingersHypotNew;
+            this.zoomPinchWasDetected = true
+        }
+    }
+}
+
+function _zoomTwoFingers_TouchendHandler() {
+    if (this.zoomPinchWasDetected) {
+        this.fingersHypot = null;
+        this.zoomPinchWasDetected = false;
+        console.log('end', this.fingersHypot);
     }
 }
 
