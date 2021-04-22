@@ -10,6 +10,7 @@ Image resizing using mouse wheel + drag scrollable image (as well as any HTML co
 Advantages: 
 * the ability to fit the image into a container of any proportion
 * the ability to scale any HTML content
+* touch screen devices support
 
 > Starting with version 5, the plugin switched to using `style transform`. To use the plugin in older browsers, switch to earlier versions.
 
