@@ -17,6 +17,8 @@ function WZoom(selectorOrHTMLElement, options = {}) {
     this._wheelHandler = _wheelHandler.bind(this);
     this._downHandler = _downHandler.bind(this);
     this._upHandler = _upHandler.bind(this);
+    this._rotateLeftHandler = _rotateLeftHandler.bind(this);
+    this._rotateRightHandler = _rotateRigthtHandler.bind(this);
 
     this._zoomTwoFingers_TouchmoveHandler = _zoomTwoFingers_TouchmoveHandler.bind(this);
     this._zoomTwoFingers_TouchendHandler = _zoomTwoFingers_TouchendHandler.bind(this);
@@ -31,6 +33,7 @@ function WZoom(selectorOrHTMLElement, options = {}) {
     this.direction = 1;
     this.options = null;
     this.dragScrollable = null;
+    this.rotateAngle = 0;
     // processing of the event "max / min zoom" begin only if there was really just a click
     // so as not to interfere with the DragScrollable module
     this.clickExpired = true;
@@ -343,6 +346,24 @@ function _upHandler(event) {
 
         this.direction *= -1;
     }
+}
+
+function _rotateLeftHandler(event) {
+    this.rotateAngle = (this.rotateAngle + 90) % 360;
+    this.content.$element.style.transform = "rotate(" + this.rotateAngle + "deg)";
+}
+
+function _rotateRightHandler(event) {
+    if (this.rotateAngle === 0)
+    {
+        this.rotateAngle = 270;
+    } else if (this.rotateAngle === 270) {
+        this.rotateAngle = 0;
+    } else {
+        this.rotateAngle = this.rotateAngle - 90;
+    }
+
+    this.content.$element.style.transform = "rotate(" + this.rotateAngle + "deg)";
 }
 
 function _zoomTwoFingers_TouchmoveHandler(event) {
