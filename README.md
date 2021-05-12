@@ -227,4 +227,4 @@ vanilla-js-wheel-zoom is licensed under the <a href="http://choosealicense.com/l
 
 #### DONATE
 
-If you find my plugin helpful, please <a href="https://www.paypal.com/paypalme/bworka">donate me</a>
+If you find my plugin helpful, please <a href="https://paypal.me/bworka">donate me</a>
