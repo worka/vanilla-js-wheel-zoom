@@ -224,3 +224,7 @@ window.addEventListener('resize', () => {
 ### LICENSE
 
 vanilla-js-wheel-zoom is licensed under the <a href="http://choosealicense.com/licenses/gpl-3.0">GPLv3</a> license for all open source applications. A commercial license is required for all commercial applications (including sites, themes and apps you plan to sell).
+
+#### DONATE
+
+If you find my plugin helpful, please <a href="https://www.paypal.com/paypalme/bworka">donate me</a>
