@@ -18,6 +18,8 @@ Advantages:
 
 > HTML content can be of any structure, but the topmost child element in the “window” must be one. In the example with "badge" below, it will be more clear what is meant.
 
+🖐 If you find my plugin helpful, please <a href="https://paypal.me/bworka">donate me</a> 🤝
+
 <a href="https://worka.github.io/vanilla-js-wheel-zoom/demo-image.html">Demo (only one image)</a>
 
 <a href="https://worka.github.io/vanilla-js-wheel-zoom/demo-html.html">Demo (html)</a>
@@ -224,7 +226,3 @@ window.addEventListener('resize', () => {
 ### LICENSE
 
 vanilla-js-wheel-zoom is licensed under the <a href="http://choosealicense.com/licenses/gpl-3.0">GPLv3</a> license for all open source applications. A commercial license is required for all commercial applications (including sites, themes and apps you plan to sell).
-
-#### DONATE
-
-If you find my plugin helpful, please <a href="https://paypal.me/bworka">donate me</a>
