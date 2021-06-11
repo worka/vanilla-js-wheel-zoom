@@ -221,6 +221,7 @@
             }
         },
         _moveHandler: function _moveHandler(event) {
+            // so that it does not move when the touch screen and more than one finger
             if (this.isTouch && event.touches.length > 1) return false;
             event.preventDefault();
             var window = this.window,
@@ -311,12 +312,10 @@
         this._wheelHandler = _wheelHandler.bind(this);
         this._downHandler = _downHandler.bind(this);
         this._upHandler = _upHandler.bind(this);
-        this._zoomTwoFingers_TouchmoveHandler = _zoomTwoFingers_TouchmoveHandler.bind(
-            this
-        );
-        this._zoomTwoFingers_TouchendHandler = _zoomTwoFingers_TouchendHandler.bind(
-            this
-        );
+        this._zoomTwoFingers_TouchmoveHandler =
+            _zoomTwoFingers_TouchmoveHandler.bind(this);
+        this._zoomTwoFingers_TouchendHandler =
+            _zoomTwoFingers_TouchendHandler.bind(this);
         /********************/
 
         /********************/
@@ -526,10 +525,11 @@
                 0,
                 (this.window.originalHeight - this.content.currentHeight) / 2
             );
-            this.content.$element.style.transform = 'translate3d(0px, 0px, 0px) scale('.concat(
-                this.content.minScale,
-                ')'
-            );
+            this.content.$element.style.transform =
+                'translate3d(0px, 0px, 0px) scale('.concat(
+                    this.content.minScale,
+                    ')'
+                );
 
             if (typeof this.options.prepare === 'function') {
                 this.options.prepare();
@@ -716,17 +716,17 @@
                 );
             }
 
-            off(this.window.$element, 'wheel', this._wheelHandler);
+            off(this.content.$element, 'wheel', this._wheelHandler);
 
             if (this.options.zoomOnClick) {
                 off(
-                    this.window.$element,
+                    this.content.$element,
                     this.events.down,
                     this._downHandler,
                     this.events.options
                 );
                 off(
-                    this.window.$element,
+                    this.content.$element,
                     this.events.up,
                     this._upHandler,
                     this.events.options

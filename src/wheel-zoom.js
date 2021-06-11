@@ -293,11 +293,11 @@ WZoom.prototype = {
             off(this.content.$element, 'touchend', this._zoomTwoFingers_TouchendHandler);
         }
 
-        off(this.window.$element, 'wheel', this._wheelHandler);
+        off(this.content.$element, 'wheel', this._wheelHandler);
 
         if (this.options.zoomOnClick) {
-            off(this.window.$element, this.events.down, this._downHandler, this.events.options);
-            off(this.window.$element, this.events.up, this._upHandler, this.events.options);
+            off(this.content.$element, this.events.down, this._downHandler, this.events.options);
+            off(this.content.$element, this.events.up, this._upHandler, this.events.options);
         }
 
         if (this.dragScrollable) {
