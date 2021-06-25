@@ -194,6 +194,10 @@ window.addEventListener('resize', () => {
 });
 ```
 
+#### How to rotate the image?
+
+[Try this 😉](https://github.com/worka/vanilla-js-wheel-zoom/issues/21)
+
 ### Options
 
 | name                                     | type       | default     | note                                                                                                                                                                                                                                                                                                  |
