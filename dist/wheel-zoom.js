@@ -441,6 +441,9 @@
              * EXPERIMENTAL OPTION
              */
             alignContent: 'center',
+
+            /********************/
+            disableWheelZoom: false,
         };
 
         if (typeof selectorOrHTMLElement === 'string') {
@@ -867,14 +870,16 @@
     };
 
     function _wheelHandler(event) {
-        event.preventDefault();
+        if (!this.options.disableWheelZoom) {
+            event.preventDefault();
 
-        this._transform(
-            this._computeNewPosition(this._computeNewScale(event.deltaY), {
-                x: eventClientX(event),
-                y: eventClientY(event),
-            })
-        );
+            this._transform(
+                this._computeNewPosition(this._computeNewScale(event.deltaY), {
+                    x: eventClientX(event),
+                    y: eventClientY(event),
+                })
+            );
+        }
     }
 
     function _downHandler(event) {
