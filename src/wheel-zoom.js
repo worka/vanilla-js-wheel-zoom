@@ -58,7 +58,11 @@ function WZoom(selectorOrHTMLElement, options = {}) {
         zoomOnClick: true,
         // if is true, then when the source image changes, the plugin will automatically restart init function (used with type = image)
         // attention: if false, it will work correctly only if the images are of the same size
-        watchImageChange: true
+        watchImageChange: true,
+        /**
+         * EXPERIMENTAL OPTION
+         */
+        alignContent: 'center'
     };
 
     if (typeof selectorOrHTMLElement === 'string') {
@@ -164,15 +168,23 @@ WZoom.prototype = {
         // current content sizes and transform data
         this.content.currentWidth = this.content.originalWidth * this.content.minScale;
         this.content.currentHeight = this.content.originalHeight * this.content.minScale;
-        this.content.currentLeft = 0;
-        this.content.currentTop = 0;
-        this.content.currentScale = this.content.minScale;
+
+        const [ alignPointX, alignPointY ] = _calculateAlignPoint(this.options, this.content, this.window);
+
+        this.content.alignPointX = alignPointX;
+        this.content.alignPointY = alignPointY;
 
         // calculate indent-left and indent-top to of content from window borders
-        this.content.correctX = Math.max(0, (this.window.originalWidth - this.content.currentWidth) / 2);
-        this.content.correctY = Math.max(0, (this.window.originalHeight - this.content.currentHeight) / 2);
+        const [ correctX, correctY ] = _calculateCorrectPoint(this.options, this.content, this.window);
 
-        this.content.$element.style.transform = `translate3d(0px, 0px, 0px) scale(${ this.content.minScale })`;
+        this.content.correctX = correctX;
+        this.content.correctY = correctY;
+
+        this.content.currentLeft = this.content.alignPointX;
+        this.content.currentTop = this.content.alignPointY;
+        this.content.currentScale = this.content.minScale;
+
+        this.content.$element.style.transform = `translate3d(${ this.content.alignPointX }px, ${ this.content.alignPointY }px, 0px) scale(${ this.content.minScale })`;
 
         if (typeof this.options.prepare === 'function') {
             this.options.prepare();
@@ -213,7 +225,13 @@ WZoom.prototype = {
         // check that the content does not go beyond the X axis
         if (this.direction === -1 && (contentNewWidth - window.originalWidth) / 2 + content.correctX < Math.abs(contentNewLeft)) {
             const positive = contentNewLeft < 0 ? -1 : 1;
-            contentNewLeft = ((contentNewWidth - window.originalWidth) / 2 + content.correctX) * positive;
+
+            // если выравнивание контента по лево/право
+            if (this.options.alignContent === 'left' || this.options.alignContent === 'right') {
+                contentNewLeft = this.content.alignPointX * positive * -1;
+            } else {
+                contentNewLeft = ((contentNewWidth - window.originalWidth) / 2 + content.correctX) * positive;
+            }
         }
 
         // calculate the parameters along the Y axis
@@ -225,11 +243,18 @@ WZoom.prototype = {
         // check that the content does not go beyond the Y axis
         if (this.direction === -1 && (contentNewHeight - window.originalHeight) / 2 + content.correctY < Math.abs(contentNewTop)) {
             const positive = contentNewTop < 0 ? -1 : 1;
-            contentNewTop = ((contentNewHeight - window.originalHeight) / 2 + content.correctY) * positive;
+
+            // если выравнивание контента по верху/низу
+            if (this.options.alignContent === 'top' || this.options.alignContent === 'bottom') {
+                contentNewTop = this.content.alignPointY * positive * -1;
+            } else {
+                contentNewTop = ((contentNewHeight - window.originalHeight) / 2 + content.correctY) * positive;
+            }
         }
 
         if (contentNewScale === this.content.minScale) {
-            contentNewLeft = contentNewTop = 0;
+            contentNewLeft = this.content.alignPointX;
+            contentNewTop = this.content.alignPointY;
         }
 
         const response = {
@@ -365,8 +390,6 @@ function _zoomTwoFingers_TouchmoveHandler(event) {
         if (fingersHypotNew < this.fingersHypot - 5) direction = 1;
 
         if (direction !== 0) {
-            console.log('move', direction, this.fingersHypot, fingersHypotNew);
-
             if (this.fingersHypot !== null || direction === 1) {
                 const eventEmulator = new Event('wheel');
                 // sized direction
@@ -388,8 +411,42 @@ function _zoomTwoFingers_TouchendHandler() {
     if (this.zoomPinchWasDetected) {
         this.fingersHypot = null;
         this.zoomPinchWasDetected = false;
-        console.log('end', this.fingersHypot);
     }
+}
+
+function _calculateAlignPoint(options, content, window) {
+    let alignPointX = 0;
+    let alignPointY = 0;
+
+    switch (options.alignContent) {
+        case 'left':
+            alignPointX = (content.currentWidth - window.originalWidth) / 2;
+            break;
+        case 'top':
+            alignPointY = (content.currentHeight - window.originalHeight) / 2;
+            break;
+        case 'right':
+            alignPointX = (content.currentWidth - window.originalWidth) / 2 * -1;
+            break;
+        case 'bottom':
+            alignPointY = (content.currentHeight - window.originalHeight) / 2 * -1;
+            break;
+    }
+
+    return [ alignPointX, alignPointY ];
+}
+
+function _calculateCorrectPoint(options, content, window) {
+    let correctX = Math.max(0, (window.originalWidth - content.currentWidth) / 2);
+    let correctY = Math.max(0, (window.originalHeight - content.currentHeight) / 2);
+
+    if (options.alignContent === 'left') correctX = correctX * 2;
+    else if (options.alignContent === 'right') correctX = 0;
+
+    if (options.alignContent === 'bottom') correctY = correctY * 2;
+    else if (options.alignContent === 'top') correctY = 0;
+
+    return [ correctX, correctY ];
 }
 
 /**

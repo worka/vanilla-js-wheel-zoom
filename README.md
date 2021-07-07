@@ -217,6 +217,7 @@ window.addEventListener('resize', () => {
 | watchImageChange                         | _Boolean_  | `true`      | If is `true`, then when the source image changes, the plugin will automatically restart init function (used with `type = image`). Attention: if `false`, it will work correctly only if the images are of the same size.                                                                              |
 | prepare                                  | _Function_ | `undefined` | Called after the script is initialized when the image is scaled and fit into the container.                                                                                                                                                                                                           |
 | rescale                                  | _Function_ | `undefined` | Called on every change of scale.                                                                                                                                                                                                                                                                      |
+| alignContent                             | _String_   | `center`    | <span style="color:red">_Experimental_</span><br>`center`, `left`, `top`, `right`, `bottom`                                                                                                                                                                                            |
 
 ### API
 

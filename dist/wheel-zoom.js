@@ -9,6 +9,80 @@
 })(this, function () {
     'use strict';
 
+    function _slicedToArray(arr, i) {
+        return (
+            _arrayWithHoles(arr) ||
+            _iterableToArrayLimit(arr, i) ||
+            _unsupportedIterableToArray(arr, i) ||
+            _nonIterableRest()
+        );
+    }
+
+    function _arrayWithHoles(arr) {
+        if (Array.isArray(arr)) return arr;
+    }
+
+    function _iterableToArrayLimit(arr, i) {
+        var _i =
+            arr == null
+                ? null
+                : (typeof Symbol !== 'undefined' && arr[Symbol.iterator]) ||
+                  arr['@@iterator'];
+
+        if (_i == null) return;
+        var _arr = [];
+        var _n = true;
+        var _d = false;
+
+        var _s, _e;
+
+        try {
+            for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) {
+                _arr.push(_s.value);
+
+                if (i && _arr.length === i) break;
+            }
+        } catch (err) {
+            _d = true;
+            _e = err;
+        } finally {
+            try {
+                if (!_n && _i['return'] != null) _i['return']();
+            } finally {
+                if (_d) throw _e;
+            }
+        }
+
+        return _arr;
+    }
+
+    function _unsupportedIterableToArray(o, minLen) {
+        if (!o) return;
+        if (typeof o === 'string') return _arrayLikeToArray(o, minLen);
+        var n = Object.prototype.toString.call(o).slice(8, -1);
+        if (n === 'Object' && o.constructor) n = o.constructor.name;
+        if (n === 'Map' || n === 'Set') return Array.from(o);
+        if (
+            n === 'Arguments' ||
+            /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)
+        )
+            return _arrayLikeToArray(o, minLen);
+    }
+
+    function _arrayLikeToArray(arr, len) {
+        if (len == null || len > arr.length) len = arr.length;
+
+        for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i];
+
+        return arr2;
+    }
+
+    function _nonIterableRest() {
+        throw new TypeError(
+            'Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.'
+        );
+    }
+
     /**
      * Get element position (with support old browsers)
      * @param {Element} element
@@ -362,6 +436,11 @@
             // if is true, then when the source image changes, the plugin will automatically restart init function (used with type = image)
             // attention: if false, it will work correctly only if the images are of the same size
             watchImageChange: true,
+
+            /**
+             * EXPERIMENTAL OPTION
+             */
+            alignContent: 'center',
         };
 
         if (typeof selectorOrHTMLElement === 'string') {
@@ -519,23 +598,43 @@
                 this.content.originalWidth * this.content.minScale;
             this.content.currentHeight =
                 this.content.originalHeight * this.content.minScale;
-            this.content.currentLeft = 0;
-            this.content.currentTop = 0;
-            this.content.currentScale = this.content.minScale; // calculate indent-left and indent-top to of content from window borders
 
-            this.content.correctX = Math.max(
-                0,
-                (this.window.originalWidth - this.content.currentWidth) / 2
-            );
-            this.content.correctY = Math.max(
-                0,
-                (this.window.originalHeight - this.content.currentHeight) / 2
-            );
-            this.content.$element.style.transform =
-                'translate3d(0px, 0px, 0px) scale('.concat(
-                    this.content.minScale,
-                    ')'
-                );
+            var _calculateAlignPoint2 = _calculateAlignPoint(
+                    this.options,
+                    this.content,
+                    this.window
+                ),
+                _calculateAlignPoint3 = _slicedToArray(
+                    _calculateAlignPoint2,
+                    2
+                ),
+                alignPointX = _calculateAlignPoint3[0],
+                alignPointY = _calculateAlignPoint3[1];
+
+            this.content.alignPointX = alignPointX;
+            this.content.alignPointY = alignPointY; // calculate indent-left and indent-top to of content from window borders
+
+            var _calculateCorrectPoin = _calculateCorrectPoint(
+                    this.options,
+                    this.content,
+                    this.window
+                ),
+                _calculateCorrectPoin2 = _slicedToArray(
+                    _calculateCorrectPoin,
+                    2
+                ),
+                correctX = _calculateCorrectPoin2[0],
+                correctY = _calculateCorrectPoin2[1];
+
+            this.content.correctX = correctX;
+            this.content.correctY = correctY;
+            this.content.currentLeft = this.content.alignPointX;
+            this.content.currentTop = this.content.alignPointY;
+            this.content.currentScale = this.content.minScale;
+            this.content.$element.style.transform = 'translate3d('
+                .concat(this.content.alignPointX, 'px, ')
+                .concat(this.content.alignPointY, 'px, 0px) scale(')
+                .concat(this.content.minScale, ')');
 
             if (typeof this.options.prepare === 'function') {
                 this.options.prepare();
@@ -599,11 +698,19 @@
                     content.correctX <
                     Math.abs(contentNewLeft)
             ) {
-                var positive = contentNewLeft < 0 ? -1 : 1;
-                contentNewLeft =
-                    ((contentNewWidth - window.originalWidth) / 2 +
-                        content.correctX) *
-                    positive;
+                var positive = contentNewLeft < 0 ? -1 : 1; // если выравнивание контента по лево/право
+
+                if (
+                    this.options.alignContent === 'left' ||
+                    this.options.alignContent === 'right'
+                ) {
+                    contentNewLeft = this.content.alignPointX * positive * -1;
+                } else {
+                    contentNewLeft =
+                        ((contentNewWidth - window.originalWidth) / 2 +
+                            content.correctX) *
+                        positive;
+                }
             } // calculate the parameters along the Y axis
 
             var topWindowShiftY = y + scrollTop - window.positionTop;
@@ -622,16 +729,24 @@
                     content.correctY <
                     Math.abs(contentNewTop)
             ) {
-                var _positive = contentNewTop < 0 ? -1 : 1;
+                var _positive = contentNewTop < 0 ? -1 : 1; // если выравнивание контента по верху/низу
 
-                contentNewTop =
-                    ((contentNewHeight - window.originalHeight) / 2 +
-                        content.correctY) *
-                    _positive;
+                if (
+                    this.options.alignContent === 'top' ||
+                    this.options.alignContent === 'bottom'
+                ) {
+                    contentNewTop = this.content.alignPointY * _positive * -1;
+                } else {
+                    contentNewTop =
+                        ((contentNewHeight - window.originalHeight) / 2 +
+                            content.correctY) *
+                        _positive;
+                }
             }
 
             if (contentNewScale === this.content.minScale) {
-                contentNewLeft = contentNewTop = 0;
+                contentNewLeft = this.content.alignPointX;
+                contentNewTop = this.content.alignPointY;
             }
 
             var response = {
@@ -813,13 +928,6 @@
             if (fingersHypotNew < this.fingersHypot - 5) direction = 1;
 
             if (direction !== 0) {
-                console.log(
-                    'move',
-                    direction,
-                    this.fingersHypot,
-                    fingersHypotNew
-                );
-
                 if (this.fingersHypot !== null || direction === 1) {
                     var eventEmulator = new Event('wheel'); // sized direction
 
@@ -845,8 +953,51 @@
         if (this.zoomPinchWasDetected) {
             this.fingersHypot = null;
             this.zoomPinchWasDetected = false;
-            console.log('end', this.fingersHypot);
         }
+    }
+
+    function _calculateAlignPoint(options, content, window) {
+        var alignPointX = 0;
+        var alignPointY = 0;
+
+        switch (options.alignContent) {
+            case 'left':
+                alignPointX = (content.currentWidth - window.originalWidth) / 2;
+                break;
+
+            case 'top':
+                alignPointY =
+                    (content.currentHeight - window.originalHeight) / 2;
+                break;
+
+            case 'right':
+                alignPointX =
+                    ((content.currentWidth - window.originalWidth) / 2) * -1;
+                break;
+
+            case 'bottom':
+                alignPointY =
+                    ((content.currentHeight - window.originalHeight) / 2) * -1;
+                break;
+        }
+
+        return [alignPointX, alignPointY];
+    }
+
+    function _calculateCorrectPoint(options, content, window) {
+        var correctX = Math.max(
+            0,
+            (window.originalWidth - content.currentWidth) / 2
+        );
+        var correctY = Math.max(
+            0,
+            (window.originalHeight - content.currentHeight) / 2
+        );
+        if (options.alignContent === 'left') correctX = correctX * 2;
+        else if (options.alignContent === 'right') correctX = 0;
+        if (options.alignContent === 'bottom') correctY = correctY * 2;
+        else if (options.alignContent === 'top') correctY = 0;
+        return [correctX, correctY];
     }
     /**
      * Create WZoom instance
