@@ -87,6 +87,9 @@
     }
     function eventClientX(event) {
         return event.type === 'wheel' ||
+            event.type === 'pointerup' ||
+            event.type === 'pointerdown' ||
+            event.type === 'pointermove' ||
             event.type === 'mousedown' ||
             event.type === 'mousemove' ||
             event.type === 'mouseup'
@@ -95,6 +98,9 @@
     }
     function eventClientY(event) {
         return event.type === 'wheel' ||
+            event.type === 'pointerup' ||
+            event.type === 'pointerdown' ||
+            event.type === 'pointermove' ||
             event.type === 'mousedown' ||
             event.type === 'mousemove' ||
             event.type === 'mouseup'

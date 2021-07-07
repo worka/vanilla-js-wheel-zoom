@@ -102,6 +102,9 @@ export function isTouch() {
 
 export function eventClientX(event) {
     return event.type === 'wheel' ||
+    event.type === 'pointerup' ||
+    event.type === 'pointerdown' ||
+    event.type === 'pointermove' ||
     event.type === 'mousedown' ||
     event.type === 'mousemove' ||
     event.type === 'mouseup' ? event.clientX : event.changedTouches[0].clientX;
@@ -109,6 +112,9 @@ export function eventClientX(event) {
 
 export function eventClientY(event) {
     return event.type === 'wheel' ||
+    event.type === 'pointerup' ||
+    event.type === 'pointerdown' ||
+    event.type === 'pointermove' ||
     event.type === 'mousedown' ||
     event.type === 'mousemove' ||
     event.type === 'mouseup' ? event.clientY : event.changedTouches[0].clientY;
