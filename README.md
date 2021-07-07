@@ -24,6 +24,8 @@ Advantages:
 
 <a href="https://worka.github.io/vanilla-js-wheel-zoom/demo-html.html">Demo (html)</a>
 
+<a href="https://worka.github.io/vanilla-js-wheel-zoom/demo-images.html">Demo (multi images with custom align)</a>
+
 ### Install
 
 ```cmd
