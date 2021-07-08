@@ -12,9 +12,9 @@
     "scripts": {
         "build": "yarn rollup && yarn prettier && yarn minify",
         "watch": "yarn rollup --watch",
-        "rollup": "./node_modules/rollup/dist/bin/rollup --config",
-        "prettier": "./node_modules/prettier/bin-prettier.js --write dist/wheel-zoom.js",
-        "minify": "./node_modules/babel-minify/bin/minify.js dist/wheel-zoom.js --out-file dist/wheel-zoom.min.js"
+        "rollup": "npx rollup --config",
+        "prettier": "npx prettier --write dist/wheel-zoom.js",
+        "minify": "npx minify dist/wheel-zoom.js --out-file dist/wheel-zoom.min.js"
     },
     "repository": {
         "type": "git",
