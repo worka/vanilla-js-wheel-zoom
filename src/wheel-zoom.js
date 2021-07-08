@@ -226,13 +226,22 @@ WZoom.prototype = {
 
         // check that the content does not go beyond the X axis
         if (this.direction === -1) {
-            if (this.options.alignContent === 'left' && contentNewWidth / 2 - contentNewLeft < window.originalWidth / 2) {
-                contentNewLeft = (contentNewWidth - window.originalWidth) / 2;
-            } else if (this.options.alignContent === 'right' && contentNewWidth / 2 + contentNewLeft < window.originalWidth / 2) {
-                contentNewLeft = (contentNewWidth - window.originalWidth) / 2 * -1;
-            } else if ((contentNewWidth - window.originalWidth) / 2 + content.correctX < Math.abs(contentNewLeft)) {
-                const positive = contentNewLeft < 0 ? -1 : 1;
-                contentNewLeft = ((contentNewWidth - window.originalWidth) / 2 + content.correctX) * positive;
+            switch (this.options.alignContent) {
+                case 'left':
+                    if (contentNewWidth / 2 - contentNewLeft < window.originalWidth / 2) {
+                        contentNewLeft = (contentNewWidth - window.originalWidth) / 2;
+                    }
+                    break;
+                case 'right':
+                    if (contentNewWidth / 2 + contentNewLeft < window.originalWidth / 2) {
+                        contentNewLeft = (contentNewWidth - window.originalWidth) / 2 * -1;
+                    }
+                    break;
+                default:
+                    if ((contentNewWidth - window.originalWidth) / 2 + content.correctX < Math.abs(contentNewLeft)) {
+                        const positive = contentNewLeft < 0 ? -1 : 1;
+                        contentNewLeft = ((contentNewWidth - window.originalWidth) / 2 + content.correctX) * positive;
+                    }
             }
         }
 
@@ -243,15 +252,22 @@ WZoom.prototype = {
         let contentNewTop = centerContentShiftY * (contentNewHeight / content.currentHeight) - centerContentShiftY + content.currentTop;
 
         // check that the content does not go beyond the Y axis
-        if (this.direction === -1) {
-            if (this.options.alignContent === 'top' && contentNewHeight / 2 - contentNewTop < window.originalHeight / 2) {
-                contentNewTop = (contentNewHeight - window.originalHeight) / 2;
-            } else if (this.options.alignContent === 'bottom' && contentNewHeight / 2 + contentNewTop < window.originalHeight / 2) {
-                contentNewTop = (contentNewHeight - window.originalHeight) / 2 * -1;
-            } else if ((contentNewHeight - window.originalHeight) / 2 + content.correctY < Math.abs(contentNewTop)) {
-                const positive = contentNewTop < 0 ? -1 : 1;
-                contentNewTop = ((contentNewHeight - window.originalHeight) / 2 + content.correctY) * positive;
-            }
+        switch (this.options.alignContent) {
+            case 'top':
+                if (contentNewHeight / 2 - contentNewTop < window.originalHeight / 2) {
+                    contentNewTop = (contentNewHeight - window.originalHeight) / 2;
+                }
+                break;
+            case 'bottom':
+                if (contentNewHeight / 2 + contentNewTop < window.originalHeight / 2) {
+                    contentNewTop = (contentNewHeight - window.originalHeight) / 2 * -1;
+                }
+                break;
+            default:
+                if ((contentNewHeight - window.originalHeight) / 2 + content.correctY < Math.abs(contentNewTop)) {
+                    const positive = contentNewTop < 0 ? -1 : 1;
+                    contentNewTop = ((contentNewHeight - window.originalHeight) / 2 + content.correctY) * positive;
+                }
         }
 
         if (contentNewScale === this.content.minScale) {
