@@ -9,14 +9,14 @@
           integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
     <style>
-        #myWindow, #myWindow2 {
+        .myWindow {
             cursor: grab;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
-        #myContent, #myContent2 {
+        .myContent {
             position: relative;
             display: flex;
             align-items: center;
@@ -34,18 +34,51 @@
     </p>
 
     <div class="row justify-content-center">
-        <div class="col-md-6 col-sm-12">
+        <div class="col-md-4 col-sm-12">
             <div class="embed-responsive embed-responsive-4by3 rounded bg-secondary">
-                <div id="myWindow" class="embed-responsive-item">
-                    <img id="myContent" src="https://worka.github.io/files/wheel_zoom_example.jpg" alt="image"/>
+                <div id="myWindow" class="embed-responsive-item myWindow">
+                    <img id="myContent" class="myContent" src="https://worka.github.io/files/wheel_zoom_example.jpg"
+                         alt="image"/>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-6 col-sm-12">
+        <div class="col-md-4 col-sm-12">
             <div class="embed-responsive embed-responsive-4by3 rounded bg-secondary">
-                <div id="myWindow2" class="embed-responsive-item">
-                    <img id="myContent2" src="https://worka.github.io/files/wheel_zoom_example_2.jpg" alt="image"/>
+                <div id="myWindow2" class="embed-responsive-item myWindow">
+                    <img id="myContent2" class="myContent" src="https://worka.github.io/files/wheel_zoom_example.jpg" alt="image"/>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 col-sm-12">
+            <div class="embed-responsive embed-responsive-4by3 rounded bg-secondary">
+                <div id="myWindow3" class="embed-responsive-item myWindow">
+                    <img id="myContent3" class="myContent" src="https://worka.github.io/files/wheel_zoom_example.jpg" alt="image"/>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 col-sm-12 mt-3">
+            <div class="embed-responsive embed-responsive-4by3 rounded bg-secondary">
+                <div id="myWindow4" class="embed-responsive-item myWindow">
+                    <img id="myContent4" class="myContent" src="https://worka.github.io/files/wheel_zoom_example_2.jpg" alt="image"/>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 col-sm-12 mt-3">
+            <div class="embed-responsive embed-responsive-4by3 rounded bg-secondary">
+                <div id="myWindow5" class="embed-responsive-item myWindow">
+                    <img id="myContent5" class="myContent" src="https://worka.github.io/files/wheel_zoom_example_2.jpg" alt="image"/>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 col-sm-12 mt-3">
+            <div class="embed-responsive embed-responsive-4by3 rounded bg-secondary">
+                <div id="myWindow6" class="embed-responsive-item myWindow">
+                    <img id="myContent6" class="myContent" src="https://worka.github.io/files/wheel_zoom_example_2.jpg" alt="image"/>
                 </div>
             </div>
         </div>
@@ -57,7 +90,11 @@
 <script type="text/javascript">
     document.addEventListener('DOMContentLoaded', function () {
         WZoom.create('#myContent', { alignContent: 'top' });
-        WZoom.create('#myContent2', { alignContent: 'right' });
+        WZoom.create('#myContent2');
+        WZoom.create('#myContent3', { alignContent: 'bottom' });
+        WZoom.create('#myContent4', { alignContent: 'left' });
+        WZoom.create('#myContent5');
+        WZoom.create('#myContent6', { alignContent: 'right' });
     });
 </script>
 </body>
