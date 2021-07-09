@@ -135,8 +135,11 @@ DragScrollable.prototype = {
 };
 
 function _transform($element, { left, top, scale }, options) {
-    if (options.smoothExtinction)
+    if (options.smoothExtinction) {
         $element.style.transition = `transform .25s`;
+    } else {
+        $element.style.removeProperty('transition');
+    }
 
     $element.style.transform = `translate3d(${ left }px, ${ top }px, 0px) scale(${ scale })`;
 }

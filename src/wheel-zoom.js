@@ -135,7 +135,7 @@ WZoom.prototype = {
                 this.dragScrollable.destroy();
             }
 
-            this.dragScrollable = new DragScrollable(this.window, this.content, this.options.dragScrollableOptions);
+            this.setDragScrollable(new DragScrollable(this.window, this.content, this.options.dragScrollableOptions));
         }
 
         on(this.content.$element, 'wheel', this._wheelHandler);
@@ -293,8 +293,11 @@ WZoom.prototype = {
         return response;
     },
     _transform({ currentLeft, newLeft, currentTop, newTop, currentScale, newScale }, iterations = 1) {
-        if (this.options.smoothExtinction)
+        if (this.options.smoothExtinction) {
             this.content.$element.style.transition = `transform .3s`;
+        } else {
+            this.content.$element.style.removeProperty('transition');
+        }
 
         this.content.$element.style.transform = `translate3d(${ newLeft }px, ${ newTop }px, 0px) scale(${ newScale })`;
 
@@ -326,6 +329,9 @@ WZoom.prototype = {
     },
     zoomDown() {
         this._zoom(1);
+    },
+    setDragScrollable(dragScrollable) {
+        this.dragScrollable = dragScrollable;
     },
     destroy() {
         this.content.$element.style.transform = '';

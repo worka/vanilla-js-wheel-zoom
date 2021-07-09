@@ -366,8 +366,13 @@
         var left = _ref.left,
             top = _ref.top,
             scale = _ref.scale;
-        if (options.smoothExtinction)
+
+        if (options.smoothExtinction) {
             $element.style.transition = 'transform .25s';
+        } else {
+            $element.style.removeProperty('transition');
+        }
+
         $element.style.transform = 'translate3d('
             .concat(left, 'px, ')
             .concat(top, 'px, 0px) scale(')
@@ -546,10 +551,12 @@
                     this.dragScrollable.destroy();
                 }
 
-                this.dragScrollable = new DragScrollable(
-                    this.window,
-                    this.content,
-                    this.options.dragScrollableOptions
+                this.setDragScrollable(
+                    new DragScrollable(
+                        this.window,
+                        this.content,
+                        this.options.dragScrollableOptions
+                    )
                 );
             }
 
@@ -812,8 +819,13 @@
             var newTop = _ref2.newTop;
             _ref2.currentScale;
             var newScale = _ref2.newScale;
-            if (this.options.smoothExtinction)
+
+            if (this.options.smoothExtinction) {
                 this.content.$element.style.transition = 'transform .3s';
+            } else {
+                this.content.$element.style.removeProperty('transition');
+            }
+
             this.content.$element.style.transform = 'translate3d('
                 .concat(newLeft, 'px, ')
                 .concat(newTop, 'px, 0px) scale(')
@@ -859,6 +871,9 @@
         },
         zoomDown: function zoomDown() {
             this._zoom(1);
+        },
+        setDragScrollable: function setDragScrollable(dragScrollable) {
+            this.dragScrollable = dragScrollable;
         },
         destroy: function destroy() {
             this.content.$element.style.transform = '';
