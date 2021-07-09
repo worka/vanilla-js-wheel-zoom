@@ -200,8 +200,8 @@
         this._moveHandler = this._moveHandler.bind(this);
         this.options = extendObject(
             {
-                // smooth extinction moving element after set loose
-                smoothExtinction: false,
+                // smooth extinction
+                smoothExtinction: true,
                 // callback triggered when grabbing an element
                 onGrab: null,
                 // callback triggered when moving an element
@@ -288,11 +288,7 @@
         },
         _dropHandler: function _dropHandler(event) {
             event.preventDefault();
-            this.isGrab = false; // if (this.options.smoothExtinction) {
-            //     _moveExtinction.call(this, 'scrollLeft', numberExtinction(this.speed.x));
-            //     _moveExtinction.call(this, 'scrollTop', numberExtinction(this.speed.y));
-            // }
-
+            this.isGrab = false;
             off(document, this.events.drop, this._dropHandler);
             off(document, this.events.move, this._moveHandler);
 
@@ -333,11 +329,15 @@
             if (Math.abs(contentNewTop) <= maxAvailableTop)
                 content.currentTop = contentNewTop;
 
-            _transform(content.$element, {
-                left: content.currentLeft,
-                top: content.currentTop,
-                scale: content.currentScale,
-            });
+            _transform(
+                content.$element,
+                {
+                    left: content.currentLeft,
+                    top: content.currentTop,
+                    scale: content.currentScale,
+                },
+                this.options
+            );
 
             coordinates.left = eventClientX(event);
             coordinates.top = eventClientY(event);
@@ -362,15 +362,17 @@
         },
     };
 
-    function _transform($element, _ref) {
+    function _transform($element, _ref, options) {
         var left = _ref.left,
             top = _ref.top,
             scale = _ref.scale;
+        if (options.smoothExtinction)
+            $element.style.transition = 'transform .25s';
         $element.style.transform = 'translate3d('
             .concat(left, 'px, ')
             .concat(top, 'px, 0px) scale(')
             .concat(scale, ')');
-    } // function _moveExtinction(field, speedArray) {
+    }
 
     /**
      * @class WZoom
@@ -436,10 +438,9 @@
             // if is true, then when the source image changes, the plugin will automatically restart init function (used with type = image)
             // attention: if false, it will work correctly only if the images are of the same size
             watchImageChange: true,
-
-            /**
-             * EXPERIMENTAL OPTION
-             */
+            // smooth extinction
+            smoothExtinction: true,
+            // align content `center`, `left`, `top`, `right`, `bottom`
             alignContent: 'center',
 
             /********************/
@@ -811,6 +812,8 @@
             var newTop = _ref2.newTop;
             _ref2.currentScale;
             var newScale = _ref2.newScale;
+            if (this.options.smoothExtinction)
+                this.content.$element.style.transition = 'transform .3s';
             this.content.$element.style.transform = 'translate3d('
                 .concat(newLeft, 'px, ')
                 .concat(newTop, 'px, 0px) scale(')

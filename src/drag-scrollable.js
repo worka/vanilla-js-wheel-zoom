@@ -13,8 +13,8 @@ function DragScrollable(windowObject, contentObject, options = {}) {
     this._moveHandler = this._moveHandler.bind(this);
 
     this.options = extendObject({
-        // smooth extinction moving element after set loose
-        smoothExtinction: false,
+        // smooth extinction
+        smoothExtinction: true,
         // callback triggered when grabbing an element
         onGrab: null,
         // callback triggered when moving an element
@@ -71,11 +71,6 @@ DragScrollable.prototype = {
 
         this.isGrab = false;
 
-        // if (this.options.smoothExtinction) {
-        //     _moveExtinction.call(this, 'scrollLeft', numberExtinction(this.speed.x));
-        //     _moveExtinction.call(this, 'scrollTop', numberExtinction(this.speed.y));
-        // }
-
         off(document, this.events.drop, this._dropHandler);
         off(document, this.events.move, this._moveHandler);
 
@@ -119,7 +114,7 @@ DragScrollable.prototype = {
             left: content.currentLeft,
             top: content.currentTop,
             scale: content.currentScale
-        });
+        }, this.options);
 
         coordinates.left = eventClientX(event);
         coordinates.top = eventClientY(event);
@@ -139,19 +134,11 @@ DragScrollable.prototype = {
     }
 };
 
-function _transform($element, { left, top, scale }) {
+function _transform($element, { left, top, scale }, options) {
+    if (options.smoothExtinction)
+        $element.style.transition = `transform .25s`;
+
     $element.style.transform = `translate3d(${ left }px, ${ top }px, 0px) scale(${ scale })`;
 }
-
-// function _moveExtinction(field, speedArray) {
-//     // !this.isGrab - stop moving if there was a new grab
-//     if (!this.isGrab && speedArray.length) {
-//         this.content.$element[field] = this.content.$element[field] - speedArray.shift();
-//
-//         if (speedArray.length) {
-//             window.requestAnimationFrame(_moveExtinction.bind(this, field, speedArray));
-//         }
-//     }
-// }
 
 export default DragScrollable;

@@ -94,8 +94,8 @@ var defaults = {
     dragScrollable: true,
     // options for the DragScrollable module
     dragScrollableOptions: {
-        // smooth extinction moving element after set loose
-        smoothExtinction: false,
+        // smooth extinction
+        smoothExtinction: true,
         // callback triggered when grabbing an element
         onGrab: null,
         // callback triggered when moving an element
@@ -113,7 +113,13 @@ var defaults = {
     zoomOnClick: true,
     // if is true, then when the source image changes, the plugin will automatically restart init function (used with type = image)
     // attention: if false, it will work correctly only if the images are of the same size
-    watchImageChange: true
+    watchImageChange: true,
+    // smooth extinction
+    smoothExtinction: true,
+    // align content `center`, `left`, `top`, `right`, `bottom` 
+    alignContent: 'center',
+    /********************/
+    disableWheelZoom: false
 };
 ```
 
@@ -208,7 +214,7 @@ window.addEventListener('resize', () => {
 | width                                    | _Integer_  | `null`      | For type `image` computed auto (if width set null), for type `html` need set real html content width, else computed auto.                                                                                                                                                                             |
 | height                                   | _Integer_  | `null`      | For type `image` computed auto (if height set null), for type `html` need set real html content height, else computed auto.                                                                                                                                                                           |
 | dragScrollable                           | _Boolean_  | `true`      | If `true` -  scaled image can be dragged with the mouse to see parts of the image that are out of scale.                                                                                                                                                                                              |
-| dragScrollableOptions._smoothExtinction_ | _Boolean_  | `false`     | If `true` -  smooth extinction moving element after set loose.                                                                                                                                                                                                                                        |
+| dragScrollableOptions._smoothExtinction_ | _Boolean_  | `true`      | If `true` -  smooth extinction moving element after set loose.                                                                                                                                                                                                                                        |
 | dragScrollableOptions._onGrab_           | _Function_ | `undefined` | Called after grabbing an element.                                                                                                                                                                                                                                                                     |
 | dragScrollableOptions._onMove_           | _Function_ | `undefined` | Called on every tick when moving element.                                                                                                                                                                                                                                                             |
 | dragScrollableOptions._onDrop_           | _Function_ | `undefined` | Called after dropping an element.                                                                                                                                                                                                                                                                     |
@@ -219,7 +225,9 @@ window.addEventListener('resize', () => {
 | watchImageChange                         | _Boolean_  | `true`      | If is `true`, then when the source image changes, the plugin will automatically restart init function (used with `type = image`). Attention: if `false`, it will work correctly only if the images are of the same size.                                                                              |
 | prepare                                  | _Function_ | `undefined` | Called after the script is initialized when the image is scaled and fit into the container.                                                                                                                                                                                                           |
 | rescale                                  | _Function_ | `undefined` | Called on every change of scale.                                                                                                                                                                                                                                                                      |
-| alignContent                             | _String_   | `center`    | ![#f03c15](https://via.placeholder.com/15/f03c15/000000?text=+) Experimental ![#f03c15](https://via.placeholder.com/15/f03c15/000000?text=+) <br>`center`, `left`, `top`, `right`, `bottom`                                                                                                           |
+| alignContent                             | _String_   | `center`    | Align content `center`, `left`, `top`, `right`, `bottom`                                                                                                                                                                                                                                              |
+| smoothExtinction                         | _Boolean_  | `true`      | If `true` -  smooth extinction.                                                                                                                                                                                                                                                                       |
+| disableWheelZoom                         | _Boolean_  | `false`     |                                                                                                                                                                                                                                                                                                       |
 
 ### API
 

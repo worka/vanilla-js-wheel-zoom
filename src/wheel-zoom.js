@@ -59,9 +59,9 @@ function WZoom(selectorOrHTMLElement, options = {}) {
         // if is true, then when the source image changes, the plugin will automatically restart init function (used with type = image)
         // attention: if false, it will work correctly only if the images are of the same size
         watchImageChange: true,
-        /**
-         * EXPERIMENTAL OPTION
-         */
+        // smooth extinction
+        smoothExtinction: true,
+        // align content `center`, `left`, `top`, `right`, `bottom`
         alignContent: 'center',
         /********************/
         disableWheelZoom: false
@@ -293,6 +293,9 @@ WZoom.prototype = {
         return response;
     },
     _transform({ currentLeft, newLeft, currentTop, newTop, currentScale, newScale }, iterations = 1) {
+        if (this.options.smoothExtinction)
+            this.content.$element.style.transition = `transform .3s`;
+
         this.content.$element.style.transform = `translate3d(${ newLeft }px, ${ newTop }px, 0px) scale(${ newScale })`;
 
         if (typeof this.options.rescale === 'function') {
