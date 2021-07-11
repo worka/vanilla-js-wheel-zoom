@@ -1,4 +1,4 @@
-import { extendObject, on, off, numberExtinction, eventClientX, eventClientY, isTouch } from './toolkit';
+import { extendObject, on, off, eventClientX, eventClientY, isTouch } from './toolkit';
 
 /**
  * @class DragScrollable
