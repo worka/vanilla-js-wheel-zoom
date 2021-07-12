@@ -103,7 +103,7 @@ var defaults = {
         // callback triggered when dropping an element
         onDrop: null
     },
-    // minimum allowed proportion of scale
+    // minimum allowed proportion of scale (computed auto if null)
     minScale: null,
     // maximum allowed proportion of scale
     maxScale: 1,
