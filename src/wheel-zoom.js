@@ -48,7 +48,7 @@ function WZoom(selectorOrHTMLElement, options = {}) {
         dragScrollable: true,
         // options for the DragScrollable module
         dragScrollableOptions: {},
-        // minimum allowed proportion of scale
+        // minimum allowed proportion of scale (computed auto if null)
         minScale: null,
         // maximum allowed proportion of scale
         maxScale: 1,
