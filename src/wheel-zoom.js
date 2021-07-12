@@ -305,7 +305,7 @@ WZoom.prototype = {
             this.options.rescale();
         }
     },
-    _zoom(direction) {
+    _zoom(scale) {
         const windowPosition = getElementPosition(this.window.$element);
 
         const { window } = this;
@@ -316,7 +316,7 @@ WZoom.prototype = {
 
         this._transform(
             this._computeNewPosition(
-                this._computeNewScale(direction), {
+                scale, {
                     x: windowPosition.left + (this.window.originalWidth / 2) - scrollLeft,
                     y: windowPosition.top + (this.window.originalHeight / 2) - scrollTop
                 }));
@@ -325,10 +325,16 @@ WZoom.prototype = {
         this._prepare();
     },
     zoomUp() {
-        this._zoom(-1);
+        this._zoom(this._computeNewScale(-1));
     },
     zoomDown() {
-        this._zoom(1);
+        this._zoom(this._computeNewScale(1));
+    },
+    maxZoomUp() {
+        this._zoom(this.content.maxScale);
+    },
+    maxZoomDown() {
+        this._zoom(this.content.minScale);
     },
     setDragScrollable(dragScrollable) {
         this.dragScrollable = dragScrollable;

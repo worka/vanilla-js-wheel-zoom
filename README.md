@@ -231,12 +231,14 @@ window.addEventListener('resize', () => {
 
 ### API
 
-| name        | note                                      |
-|-------------|-------------------------------------------|
-| .prepare()  | Reinitialize script                       |
-| .zoomUp()   | Zoom on one step (see option `speed`)     |
-| .zoomDown() | Zoom out on one step (see option `speed`) |
-| .destroy()  | Destroy object                            |
+| name           | note                                      |
+|----------------|-------------------------------------------|
+| .prepare()     | Reinitialize script                       |
+| .zoomUp()      | Zoom on one step (see option `speed`)     |
+| .maxZoomUp()   | Zoom to max scale                         |
+| .zoomDown()    | Zoom out on one step (see option `speed`) |
+| .maxZoomDown() | Zoom to min scale                         |
+| .destroy()     | Destroy object                            |
 
 ### LICENSE
 

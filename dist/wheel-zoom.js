@@ -835,7 +835,7 @@
                 this.options.rescale();
             }
         },
-        _zoom: function _zoom(direction) {
+        _zoom: function _zoom(scale) {
             var windowPosition = getElementPosition(this.window.$element);
             var window = this.window;
             var _document2 = document,
@@ -851,7 +851,7 @@
                 body.scrollTop;
 
             this._transform(
-                this._computeNewPosition(this._computeNewScale(direction), {
+                this._computeNewPosition(scale, {
                     x:
                         windowPosition.left +
                         this.window.originalWidth / 2 -
@@ -867,10 +867,16 @@
             this._prepare();
         },
         zoomUp: function zoomUp() {
-            this._zoom(-1);
+            this._zoom(this._computeNewScale(-1));
         },
         zoomDown: function zoomDown() {
-            this._zoom(1);
+            this._zoom(this._computeNewScale(1));
+        },
+        maxZoomUp: function maxZoomUp() {
+            this._zoom(this.content.maxScale);
+        },
+        maxZoomDown: function maxZoomDown() {
+            this._zoom(this.content.minScale);
         },
         setDragScrollable: function setDragScrollable(dragScrollable) {
             this.dragScrollable = dragScrollable;

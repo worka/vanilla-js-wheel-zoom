@@ -35,11 +35,20 @@
                 </a>
             </p>
 
-            <a href="https://worka.github.io/vanilla-js-wheel-zoom/demo-html-ie.html"><strong>Demo with support IE10/11</strong></a>
+            <a href="https://worka.github.io/vanilla-js-wheel-zoom/demo-html-ie.html">
+                <strong>Demo with support IE10/11</strong>
+            </a>
 
             <div class="d-flex my-3">
-                <button data-zoom-down class="btn btn-info">Zoom Down</button>
-                <button data-zoom-up class="btn btn-info ml-auto">Zoom Up</button>
+                <div>
+                    <button data-max-zoom-down class="btn btn-info">Max Down</button>
+                    <button data-zoom-down class="btn btn-info">Zoom Down</button>
+                </div>
+
+                <div class="ml-auto">
+                    <button data-zoom-up class="btn btn-info">Zoom Up</button>
+                    <button data-max-zoom-up class="btn btn-info">Max Up</button>
+                </div>
             </div>
 
             <div class="embed-responsive embed-responsive-4by3 rounded bg-secondary">
@@ -62,23 +71,25 @@
 
 <script type="text/javascript">
     document.addEventListener('DOMContentLoaded', function () {
-        var win = document.getElementById('myWindow');
+        var frame = document.getElementById('myWindow');
         var image = document.getElementById('myContent');
 
         var zoomUpButton = document.querySelector('[data-zoom-up]');
+        var maxZoomUpButton = document.querySelector('[data-max-zoom-up]');
         var zoomDownButton = document.querySelector('[data-zoom-down]');
+        var maxZoomDownButton = document.querySelector('[data-max-zoom-down]');
         var destroyButton = document.querySelector('[data-destroy]');
         var changeImageButton = document.querySelector('[data-change-image]');
 
-        var imagesStore = ['https://worka.github.io/files/wheel_zoom_example_2.jpg', image.src];
+        var imagesStore = [ 'https://worka.github.io/files/wheel_zoom_example_2.jpg', image.src ];
 
         var wzoom = WZoom.create('#myContent', {
             dragScrollableOptions: {
                 onGrab: function () {
-                    win.style.cursor = 'grabbing';
+                    frame.style.cursor = 'grabbing';
                 },
                 onDrop: function () {
-                    win.style.cursor = 'grab';
+                    frame.style.cursor = 'grab';
                 }
             }
         });
@@ -87,8 +98,16 @@
             wzoom.zoomUp();
         });
 
+        maxZoomUpButton.addEventListener('click', function () {
+            wzoom.maxZoomUp();
+        });
+
         zoomDownButton.addEventListener('click', function () {
             wzoom.zoomDown();
+        });
+
+        maxZoomDownButton.addEventListener('click', function () {
+            wzoom.maxZoomDown();
         });
 
         destroyButton.addEventListener('click', function () {
@@ -96,8 +115,11 @@
             wzoom = null;
 
             this.remove();
+
             zoomUpButton.remove();
+            maxZoomUpButton.remove();
             zoomDownButton.remove();
+            maxZoomDownButton.remove();
             changeImageButton.remove();
         });
 
