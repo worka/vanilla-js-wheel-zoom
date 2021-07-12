@@ -1,6 +1,6 @@
 # vanilla-js-wheel-zoom
 
-Image resizing using mouse wheel + drag scrollable image (as well as any HTML content)
+Image resizing using mouse wheel (pinch to zoom) + drag scrollable image (as well as any HTML content)
 
 ![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/worka/vanilla-js-wheel-zoom)
 [![GitHub stars](https://img.shields.io/github/stars/worka/vanilla-js-wheel-zoom)](https://github.com/worka/vanilla-js-wheel-zoom/stargazers)
