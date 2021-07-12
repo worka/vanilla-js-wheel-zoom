@@ -33,7 +33,7 @@ function WZoom(selectorOrHTMLElement, options = {}) {
     this.dragScrollable = null;
     // processing of the event "max / min zoom" begin only if there was really just a click
     // so as not to interfere with the DragScrollable module
-    this.clickExpired = true;
+    this.coordsOnMouseDown = true;
     /********************/
     /********************/
 
@@ -379,13 +379,12 @@ function _wheelHandler(event) {
 
 function _downHandler(event) {
     if ((this.isTouch && event.touches.length === 1) || event.buttons === 1) {
-        this.clickExpired = false;
-        setTimeout(() => this.clickExpired = true, 150);
+        this.coordsOnMouseDown = { x: eventClientX(event), y: eventClientY(event) };
     }
 }
 
 function _upHandler(event) {
-    if (!this.clickExpired) {
+    if (this.coordsOnMouseDown && this.coordsOnMouseDown.x === eventClientX(event) && this.coordsOnMouseDown.y === eventClientY(event)) {
         this._transform(
             this._computeNewPosition(
                 this.direction === 1 ? this.content.maxScale : this.content.minScale, {
@@ -397,6 +396,8 @@ function _upHandler(event) {
 
         this.direction *= -1;
     }
+
+    this.coordsOnMouseDown = null;
 }
 
 function _zoomTwoFingers_TouchmoveHandler(event) {
