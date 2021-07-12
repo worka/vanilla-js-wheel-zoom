@@ -105,7 +105,7 @@ var defaults = {
     },
     // minimum allowed proportion of scale (computed auto if null)
     minScale: null,
-    // maximum allowed proportion of scale
+    // maximum allowed proportion of scale (1 = 100% content size)
     maxScale: 1,
     // image resizing speed
     speed: 10,
