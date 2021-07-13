@@ -29,7 +29,9 @@
         "mousewheel",
         "image zoom",
         "image scale",
-        "drag scrollable image"
+        "drag scrollable image",
+        "zoom",
+        "pinch-to-zoom"
     ],
     "author": "worka",
     "license": "GPLv3",
