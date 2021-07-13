@@ -1,6 +1,7 @@
 {
     "name": "vanilla-js-wheel-zoom",
     "version": "6.9.0",
+    "main": "/src/wheel-zoom.js",
     "devDependencies": {
         "@babel/core": "^7.14.6",
         "@babel/preset-env": "^7.14.7",

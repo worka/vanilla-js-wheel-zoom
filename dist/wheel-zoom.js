@@ -432,9 +432,9 @@
             dragScrollable: true,
             // options for the DragScrollable module
             dragScrollableOptions: {},
-            // minimum allowed proportion of scale
+            // minimum allowed proportion of scale (computed auto if null)
             minScale: null,
-            // maximum allowed proportion of scale
+            // maximum allowed proportion of scale (1 = 100% content size)
             maxScale: 1,
             // content resizing speed
             speed: 50,
