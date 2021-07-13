@@ -6,6 +6,7 @@ Image resizing using mouse wheel (pinch to zoom) + drag scrollable image (as wel
 [![GitHub stars](https://img.shields.io/github/stars/worka/vanilla-js-wheel-zoom)](https://github.com/worka/vanilla-js-wheel-zoom/stargazers)
 [![GitHub issues](https://img.shields.io/github/issues/worka/vanilla-js-wheel-zoom)](https://github.com/worka/vanilla-js-wheel-zoom/issues)
 [![GitHub forks](https://img.shields.io/github/forks/worka/vanilla-js-wheel-zoom)](https://github.com/worka/vanilla-js-wheel-zoom/network)
+[![](https://data.jsdelivr.com/v1/package/npm/vanilla-js-wheel-zoom/badge?style=rounded)](https://www.jsdelivr.com/package/npm/vanilla-js-wheel-zoom)
 
 Advantages: 
 * the ability to fit the image into a container of any proportion
