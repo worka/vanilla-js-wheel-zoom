@@ -33,7 +33,7 @@ function WZoom(selectorOrHTMLElement, options = {}) {
     this.dragScrollable = null;
     // processing of the event "max / min zoom" begin only if there was really just a click
     // so as not to interfere with the DragScrollable module
-    this.coordsOnMouseDown = true;
+    this.coordsOnMouseDown = null;
     /********************/
     /********************/
 
