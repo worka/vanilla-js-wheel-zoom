@@ -198,10 +198,12 @@
         this._dropHandler = this._dropHandler.bind(this);
         this._grabHandler = this._grabHandler.bind(this);
         this._moveHandler = this._moveHandler.bind(this);
+        options.smoothExtinction = Number(options.smoothExtinction);
+        if (isNaN(options.smoothExtinction)) options.smoothExtinction = 0.25;
         this.options = extendObject(
             {
                 // smooth extinction
-                smoothExtinction: true,
+                smoothExtinction: 0.25,
                 // callback triggered when grabbing an element
                 onGrab: null,
                 // callback triggered when moving an element
@@ -368,7 +370,10 @@
             scale = _ref.scale;
 
         if (options.smoothExtinction) {
-            $element.style.transition = 'transform .25s';
+            $element.style.transition = 'transform '.concat(
+                options.smoothExtinction,
+                's'
+            );
         } else {
             $element.style.removeProperty('transition');
         }
@@ -416,7 +421,7 @@
         this.dragScrollable = null; // processing of the event "max / min zoom" begin only if there was really just a click
         // so as not to interfere with the DragScrollable module
 
-        this.coordsOnMouseDown = true;
+        this.coordsOnMouseDown = null;
         /********************/
 
         /********************/
@@ -444,7 +449,7 @@
             // attention: if false, it will work correctly only if the images are of the same size
             watchImageChange: true,
             // smooth extinction
-            smoothExtinction: true,
+            smoothExtinction: 0.3,
             // align content `center`, `left`, `top`, `right`, `bottom`
             alignContent: 'center',
 
@@ -483,6 +488,9 @@
             : false;
 
         if (this.content.$element) {
+            options.smoothExtinction = Number(options.smoothExtinction);
+            if (isNaN(options.smoothExtinction))
+                options.smoothExtinction = defaults.smoothExtinction;
             this.options = extendObject(defaults, options);
 
             if (
@@ -821,7 +829,10 @@
             var newScale = _ref2.newScale;
 
             if (this.options.smoothExtinction) {
-                this.content.$element.style.transition = 'transform .3s';
+                this.content.$element.style.transition = 'transform '.concat(
+                    this.options.smoothExtinction,
+                    's'
+                );
             } else {
                 this.content.$element.style.removeProperty('transition');
             }

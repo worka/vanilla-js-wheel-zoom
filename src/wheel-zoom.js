@@ -60,7 +60,7 @@ function WZoom(selectorOrHTMLElement, options = {}) {
         // attention: if false, it will work correctly only if the images are of the same size
         watchImageChange: true,
         // smooth extinction
-        smoothExtinction: true,
+        smoothExtinction: .3,
         // align content `center`, `left`, `top`, `right`, `bottom`
         alignContent: 'center',
         /********************/
@@ -83,6 +83,9 @@ function WZoom(selectorOrHTMLElement, options = {}) {
     this.events.options = this.isTouch ? { passive: true } : false;
 
     if (this.content.$element) {
+        options.smoothExtinction = Number(options.smoothExtinction);
+        if (isNaN(options.smoothExtinction)) options.smoothExtinction = defaults.smoothExtinction;
+
         this.options = extendObject(defaults, options);
 
         if (this.options.minScale && this.options.minScale >= this.options.maxScale) {
@@ -294,7 +297,7 @@ WZoom.prototype = {
     },
     _transform({ currentLeft, newLeft, currentTop, newTop, currentScale, newScale }, iterations = 1) {
         if (this.options.smoothExtinction) {
-            this.content.$element.style.transition = `transform .3s`;
+            this.content.$element.style.transition = `transform ${ this.options.smoothExtinction }s`;
         } else {
             this.content.$element.style.removeProperty('transition');
         }
@@ -421,7 +424,7 @@ function _zoomTwoFingers_TouchmoveHandler(event) {
             Math.pow(Math.abs(pageY1 - pageY2), 2)
         ));
 
-        let direction = 0
+        let direction = 0;
         if (fingersHypotNew > this.fingersHypot + 5) direction = -1;
         if (fingersHypotNew < this.fingersHypot - 5) direction = 1;
 
@@ -438,7 +441,7 @@ function _zoomTwoFingers_TouchmoveHandler(event) {
             }
 
             this.fingersHypot = fingersHypotNew;
-            this.zoomPinchWasDetected = true
+            this.zoomPinchWasDetected = true;
         }
     }
 }
