@@ -4,10 +4,10 @@
     "main": "/src/wheel-zoom.js",
     "devDependencies": {
         "@babel/core": "^7.14.8",
-        "@babel/preset-env": "^7.14.8",
+        "@babel/preset-env": "^7.14.9",
         "babel-minify": "^0.5.1",
         "prettier": "2.3.2",
-        "rollup": "^2.53.3",
+        "rollup": "^2.55.1",
         "rollup-plugin-babel": "^4.4.0"
     },
     "scripts": {
