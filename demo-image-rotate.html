@@ -1,0 +1,91 @@
+<html lang="en">
+<head>
+    <title>worka/vanilla-js-wheel-zoom</title>
+
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0">
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <style>
+        #myWindow {
+            cursor: grab;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #myContent {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+<div class="container py-3">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-8">
+            <h1>vanilla-js-wheel-zoom</h1>
+
+            <p class="lead mb-4" style="word-wrap:break-word">
+                <a href="https://github.com/worka/vanilla-js-wheel-zoom">
+                    https://github.com/worka/vanilla-js-wheel-zoom
+                </a>
+            </p>
+
+            <div class="d-flex my-3">
+                <button data-rotate class="btn btn-info">Rotate</button>
+            </div>
+
+            <div class="embed-responsive embed-responsive-4by3 rounded bg-secondary">
+                <div id="myWindow" class="embed-responsive-item">
+                    <img id="myContent" src="https://worka.github.io/files/wheel_zoom_example.jpg" alt="image"/>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="dist/wheel-zoom.min.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', function () {
+        var image = document.getElementById('myContent');
+        var rotateButton = document.querySelector('[data-rotate]');
+
+        WZoom.create('#myContent');
+
+        var degreeRotation = 0;
+
+        function changeTransformRotateProperty(element, value) {
+            element.style.transform = element.style.transform.replace(/(^|\s)rotate\(\d+deg\)($|\s)/i, '') + ' rotate(' + value + 'deg)';
+        }
+
+        function rotateImage() {
+            var animationDuration = 0.2;
+
+            image.style.transition = 'transform ' + animationDuration + 's';
+            changeTransformRotateProperty(image, degreeRotation);
+
+            if (degreeRotation > 270 && animationDuration) {
+                setTimeout(function () {
+                    changeTransformRotateProperty(image, 0);
+                }, animationDuration * 1000);
+            }
+        }
+
+        var observer = new MutationObserver(rotateImage);
+
+        observer.observe(image, { attributes: true, attributeFilter: [ 'style' ] });
+
+        rotateButton.addEventListener('click', function () {
+            degreeRotation += 90;
+
+            rotateImage();
+        });
+    });
+</script>
+</body>
+</html>
