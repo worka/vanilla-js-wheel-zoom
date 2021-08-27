@@ -80,13 +80,13 @@ Supported "hotswap" src of image (when type = image). You can do `document.getEl
  * @param {Object} [options]
  * @returns {WZoom}
  */
-var wzoom = WZoom.create(selectorOrHTMLElement[, options]);
+const wzoom = WZoom.create(selectorOrHTMLElement[, options]);
 ```
 
 #### Default options
 
 ``` javascript
-var defaults = {
+const defaults = {
     // type content: `image` - only one image, `html` - any HTML content
     type: 'image',
     // for type `image` computed auto (if width set null), for type `html` need set real html content width, else computed auto
