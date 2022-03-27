@@ -8,8 +8,8 @@ export function getElementPosition(element) {
 
     const { body, documentElement } = document;
 
-    const scrollTop = window.pageYOffset || documentElement.scrollTop || body.scrollTop;
-    const scrollLeft = window.pageXOffset || documentElement.scrollLeft || body.scrollLeft;
+    const scrollTop = getPageScrollTop();
+    const scrollLeft = getPageScrollLeft();
 
     const clientTop = documentElement.clientTop || body.clientTop || 0;
     const clientLeft = documentElement.clientLeft || body.clientLeft || 0;
@@ -18,6 +18,28 @@ export function getElementPosition(element) {
     const left = box.left + scrollLeft - clientLeft;
 
     return { top, left };
+}
+
+/**
+ * Get page scroll left
+ * @returns {number}
+ */
+export function getPageScrollLeft() {
+    const supportPageOffset = window.pageXOffset !== undefined;
+    const isCSS1Compat = ((document.compatMode || '') === 'CSS1Compat');
+
+    return supportPageOffset ? window.pageXOffset : isCSS1Compat ? document.documentElement.scrollLeft : document.body.scrollLeft;
+}
+
+/**
+ * Get page scroll top
+ * @returns {number}
+ */
+export function getPageScrollTop() {
+    const supportPageOffset = window.pageYOffset !== undefined;
+    const isCSS1Compat = ((document.compatMode || '') === 'CSS1Compat');
+
+    return supportPageOffset ? window.pageYOffset : isCSS1Compat ? document.documentElement.scrollTop : document.body.scrollTop;
 }
 
 /**

@@ -65,7 +65,7 @@ DragScrollable.prototype = {
             on(document, this.events.move, this._moveHandler, this.events.options);
 
             if (typeof this.options.onGrab === 'function') {
-                this.options.onGrab();
+                this.options.onGrab(event);
             }
         }
     },
@@ -78,7 +78,7 @@ DragScrollable.prototype = {
         off(document, this.events.move, this._moveHandler);
 
         if (typeof this.options.onDrop === 'function') {
-            this.options.onDrop();
+            this.options.onDrop(event);
         }
     },
     _moveHandler(event) {
@@ -123,7 +123,7 @@ DragScrollable.prototype = {
         coordinates.top = eventClientY(event);
 
         if (typeof options.onMove === 'function') {
-            options.onMove();
+            options.onMove(event);
         }
     },
     destroy() {

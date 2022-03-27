@@ -93,10 +93,8 @@
         var _document = document,
             body = _document.body,
             documentElement = _document.documentElement;
-        var scrollTop =
-            window.pageYOffset || documentElement.scrollTop || body.scrollTop;
-        var scrollLeft =
-            window.pageXOffset || documentElement.scrollLeft || body.scrollLeft;
+        var scrollTop = getPageScrollTop();
+        var scrollLeft = getPageScrollLeft();
         var clientTop = documentElement.clientTop || body.clientTop || 0;
         var clientLeft = documentElement.clientLeft || body.clientLeft || 0;
         var top = box.top + scrollTop - clientTop;
@@ -105,6 +103,34 @@
             top: top,
             left: left,
         };
+    }
+    /**
+     * Get page scroll left
+     * @returns {number}
+     */
+
+    function getPageScrollLeft() {
+        var supportPageOffset = window.pageXOffset !== undefined;
+        var isCSS1Compat = (document.compatMode || '') === 'CSS1Compat';
+        return supportPageOffset
+            ? window.pageXOffset
+            : isCSS1Compat
+            ? document.documentElement.scrollLeft
+            : document.body.scrollLeft;
+    }
+    /**
+     * Get page scroll top
+     * @returns {number}
+     */
+
+    function getPageScrollTop() {
+        var supportPageOffset = window.pageYOffset !== undefined;
+        var isCSS1Compat = (document.compatMode || '') === 'CSS1Compat';
+        return supportPageOffset
+            ? window.pageYOffset
+            : isCSS1Compat
+            ? document.documentElement.scrollTop
+            : document.body.scrollTop;
     }
     /**
      * Universal alternative to Object.assign()
@@ -284,7 +310,7 @@
                 );
 
                 if (typeof this.options.onGrab === 'function') {
-                    this.options.onGrab();
+                    this.options.onGrab(event);
                 }
             }
         },
@@ -295,7 +321,7 @@
             off(document, this.events.move, this._moveHandler);
 
             if (typeof this.options.onDrop === 'function') {
-                this.options.onDrop();
+                this.options.onDrop(event);
             }
         },
         _moveHandler: function _moveHandler(event) {
@@ -345,7 +371,7 @@
             coordinates.top = eventClientY(event);
 
             if (typeof options.onMove === 'function') {
-                options.onMove();
+                options.onMove(event);
             }
         },
         destroy: function destroy() {
@@ -690,114 +716,44 @@
                 content = this.content;
             var contentNewWidth = content.originalWidth * contentNewScale;
             var contentNewHeight = content.originalHeight * contentNewScale;
-            var _document = document,
-                body = _document.body,
-                documentElement = _document.documentElement;
-            var scrollLeft =
-                window.pageXOffset ||
-                documentElement.scrollLeft ||
-                body.scrollLeft;
-            var scrollTop =
-                window.pageYOffset ||
-                documentElement.scrollTop ||
-                body.scrollTop; // calculate the parameters along the X axis
+            var scrollLeft = getPageScrollLeft();
+            var scrollTop = getPageScrollTop(); // calculate the parameters along the X axis
 
-            var leftWindowShiftX = x + scrollLeft - window.positionLeft;
-            var centerWindowShiftX =
-                window.originalWidth / 2 - leftWindowShiftX;
-            var centerContentShiftX = centerWindowShiftX + content.currentLeft;
-            var contentNewLeft =
-                centerContentShiftX * (contentNewWidth / content.currentWidth) -
-                centerContentShiftX +
-                content.currentLeft; // check that the content does not go beyond the X axis
+            var contentNewLeft = _calculateContentShift(
+                x,
+                scrollLeft,
+                window.positionLeft,
+                content.currentLeft,
+                window.originalWidth,
+                contentNewWidth / content.currentWidth
+            ); // calculate the parameters along the Y axis
+
+            var contentNewTop = _calculateContentShift(
+                y,
+                scrollTop,
+                window.positionTop,
+                content.currentTop,
+                window.originalHeight,
+                contentNewHeight / content.currentHeight
+            );
 
             if (this.direction === -1) {
-                switch (this.options.alignContent) {
-                    case 'left':
-                        if (
-                            contentNewWidth / 2 - contentNewLeft <
-                            window.originalWidth / 2
-                        ) {
-                            contentNewLeft =
-                                (contentNewWidth - window.originalWidth) / 2;
-                        }
+                // check that the content does not go beyond the X axis
+                contentNewLeft = _calculateContentMaxShift(
+                    this.options,
+                    window.originalWidth,
+                    content.correctX,
+                    contentNewWidth,
+                    contentNewLeft
+                ); // check that the content does not go beyond the Y axis
 
-                        break;
-
-                    case 'right':
-                        if (
-                            contentNewWidth / 2 + contentNewLeft <
-                            window.originalWidth / 2
-                        ) {
-                            contentNewLeft =
-                                ((contentNewWidth - window.originalWidth) / 2) *
-                                -1;
-                        }
-
-                        break;
-
-                    default:
-                        if (
-                            (contentNewWidth - window.originalWidth) / 2 +
-                                content.correctX <
-                            Math.abs(contentNewLeft)
-                        ) {
-                            var positive = contentNewLeft < 0 ? -1 : 1;
-                            contentNewLeft =
-                                ((contentNewWidth - window.originalWidth) / 2 +
-                                    content.correctX) *
-                                positive;
-                        }
-                }
-            } // calculate the parameters along the Y axis
-
-            var topWindowShiftY = y + scrollTop - window.positionTop;
-            var centerWindowShiftY =
-                window.originalHeight / 2 - topWindowShiftY;
-            var centerContentShiftY = centerWindowShiftY + content.currentTop;
-            var contentNewTop =
-                centerContentShiftY *
-                    (contentNewHeight / content.currentHeight) -
-                centerContentShiftY +
-                content.currentTop; // check that the content does not go beyond the Y axis
-
-            switch (this.options.alignContent) {
-                case 'top':
-                    if (
-                        contentNewHeight / 2 - contentNewTop <
-                        window.originalHeight / 2
-                    ) {
-                        contentNewTop =
-                            (contentNewHeight - window.originalHeight) / 2;
-                    }
-
-                    break;
-
-                case 'bottom':
-                    if (
-                        contentNewHeight / 2 + contentNewTop <
-                        window.originalHeight / 2
-                    ) {
-                        contentNewTop =
-                            ((contentNewHeight - window.originalHeight) / 2) *
-                            -1;
-                    }
-
-                    break;
-
-                default:
-                    if (
-                        (contentNewHeight - window.originalHeight) / 2 +
-                            content.correctY <
-                        Math.abs(contentNewTop)
-                    ) {
-                        var _positive = contentNewTop < 0 ? -1 : 1;
-
-                        contentNewTop =
-                            ((contentNewHeight - window.originalHeight) / 2 +
-                                content.correctY) *
-                            _positive;
-                    }
+                contentNewTop = _calculateContentMaxShift(
+                    this.options,
+                    window.originalHeight,
+                    content.correctY,
+                    contentNewHeight,
+                    contentNewTop
+                );
             }
 
             if (contentNewScale === this.content.minScale) {
@@ -846,33 +802,17 @@
                 this.options.rescale();
             }
         },
-        _zoom: function _zoom(scale) {
-            var windowPosition = getElementPosition(this.window.$element);
-            var window = this.window;
-            var _document2 = document,
-                body = _document2.body,
-                documentElement = _document2.documentElement;
-            var scrollLeft =
-                window.pageXOffset ||
-                documentElement.scrollLeft ||
-                body.scrollLeft;
-            var scrollTop =
-                window.pageYOffset ||
-                documentElement.scrollTop ||
-                body.scrollTop;
+        _zoom: function _zoom(scale, coordinates) {
+            // if the coordinates are not passed, then use the coordinates of the center
+            if (
+                coordinates === undefined ||
+                coordinates.x === undefined ||
+                coordinates.y === undefined
+            ) {
+                coordinates = _calculateWindowCenter(this.window);
+            } // @TODO добавить проверку на то что бы переданные координаты не выходили за пределы возможного
 
-            this._transform(
-                this._computeNewPosition(scale, {
-                    x:
-                        windowPosition.left +
-                        this.window.originalWidth / 2 -
-                        scrollLeft,
-                    y:
-                        windowPosition.top +
-                        this.window.originalHeight / 2 -
-                        scrollTop,
-                })
-            );
+            this._transform(this._computeNewPosition(scale, coordinates));
         },
         prepare: function prepare() {
             this._prepare();
@@ -888,6 +828,9 @@
         },
         maxZoomDown: function maxZoomDown() {
             this._zoom(this.content.minScale);
+        },
+        maxZoomUpToPoint: function maxZoomUpToPoint(coordinates) {
+            this._zoom(this.content.maxScale, coordinates);
         },
         setDragScrollable: function setDragScrollable(dragScrollable) {
             this.dragScrollable = dragScrollable;
@@ -1079,6 +1022,75 @@
         if (options.alignContent === 'bottom') correctY = correctY * 2;
         else if (options.alignContent === 'top') correctY = 0;
         return [correctX, correctY];
+    }
+
+    function _calculateContentShift(
+        axisValue,
+        axisScroll,
+        axisWindowPosition,
+        axisContentPosition,
+        originalWindowSize,
+        contentSizeRatio
+    ) {
+        var windowShift = axisValue + axisScroll - axisWindowPosition;
+        var centerWindowShift = originalWindowSize / 2 - windowShift;
+        var centerContentShift = centerWindowShift + axisContentPosition;
+        return (
+            centerContentShift * contentSizeRatio -
+            centerContentShift +
+            axisContentPosition
+        );
+    }
+
+    function _calculateContentMaxShift(
+        options,
+        originalWindowSize,
+        correctCoordinate,
+        size,
+        shift
+    ) {
+        switch (options.alignContent) {
+            case 'left':
+                if (size / 2 - shift < originalWindowSize / 2) {
+                    shift = (size - originalWindowSize) / 2;
+                }
+
+                break;
+
+            case 'right':
+                if (size / 2 + shift < originalWindowSize / 2) {
+                    shift = ((size - originalWindowSize) / 2) * -1;
+                }
+
+                break;
+
+            default:
+                if (
+                    (size - originalWindowSize) / 2 + correctCoordinate <
+                    Math.abs(shift)
+                ) {
+                    var positive = shift < 0 ? -1 : 1;
+                    shift =
+                        ((size - originalWindowSize) / 2 + correctCoordinate) *
+                        positive;
+                }
+        }
+
+        return shift;
+    }
+
+    function _calculateWindowCenter(window) {
+        var windowPosition = getElementPosition(window.$element);
+        return {
+            x:
+                windowPosition.left +
+                window.originalWidth / 2 -
+                getPageScrollLeft(),
+            y:
+                windowPosition.top +
+                window.originalHeight / 2 -
+                getPageScrollTop(),
+        };
     }
     /**
      * Create WZoom instance
