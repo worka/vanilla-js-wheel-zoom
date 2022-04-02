@@ -303,6 +303,12 @@ WZoom.prototype = {
     maxZoomDown() {
         this._zoom(this.content.minScale);
     },
+    zoomUpToPoint(coordinates) {
+        this._zoom(this._computeNewScale(-1), coordinates);
+    },
+    zoomDownToPoint(coordinates) {
+        this._zoom(this._computeNewScale(1), coordinates);
+    },
     maxZoomUpToPoint(coordinates) {
         this._zoom(this.content.maxScale, coordinates);
     },

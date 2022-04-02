@@ -829,6 +829,12 @@
         maxZoomDown: function maxZoomDown() {
             this._zoom(this.content.minScale);
         },
+        zoomUpToPoint: function zoomUpToPoint(coordinates) {
+            this._zoom(this._computeNewScale(-1), coordinates);
+        },
+        zoomDownToPoint: function zoomDownToPoint(coordinates) {
+            this._zoom(this._computeNewScale(1), coordinates);
+        },
         maxZoomUpToPoint: function maxZoomUpToPoint(coordinates) {
             this._zoom(this.content.maxScale, coordinates);
         },

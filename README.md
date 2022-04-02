@@ -234,14 +234,17 @@ window.addEventListener('resize', () => {
 
 ### API
 
-| name           | note                                      |
-|----------------|-------------------------------------------|
-| .prepare()     | Reinitialize script                       |
-| .zoomUp()      | Zoom on one step (see option `speed`)     |
-| .maxZoomUp()   | Zoom to max scale                         |
-| .zoomDown()    | Zoom out on one step (see option `speed`) |
-| .maxZoomDown() | Zoom to min scale                         |
-| .destroy()     | Destroy object                            |
+| name                      | note                                               |
+|---------------------------|----------------------------------------------------|
+| .prepare()                | Reinitialize script                                |
+| .zoomUp()                 | Zoom on one step (see option `speed`)              |
+| .maxZoomUp()              | Zoom to max scale                                  |
+| .zoomDown()               | Zoom out on one step (see option `speed`)          |
+| .maxZoomDown()            | Zoom to min scale                                  |
+| .zoomUpToPoint({x, y})    | Zoom on one step to point (see option `speed`)     |
+| .zoomDownToPoint({x, y})  | Zoom out on one step to point (see option `speed`) |
+| .maxZoomUpToPoint({x, y}) | Zoom to max scale to point                         |
+| .destroy()                | Destroy object                                     |
 
 ### LICENSE
 
