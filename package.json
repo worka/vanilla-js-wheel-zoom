@@ -3,19 +3,19 @@
     "version": "6.12.0",
     "main": "src/wheel-zoom.js",
     "devDependencies": {
-        "@babel/core": "^7.17.8",
-        "@babel/preset-env": "^7.16.11",
-        "babel-minify": "^0.5.1",
-        "prettier": "2.6.1",
-        "rollup": "^2.70.1",
-        "rollup-plugin-babel": "^4.4.0"
+        "@babel/core": "^7.18.10",
+        "@babel/preset-env": "^7.18.10",
+        "prettier": "2.7.1",
+        "rollup": "^2.78.1",
+        "rollup-plugin-babel": "^4.4.0",
+        "terser": "^5.14.2"
     },
     "scripts": {
         "build": "yarn rollup && yarn prettier && yarn minify",
         "watch": "yarn rollup --watch",
         "rollup": "node ./node_modules/rollup/dist/bin/rollup --config",
         "prettier": "node ./node_modules/prettier/bin-prettier.js --write dist/wheel-zoom.js",
-        "minify": "node ./node_modules/babel-minify/bin/minify.js dist/wheel-zoom.js --out-file dist/wheel-zoom.min.js"
+        "minify": "node ./node_modules/terser/bin/terser dist/wheel-zoom.js -cm --output dist/wheel-zoom.min.js"
     },
     "repository": {
         "type": "git",
