@@ -481,6 +481,8 @@
 
             /********************/
             disableWheelZoom: false,
+            // option to reverse wheel direction
+            reverseWheelDirection: false,
         };
 
         if (typeof selectorOrHTMLElement === 'string') {
@@ -893,9 +895,11 @@
     function _wheelHandler(event) {
         if (!this.options.disableWheelZoom) {
             event.preventDefault();
+            var reverse = this.options.reverseWheelDirection;
+            var direction = reverse ? -event.deltaY : event.deltaY;
 
             this._transform(
-                this._computeNewPosition(this._computeNewScale(event.deltaY), {
+                this._computeNewPosition(this._computeNewScale(direction), {
                     x: eventClientX(event),
                     y: eventClientY(event),
                 })

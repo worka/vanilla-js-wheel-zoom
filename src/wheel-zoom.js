@@ -74,7 +74,9 @@ function WZoom(selectorOrHTMLElement, options = {}) {
         // align content `center`, `left`, `top`, `right`, `bottom`
         alignContent: 'center',
         /********************/
-        disableWheelZoom: false
+        disableWheelZoom: false,
+        // option to reverse wheel direction
+        reverseWheelDirection: false,
     };
 
     if (typeof selectorOrHTMLElement === 'string') {
@@ -349,10 +351,12 @@ WZoom.prototype = {
 function _wheelHandler(event) {
     if (!this.options.disableWheelZoom) {
         event.preventDefault();
+        let reverse = this.options.reverseWheelDirection;
+        let direction = reverse ? -event.deltaY : event.deltaY;
 
         this._transform(
             this._computeNewPosition(
-                this._computeNewScale(event.deltaY),
+                this._computeNewScale(direction),
                 { x: eventClientX(event), y: eventClientY(event) }
             )
         );

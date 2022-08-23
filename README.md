@@ -8,7 +8,7 @@ Image resizing using mouse wheel (pinch to zoom) + drag scrollable image (as wel
 [![GitHub forks](https://img.shields.io/github/forks/worka/vanilla-js-wheel-zoom)](https://github.com/worka/vanilla-js-wheel-zoom/network)
 [![](https://data.jsdelivr.com/v1/package/npm/vanilla-js-wheel-zoom/badge?style=rounded)](https://www.jsdelivr.com/package/npm/vanilla-js-wheel-zoom)
 
-Advantages: 
+Advantages:
 * the ability to fit the image into a container of any proportion
 * the ability to scale any HTML content
 * touch screen devices support
@@ -119,10 +119,12 @@ const defaults = {
     watchImageChange: true,
     // smooth extinction (value in seconds)
     smoothExtinction: .3,
-    // align content `center`, `left`, `top`, `right`, `bottom` 
+    // align content `center`, `left`, `top`, `right`, `bottom`
     alignContent: 'center',
     /********************/
-    disableWheelZoom: false
+    disableWheelZoom: false,
+    // option to reverse wheel direction
+    reverseWheelDirection: false,
 };
 ```
 
@@ -167,7 +169,7 @@ const defaults = {
     </div>
 </div>
 ```
-    
+
 ``` javascript
 WZoom.create('#myContent', {
     type: 'html',
@@ -231,6 +233,7 @@ window.addEventListener('resize', () => {
 | alignContent                             | _String_   | `center`    | Align content `center`, `left`, `top`, `right`, `bottom`                                                                                                                                                                                                                                              |
 | smoothExtinction                         | _Number_   | `.3`        | Time of smooth extinction. if `0` then no smooth extinction. (value in seconds)                                                                                                                                                                                                                       |
 | disableWheelZoom                         | _Boolean_  | `false`     |                                                                                                                                                                                                                                                                                                       |
+| reverseWheelDirection                         | _Boolean_  | `false`     | Reverse wheel zoom direction                                                                                                                                                                                                                                                                                                      |
 
 ### API
 
