@@ -1,4 +1,4 @@
-import babel from 'rollup-plugin-babel';
+import { babel } from '@rollup/plugin-babel';
 
 module.exports = {
     input: 'src/wheel-zoom.js',
@@ -8,7 +8,9 @@ module.exports = {
         name: 'WZoom'
     },
     plugins: [
-        babel()
+        babel({
+            babelHelpers: 'bundled',
+        })
     ],
     watch: {
         exclude: 'node_modules/**',
