@@ -481,6 +481,8 @@
 
             /********************/
             disableWheelZoom: false,
+            // option to reverse wheel direction
+            reverseWheelDirection: false,
         };
 
         if (typeof selectorOrHTMLElement === 'string') {
@@ -562,22 +564,7 @@
     WZoom.prototype = {
         constructor: WZoom,
         _init: function _init() {
-            this._prepare(); // support for zoom and pinch on touch screen devices
-
-            if (this.isTouch) {
-                this.fingersHypot = null;
-                this.zoomPinchWasDetected = false;
-                on(
-                    this.content.$element,
-                    'touchmove',
-                    this._zoomTwoFingers_TouchmoveHandler
-                );
-                on(
-                    this.content.$element,
-                    'touchend',
-                    this._zoomTwoFingers_TouchendHandler
-                );
-            }
+            this._prepare();
 
             if (this.options.dragScrollable === true) {
                 // this can happen if the src of this.content.$element (when type = image) is changed and repeat event load at image
@@ -594,7 +581,25 @@
                 );
             }
 
-            on(this.content.$element, 'wheel', this._wheelHandler);
+            if (!this.options.disableWheelZoom) {
+                // support for zoom and pinch on touch screen devices
+                if (this.isTouch) {
+                    this.fingersHypot = null;
+                    this.zoomPinchWasDetected = false;
+                    on(
+                        this.content.$element,
+                        'touchmove',
+                        this._zoomTwoFingers_TouchmoveHandler
+                    );
+                    on(
+                        this.content.$element,
+                        'touchend',
+                        this._zoomTwoFingers_TouchendHandler
+                    );
+                }
+
+                on(this.content.$element, 'wheel', this._wheelHandler);
+            }
 
             if (this.options.zoomOnClick) {
                 on(
@@ -685,8 +690,8 @@
                 this.options.prepare();
             }
         },
-        _computeNewScale: function _computeNewScale(delta) {
-            this.direction = delta < 0 ? 1 : -1;
+        _computeNewScale: function _computeNewScale(direction) {
+            this.direction = direction < 0 ? 1 : -1;
             var _this$content = this.content,
                 minScale = _this$content.minScale,
                 maxScale = _this$content.maxScale,
@@ -848,20 +853,22 @@
                 off(this.content.$element, 'load', this._init);
             }
 
-            if (this.isTouch) {
-                off(
-                    this.content.$element,
-                    'touchmove',
-                    this._zoomTwoFingers_TouchmoveHandler
-                );
-                off(
-                    this.content.$element,
-                    'touchend',
-                    this._zoomTwoFingers_TouchendHandler
-                );
-            }
+            if (!this.options.disableWheelZoom) {
+                if (this.isTouch) {
+                    off(
+                        this.content.$element,
+                        'touchmove',
+                        this._zoomTwoFingers_TouchmoveHandler
+                    );
+                    off(
+                        this.content.$element,
+                        'touchend',
+                        this._zoomTwoFingers_TouchendHandler
+                    );
+                }
 
-            off(this.content.$element, 'wheel', this._wheelHandler);
+                off(this.content.$element, 'wheel', this._wheelHandler);
+            }
 
             if (this.options.zoomOnClick) {
                 off(
@@ -891,16 +898,17 @@
     };
 
     function _wheelHandler(event) {
-        if (!this.options.disableWheelZoom) {
-            event.preventDefault();
+        event.preventDefault();
+        var direction = this.options.reverseWheelDirection
+            ? -event.deltaY
+            : event.deltaY;
 
-            this._transform(
-                this._computeNewPosition(this._computeNewScale(event.deltaY), {
-                    x: eventClientX(event),
-                    y: eventClientY(event),
-                })
-            );
-        }
+        this._transform(
+            this._computeNewPosition(this._computeNewScale(direction), {
+                x: eventClientX(event),
+                y: eventClientY(event),
+            })
+        );
     }
 
     function _downHandler(event) {
@@ -916,10 +924,13 @@
     }
 
     function _upHandler(event) {
+        var clientX = eventClientX(event);
+        var clientY = eventClientY(event);
+
         if (
             this.coordsOnMouseDown &&
-            this.coordsOnMouseDown.x === eventClientX(event) &&
-            this.coordsOnMouseDown.y === eventClientY(event)
+            this.coordsOnMouseDown.x === clientX &&
+            this.coordsOnMouseDown.y === clientY
         ) {
             this._transform(
                 this._computeNewPosition(
@@ -927,8 +938,8 @@
                         ? this.content.maxScale
                         : this.content.minScale,
                     {
-                        x: eventClientX(event),
-                        y: eventClientY(event),
+                        x: clientX,
+                        y: clientY,
                     }
                 )
             );
@@ -959,18 +970,23 @@
 
             if (direction !== 0) {
                 if (this.fingersHypot !== null || direction === 1) {
-                    var eventEmulator = new Event('wheel'); // sized direction
-
-                    eventEmulator.deltaY = direction; // middle position between fingers
-
-                    eventEmulator.clientX =
+                    // middle position between fingers
+                    var clientX =
                         Math.min(pageX1, pageX2) +
                         Math.abs(pageX1 - pageX2) / 2;
-                    eventEmulator.clientY =
+                    var clientY =
                         Math.min(pageY1, pageY2) +
                         Math.abs(pageY1 - pageY2) / 2;
 
-                    this._wheelHandler(eventEmulator);
+                    this._transform(
+                        this._computeNewPosition(
+                            this._computeNewScale(direction),
+                            {
+                                x: clientX,
+                                y: clientY,
+                            }
+                        )
+                    );
                 }
 
                 this.fingersHypot = fingersHypotNew;

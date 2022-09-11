@@ -74,7 +74,9 @@ function WZoom(selectorOrHTMLElement, options = {}) {
         // align content `center`, `left`, `top`, `right`, `bottom`
         alignContent: 'center',
         /********************/
-        disableWheelZoom: false
+        disableWheelZoom: false,
+        // option to reverse wheel direction
+        reverseWheelDirection: false,
     };
 
     if (typeof selectorOrHTMLElement === 'string') {
@@ -133,15 +135,6 @@ WZoom.prototype = {
     _init() {
         this._prepare();
 
-        // support for zoom and pinch on touch screen devices
-        if (this.isTouch) {
-            this.fingersHypot = null;
-            this.zoomPinchWasDetected = false;
-
-            on(this.content.$element, 'touchmove', this._zoomTwoFingers_TouchmoveHandler);
-            on(this.content.$element, 'touchend', this._zoomTwoFingers_TouchendHandler);
-        }
-
         if (this.options.dragScrollable === true) {
             // this can happen if the src of this.content.$element (when type = image) is changed and repeat event load at image
             if (this.dragScrollable) {
@@ -151,7 +144,18 @@ WZoom.prototype = {
             this.setDragScrollable(new DragScrollable(this.window, this.content, this.options.dragScrollableOptions));
         }
 
-        on(this.content.$element, 'wheel', this._wheelHandler);
+        if (!this.options.disableWheelZoom) {
+            // support for zoom and pinch on touch screen devices
+            if (this.isTouch) {
+                this.fingersHypot = null;
+                this.zoomPinchWasDetected = false;
+
+                on(this.content.$element, 'touchmove', this._zoomTwoFingers_TouchmoveHandler);
+                on(this.content.$element, 'touchend', this._zoomTwoFingers_TouchendHandler);
+            }
+
+            on(this.content.$element, 'wheel', this._wheelHandler);
+        }
 
         if (this.options.zoomOnClick) {
             on(this.content.$element, this.events.down, this._downHandler, this.events.options);
@@ -205,8 +209,8 @@ WZoom.prototype = {
             this.options.prepare();
         }
     },
-    _computeNewScale(delta) {
-        this.direction = delta < 0 ? 1 : -1;
+    _computeNewScale(direction) {
+        this.direction = direction < 0 ? 1 : -1;
 
         const { minScale, maxScale, currentScale } = this.content;
 
@@ -322,12 +326,14 @@ WZoom.prototype = {
             off(this.content.$element, 'load', this._init);
         }
 
-        if (this.isTouch) {
-            off(this.content.$element, 'touchmove', this._zoomTwoFingers_TouchmoveHandler);
-            off(this.content.$element, 'touchend', this._zoomTwoFingers_TouchendHandler);
-        }
+        if (!this.options.disableWheelZoom) {
+            if (this.isTouch) {
+                off(this.content.$element, 'touchmove', this._zoomTwoFingers_TouchmoveHandler);
+                off(this.content.$element, 'touchend', this._zoomTwoFingers_TouchendHandler);
+            }
 
-        off(this.content.$element, 'wheel', this._wheelHandler);
+            off(this.content.$element, 'wheel', this._wheelHandler);
+        }
 
         if (this.options.zoomOnClick) {
             off(this.content.$element, this.events.down, this._downHandler, this.events.options);
@@ -347,16 +353,18 @@ WZoom.prototype = {
 };
 
 function _wheelHandler(event) {
-    if (!this.options.disableWheelZoom) {
-        event.preventDefault();
+    event.preventDefault();
 
-        this._transform(
-            this._computeNewPosition(
-                this._computeNewScale(event.deltaY),
-                { x: eventClientX(event), y: eventClientY(event) }
-            )
-        );
-    }
+    const direction = this.options.reverseWheelDirection ? -event.deltaY : event.deltaY;
+
+    this._transform(
+        this._computeNewPosition(
+            this._computeNewScale(direction), {
+                x: eventClientX(event),
+                y: eventClientY(event),
+            }
+        )
+    );
 }
 
 function _downHandler(event) {
@@ -366,12 +374,15 @@ function _downHandler(event) {
 }
 
 function _upHandler(event) {
-    if (this.coordsOnMouseDown && this.coordsOnMouseDown.x === eventClientX(event) && this.coordsOnMouseDown.y === eventClientY(event)) {
+    const clientX = eventClientX(event);
+    const clientY = eventClientY(event);
+
+    if (this.coordsOnMouseDown && this.coordsOnMouseDown.x === clientX && this.coordsOnMouseDown.y === clientY) {
         this._transform(
             this._computeNewPosition(
                 this.direction === 1 ? this.content.maxScale : this.content.minScale, {
-                    x: eventClientX(event),
-                    y: eventClientY(event)
+                    x: clientX,
+                    y: clientY,
                 }
             )
         );
@@ -403,14 +414,18 @@ function _zoomTwoFingers_TouchmoveHandler(event) {
 
         if (direction !== 0) {
             if (this.fingersHypot !== null || direction === 1) {
-                const eventEmulator = new Event('wheel');
-                // sized direction
-                eventEmulator.deltaY = direction;
                 // middle position between fingers
-                eventEmulator.clientX = Math.min(pageX1, pageX2) + (Math.abs(pageX1 - pageX2) / 2);
-                eventEmulator.clientY = Math.min(pageY1, pageY2) + (Math.abs(pageY1 - pageY2) / 2);
+                const clientX = Math.min(pageX1, pageX2) + (Math.abs(pageX1 - pageX2) / 2);
+                const clientY = Math.min(pageY1, pageY2) + (Math.abs(pageY1 - pageY2) / 2);
 
-                this._wheelHandler(eventEmulator);
+                this._transform(
+                    this._computeNewPosition(
+                        this._computeNewScale(direction), {
+                            x: clientX,
+                            y: clientY,
+                        }
+                    )
+                );
             }
 
             this.fingersHypot = fingersHypotNew;
