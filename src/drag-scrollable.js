@@ -11,9 +11,8 @@ function DragScrollable(windowObject, contentObject, options = {}) {
     this._dropHandler = this._dropHandler.bind(this);
     this._grabHandler = this._grabHandler.bind(this);
     this._moveHandler = this._moveHandler.bind(this);
-
-    options.smoothExtinction = Number(options.smoothExtinction);
-    if (isNaN(options.smoothExtinction)) options.smoothExtinction = .25;
+    
+    options.smoothExtinction = Number(options.smoothExtinction) || .25;
 
     this.options = extendObject({
         // smooth extinction
