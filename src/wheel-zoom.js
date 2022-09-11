@@ -95,8 +95,7 @@ function WZoom(selectorOrHTMLElement, options = {}) {
     this.events.options = this.isTouch ? { passive: true } : false;
 
     if (this.content.$element) {
-        options.smoothExtinction = Number(options.smoothExtinction);
-        if (isNaN(options.smoothExtinction)) options.smoothExtinction = defaults.smoothExtinction;
+        options.smoothExtinction = Number(options.smoothExtinction) || defaults.smoothExtinction;
 
         this.options = extendObject(defaults, options);
 

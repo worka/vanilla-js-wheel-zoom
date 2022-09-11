@@ -516,9 +516,8 @@
             : false;
 
         if (this.content.$element) {
-            options.smoothExtinction = Number(options.smoothExtinction);
-            if (isNaN(options.smoothExtinction))
-                options.smoothExtinction = defaults.smoothExtinction;
+            options.smoothExtinction =
+                Number(options.smoothExtinction) || defaults.smoothExtinction;
             this.options = extendObject(defaults, options);
 
             if (
