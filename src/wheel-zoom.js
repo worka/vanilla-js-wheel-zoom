@@ -10,6 +10,7 @@ import {
     isTouch
 } from './toolkit';
 import DragScrollable from './drag-scrollable';
+import Interacter from './interacter';
 
 /**
  * @class WZoom
@@ -24,10 +25,6 @@ function WZoom(selectorOrHTMLElement, options = {}) {
     this._computeNewPosition = this._computeNewPosition.bind(this);
     this._transform = this._transform.bind(this);
 
-    this._wheelHandler = _wheelHandler.bind(this);
-    this._downHandler = _downHandler.bind(this);
-    this._upHandler = _upHandler.bind(this);
-
     this._zoomTwoFingers_TouchmoveHandler = _zoomTwoFingers_TouchmoveHandler.bind(this);
     this._zoomTwoFingers_TouchendHandler = _zoomTwoFingers_TouchendHandler.bind(this);
 
@@ -37,13 +34,11 @@ function WZoom(selectorOrHTMLElement, options = {}) {
     this.window = {};
 
     this.isTouch = false;
-    this.events = null;
     this.direction = 1;
     this.options = null;
     this.dragScrollable = null;
-    // processing of the event "max / min zoom" begin only if there was really just a click
-    // so as not to interfere with the DragScrollable module
-    this.coordsOnMouseDown = null;
+
+    this.content.elementInteracter = null;
     /********************/
     /********************/
 
@@ -66,6 +61,8 @@ function WZoom(selectorOrHTMLElement, options = {}) {
         speed: 50,
         // zoom to maximum (minimum) size on click
         zoomOnClick: true,
+        // zoom to maximum (minimum) size on double click
+        zoomOnDblClick: false,
         // if is true, then when the source image changes, the plugin will automatically restart init function (used with type = image)
         // attention: if false, it will work correctly only if the images are of the same size
         watchImageChange: true,
@@ -89,10 +86,6 @@ function WZoom(selectorOrHTMLElement, options = {}) {
 
     // check if we're using a touch screen
     this.isTouch = isTouch();
-    // switch to touch events if using a touch screen
-    this.events = this.isTouch ? { down: 'touchstart', up: 'touchend' } : { down: 'mousedown', up: 'mouseup' };
-    // if using touch screen tells the browser that the default action will not be undone
-    this.events.options = this.isTouch ? { passive: true } : false;
 
     if (this.content.$element) {
         options.smoothExtinction = Number(options.smoothExtinction) || defaults.smoothExtinction;
@@ -134,6 +127,12 @@ WZoom.prototype = {
     _init() {
         this._prepare();
 
+        if (this.content.elementInteracter) {
+            this.content.elementInteracter.destroy();
+        }
+
+        this.content.elementInteracter = new Interacter(this.content.$element);
+
         if (this.options.dragScrollable === true) {
             // this can happen if the src of this.content.$element (when type = image) is changed and repeat event load at image
             if (this.dragScrollable) {
@@ -153,12 +152,37 @@ WZoom.prototype = {
                 on(this.content.$element, 'touchend', this._zoomTwoFingers_TouchendHandler);
             }
 
-            on(this.content.$element, 'wheel', this._wheelHandler);
+            this.content.elementInteracter.on('wheel', (event) => {
+                event.preventDefault();
+
+                const direction = this.options.reverseWheelDirection ? -event.deltaY : event.deltaY;
+
+                this._transform(
+                    this._computeNewPosition(
+                        this._computeNewScale(direction), {
+                            x: eventClientX(event),
+                            y: eventClientY(event),
+                        }
+                    )
+                );
+            });
         }
 
-        if (this.options.zoomOnClick) {
-            on(this.content.$element, this.events.down, this._downHandler, this.events.options);
-            on(this.content.$element, this.events.up, this._upHandler, this.events.options);
+        if (this.options.zoomOnClick || this.options.zoomOnDblClick) {
+            const eventType = this.options.zoomOnDblClick ? 'dblclick' : 'click';
+
+            this.content.elementInteracter.on(eventType, (event) => {
+                this._transform(
+                    this._computeNewPosition(
+                        this.direction === 1 ? this.content.maxScale : this.content.minScale, {
+                            x: eventClientX(event),
+                            y: eventClientY(event),
+                        }
+                    )
+                );
+
+                this.direction *= -1;
+            });
         }
     },
     _prepare() {
@@ -330,13 +354,10 @@ WZoom.prototype = {
                 off(this.content.$element, 'touchmove', this._zoomTwoFingers_TouchmoveHandler);
                 off(this.content.$element, 'touchend', this._zoomTwoFingers_TouchendHandler);
             }
-
-            off(this.content.$element, 'wheel', this._wheelHandler);
         }
 
-        if (this.options.zoomOnClick) {
-            off(this.content.$element, this.events.down, this._downHandler, this.events.options);
-            off(this.content.$element, this.events.up, this._upHandler, this.events.options);
+        if (this.content.elementInteracter) {
+            this.content.elementInteracter.destroy();
         }
 
         if (this.dragScrollable) {
@@ -350,47 +371,6 @@ WZoom.prototype = {
         }
     }
 };
-
-function _wheelHandler(event) {
-    event.preventDefault();
-
-    const direction = this.options.reverseWheelDirection ? -event.deltaY : event.deltaY;
-
-    this._transform(
-        this._computeNewPosition(
-            this._computeNewScale(direction), {
-                x: eventClientX(event),
-                y: eventClientY(event),
-            }
-        )
-    );
-}
-
-function _downHandler(event) {
-    if ((this.isTouch && event.touches.length === 1) || event.buttons === 1) {
-        this.coordsOnMouseDown = { x: eventClientX(event), y: eventClientY(event) };
-    }
-}
-
-function _upHandler(event) {
-    const clientX = eventClientX(event);
-    const clientY = eventClientY(event);
-
-    if (this.coordsOnMouseDown && this.coordsOnMouseDown.x === clientX && this.coordsOnMouseDown.y === clientY) {
-        this._transform(
-            this._computeNewPosition(
-                this.direction === 1 ? this.content.maxScale : this.content.minScale, {
-                    x: clientX,
-                    y: clientY,
-                }
-            )
-        );
-
-        this.direction *= -1;
-    }
-
-    this.coordsOnMouseDown = null;
-}
 
 function _zoomTwoFingers_TouchmoveHandler(event) {
     // detect two fingers

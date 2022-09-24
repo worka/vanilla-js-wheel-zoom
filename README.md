@@ -114,6 +114,8 @@ const defaults = {
     speed: 10,
     // zoom to maximum (minimum) size on click
     zoomOnClick: true,
+    // zoom to maximum (minimum) size on double click
+    zoomOnDblClick: false,
     // if is true, then when the source image changes, the plugin will automatically restart init function (used with type = image)
     // attention: if false, it will work correctly only if the images are of the same size
     watchImageChange: true,
@@ -227,6 +229,7 @@ window.addEventListener('resize', () => {
 | maxScale                                 | _Number_    | `1`         | The maximum scale to which the image can be zoomed.<br>`1` means that the image can be maximized to 100%, `2` - 200%, etc.                                                                                                                                                                            |
 | speed                                    | _Number_    | `10`        | Step with which the image will be scaled. Measured in relative units.<br>The larger the value, the smaller the step and vice versa.                                                                                                                                                                   |
 | zoomOnClick                              | _Boolean_   | `true`      | Zoom to maximum (minimum) size on click.                                                                                                                                                                                                                                                              |
+| zoomOnDblClick                           | _Boolean_   | `false`     | Zoom to maximum (minimum) size on double click. If `true` then `zoomOnClick` = `false`                                                                                                                                                                                                                |
 | watchImageChange                         | _Boolean_   | `true`      | If is `true`, then when the source image changes, the plugin will automatically restart init function (used with `type = image`). Attention: if `false`, it will work correctly only if the images are of the same size.                                                                              |
 | prepare                                  | _Function_  | `undefined` | Called after the script is initialized when the image is scaled and fit into the container.                                                                                                                                                                                                           |
 | rescale                                  | _Function_  | `undefined` | Called on every change of scale.                                                                                                                                                                                                                                                                      |

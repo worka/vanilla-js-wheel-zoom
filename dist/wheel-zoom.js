@@ -83,6 +83,72 @@
         );
     }
 
+    function _createForOfIteratorHelper(o, allowArrayLike) {
+        var it =
+            (typeof Symbol !== 'undefined' && o[Symbol.iterator]) ||
+            o['@@iterator'];
+
+        if (!it) {
+            if (
+                Array.isArray(o) ||
+                (it = _unsupportedIterableToArray(o)) ||
+                (allowArrayLike && o && typeof o.length === 'number')
+            ) {
+                if (it) o = it;
+                var i = 0;
+
+                var F = function () {};
+
+                return {
+                    s: F,
+                    n: function () {
+                        if (i >= o.length)
+                            return {
+                                done: true,
+                            };
+                        return {
+                            done: false,
+                            value: o[i++],
+                        };
+                    },
+                    e: function (e) {
+                        throw e;
+                    },
+                    f: F,
+                };
+            }
+
+            throw new TypeError(
+                'Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.'
+            );
+        }
+
+        var normalCompletion = true,
+            didErr = false,
+            err;
+        return {
+            s: function () {
+                it = it.call(o);
+            },
+            n: function () {
+                var step = it.next();
+                normalCompletion = step.done;
+                return step;
+            },
+            e: function (e) {
+                didErr = true;
+                err = e;
+            },
+            f: function () {
+                try {
+                    if (!normalCompletion && it.return != null) it.return();
+                } finally {
+                    if (didErr) throw err;
+                }
+            },
+        };
+    }
+
     /**
      * Get element position (with support old browsers)
      * @param {Element} element
@@ -410,6 +476,162 @@
             .concat(scale, ')');
     }
 
+    var EVENT_CLICK = 'click';
+    var EVENT_DBLCLICK = 'dblclick';
+    var EVENT_WHEEL = 'wheel';
+    /**
+     * @param {HTMLElement} target
+     * @constructor
+     */
+
+    function Interacter(target) {
+        this.target = target;
+        this.subscribes = {};
+        this.coordsOnDown = null;
+        this.pressingTimeout = null;
+        this.firstClick = true; // check if we're using a touch screen
+
+        this.isTouch = isTouch(); // switch to touch events if using a touch screen
+
+        this.events = this.isTouch
+            ? {
+                  down: 'touchstart',
+                  up: 'touchend',
+              }
+            : {
+                  down: 'mousedown',
+                  up: 'mouseup',
+              }; // if using touch screen tells the browser that the default action will not be undone
+
+        this.events.options = this.isTouch
+            ? {
+                  passive: true,
+              }
+            : false;
+        this._downHandler = this._downHandler.bind(this);
+        this._upHandler = this._upHandler.bind(this);
+        this._wheelHandler = this._wheelHandler.bind(this);
+        on(
+            this.target,
+            this.events.down,
+            this._downHandler,
+            this.events.options
+        );
+        on(this.target, this.events.up, this._upHandler, this.events.options);
+        on(this.target, EVENT_WHEEL, this._wheelHandler);
+    }
+
+    Interacter.prototype = {
+        constructor: Interacter,
+
+        /**
+         * @param {string} eventType
+         * @param {function} eventHandler
+         */
+        on: function on(eventType, eventHandler) {
+            if (!(eventType in this.subscribes)) {
+                this.subscribes[eventType] = [];
+            }
+
+            this.subscribes[eventType].push(eventHandler);
+            return this;
+        },
+
+        /**
+         * @param {string} eventType
+         * @param {Event} event
+         */
+        run: function run(eventType, event) {
+            if (this.subscribes[eventType]) {
+                var _iterator = _createForOfIteratorHelper(
+                        this.subscribes[eventType]
+                    ),
+                    _step;
+
+                try {
+                    for (_iterator.s(); !(_step = _iterator.n()).done; ) {
+                        var eventHandler = _step.value;
+                        eventHandler(event);
+                    }
+                } catch (err) {
+                    _iterator.e(err);
+                } finally {
+                    _iterator.f();
+                }
+            }
+        },
+        _downHandler: function _downHandler(event) {
+            this.coordsOnDown = null;
+
+            if (
+                (this.isTouch && event.touches.length === 1) ||
+                event.buttons === 1
+            ) {
+                this.coordsOnDown = {
+                    x: eventClientX(event),
+                    y: eventClientY(event),
+                };
+            }
+
+            clearTimeout(this.pressingTimeout);
+        },
+        _upHandler: function _upHandler(event) {
+            var _this = this;
+
+            var delay = this.subscribes[EVENT_DBLCLICK] ? 200 : 0;
+
+            if (this.firstClick) {
+                this.pressingTimeout = setTimeout(function () {
+                    if (
+                        _this.coordsOnDown &&
+                        _this.coordsOnDown.x === eventClientX(event) &&
+                        _this.coordsOnDown.y === eventClientY(event)
+                    ) {
+                        _this.run(EVENT_CLICK, event);
+                    }
+
+                    _this.firstClick = true;
+                }, delay);
+                this.firstClick = false;
+            } else {
+                this.pressingTimeout = setTimeout(function () {
+                    _this.run(EVENT_DBLCLICK, event);
+
+                    _this.firstClick = true;
+                }, delay / 2);
+            }
+        },
+        _wheelHandler: function _wheelHandler(event) {
+            this.run(EVENT_WHEEL, event);
+        },
+        destroy: function destroy() {
+            off(
+                this.target,
+                this.events.down,
+                this._downHandler,
+                this.events.options
+            );
+            off(
+                this.target,
+                this.events.up,
+                this._upHandler,
+                this.events.options
+            );
+            off(
+                this.target,
+                EVENT_WHEEL,
+                this._wheelHandler,
+                this.events.options
+            );
+
+            for (var key in this) {
+                if (this.hasOwnProperty(key)) {
+                    this[key] = null;
+                }
+            }
+        },
+    };
+
     /**
      * @class WZoom
      * @param {string|HTMLElement} selectorOrHTMLElement
@@ -427,9 +649,6 @@
         this._computeNewScale = this._computeNewScale.bind(this);
         this._computeNewPosition = this._computeNewPosition.bind(this);
         this._transform = this._transform.bind(this);
-        this._wheelHandler = _wheelHandler.bind(this);
-        this._downHandler = _downHandler.bind(this);
-        this._upHandler = _upHandler.bind(this);
         this._zoomTwoFingers_TouchmoveHandler =
             _zoomTwoFingers_TouchmoveHandler.bind(this);
         this._zoomTwoFingers_TouchendHandler =
@@ -441,13 +660,10 @@
         this.content = {};
         this.window = {};
         this.isTouch = false;
-        this.events = null;
         this.direction = 1;
         this.options = null;
-        this.dragScrollable = null; // processing of the event "max / min zoom" begin only if there was really just a click
-        // so as not to interfere with the DragScrollable module
-
-        this.coordsOnMouseDown = null;
+        this.dragScrollable = null;
+        this.content.elementInteracter = null;
         /********************/
 
         /********************/
@@ -471,6 +687,8 @@
             speed: 50,
             // zoom to maximum (minimum) size on click
             zoomOnClick: true,
+            // zoom to maximum (minimum) size on double click
+            zoomOnDblClick: false,
             // if is true, then when the source image changes, the plugin will automatically restart init function (used with type = image)
             // attention: if false, it will work correctly only if the images are of the same size
             watchImageChange: true,
@@ -497,23 +715,7 @@
             );
         } // check if we're using a touch screen
 
-        this.isTouch = isTouch(); // switch to touch events if using a touch screen
-
-        this.events = this.isTouch
-            ? {
-                  down: 'touchstart',
-                  up: 'touchend',
-              }
-            : {
-                  down: 'mousedown',
-                  up: 'mouseup',
-              }; // if using touch screen tells the browser that the default action will not be undone
-
-        this.events.options = this.isTouch
-            ? {
-                  passive: true,
-              }
-            : false;
+        this.isTouch = isTouch();
 
         if (this.content.$element) {
             options.smoothExtinction =
@@ -563,7 +765,17 @@
     WZoom.prototype = {
         constructor: WZoom,
         _init: function _init() {
+            var _this = this;
+
             this._prepare();
+
+            if (this.content.elementInteracter) {
+                this.content.elementInteracter.destroy();
+            }
+
+            this.content.elementInteracter = new Interacter(
+                this.content.$element
+            );
 
             if (this.options.dragScrollable === true) {
                 // this can happen if the src of this.content.$element (when type = image) is changed and repeat event load at image
@@ -597,22 +809,43 @@
                     );
                 }
 
-                on(this.content.$element, 'wheel', this._wheelHandler);
+                this.content.elementInteracter.on('wheel', function (event) {
+                    event.preventDefault();
+                    var direction = _this.options.reverseWheelDirection
+                        ? -event.deltaY
+                        : event.deltaY;
+
+                    _this._transform(
+                        _this._computeNewPosition(
+                            _this._computeNewScale(direction),
+                            {
+                                x: eventClientX(event),
+                                y: eventClientY(event),
+                            }
+                        )
+                    );
+                });
             }
 
-            if (this.options.zoomOnClick) {
-                on(
-                    this.content.$element,
-                    this.events.down,
-                    this._downHandler,
-                    this.events.options
-                );
-                on(
-                    this.content.$element,
-                    this.events.up,
-                    this._upHandler,
-                    this.events.options
-                );
+            if (this.options.zoomOnClick || this.options.zoomOnDblClick) {
+                var eventType = this.options.zoomOnDblClick
+                    ? 'dblclick'
+                    : 'click';
+                this.content.elementInteracter.on(eventType, function (event) {
+                    _this._transform(
+                        _this._computeNewPosition(
+                            _this.direction === 1
+                                ? _this.content.maxScale
+                                : _this.content.minScale,
+                            {
+                                x: eventClientX(event),
+                                y: eventClientY(event),
+                            }
+                        )
+                    );
+
+                    _this.direction *= -1;
+                });
             }
         },
         _prepare: function _prepare() {
@@ -865,23 +1098,10 @@
                         this._zoomTwoFingers_TouchendHandler
                     );
                 }
-
-                off(this.content.$element, 'wheel', this._wheelHandler);
             }
 
-            if (this.options.zoomOnClick) {
-                off(
-                    this.content.$element,
-                    this.events.down,
-                    this._downHandler,
-                    this.events.options
-                );
-                off(
-                    this.content.$element,
-                    this.events.up,
-                    this._upHandler,
-                    this.events.options
-                );
+            if (this.content.elementInteracter) {
+                this.content.elementInteracter.destroy();
             }
 
             if (this.dragScrollable) {
@@ -895,59 +1115,6 @@
             }
         },
     };
-
-    function _wheelHandler(event) {
-        event.preventDefault();
-        var direction = this.options.reverseWheelDirection
-            ? -event.deltaY
-            : event.deltaY;
-
-        this._transform(
-            this._computeNewPosition(this._computeNewScale(direction), {
-                x: eventClientX(event),
-                y: eventClientY(event),
-            })
-        );
-    }
-
-    function _downHandler(event) {
-        if (
-            (this.isTouch && event.touches.length === 1) ||
-            event.buttons === 1
-        ) {
-            this.coordsOnMouseDown = {
-                x: eventClientX(event),
-                y: eventClientY(event),
-            };
-        }
-    }
-
-    function _upHandler(event) {
-        var clientX = eventClientX(event);
-        var clientY = eventClientY(event);
-
-        if (
-            this.coordsOnMouseDown &&
-            this.coordsOnMouseDown.x === clientX &&
-            this.coordsOnMouseDown.y === clientY
-        ) {
-            this._transform(
-                this._computeNewPosition(
-                    this.direction === 1
-                        ? this.content.maxScale
-                        : this.content.minScale,
-                    {
-                        x: clientX,
-                        y: clientY,
-                    }
-                )
-            );
-
-            this.direction *= -1;
-        }
-
-        this.coordsOnMouseDown = null;
-    }
 
     function _zoomTwoFingers_TouchmoveHandler(event) {
         // detect two fingers
