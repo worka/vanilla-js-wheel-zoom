@@ -38,7 +38,7 @@ Interacter.prototype = {
     constructor: Interacter,
     /**
      * @param {string} eventType
-     * @param {function} eventHandler
+     * @param {Function} eventHandler
      */
     on(eventType, eventHandler) {
         if (!(eventType in this.subscribes)) {
@@ -57,6 +57,17 @@ Interacter.prototype = {
         if (this.subscribes[eventType]) {
             for (const eventHandler of this.subscribes[eventType]) {
                 eventHandler(event);
+            }
+        }
+    },
+    destroy() {
+        off(this.target, this.events.down, this._downHandler, this.events.options);
+        off(this.target, this.events.up, this._upHandler, this.events.options);
+        off(this.target, EVENT_WHEEL, this._wheelHandler, this.events.options);
+
+        for (let key in this) {
+            if (this.hasOwnProperty(key)) {
+                this[key] = null;
             }
         }
     },
@@ -106,18 +117,6 @@ Interacter.prototype = {
     _wheelHandler(event) {
         this.run(EVENT_WHEEL, event);
     },
-
-    destroy() {
-        off(this.target, this.events.down, this._downHandler, this.events.options);
-        off(this.target, this.events.up, this._upHandler, this.events.options);
-        off(this.target, EVENT_WHEEL, this._wheelHandler, this.events.options);
-
-        for (let key in this) {
-            if (this.hasOwnProperty(key)) {
-                this[key] = null;
-            }
-        }
-    }
 };
 
 export default Interacter;
