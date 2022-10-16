@@ -27,7 +27,7 @@ Advantages:
 
 <a href="https://worka.github.io/vanilla-js-wheel-zoom/demo-images.html">Demo (multi images with custom align)</a>
 
-<a href="https://codesandbox.io/s/workavanilla-js-wheel-zoom-4m481">Playground... Have some fun 🤸‍♂️</a>
+<a href="https://codesandbox.io/s/worka-vanilla-js-wheel-zoom-forked-sbndwy">Playground... Have some fun 🤸‍♂️</a>
 
 ### Install
 
