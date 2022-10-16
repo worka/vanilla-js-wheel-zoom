@@ -533,7 +533,7 @@
      * @param {HTMLElement} target
      * @constructor
      */
-    function Interacter(target) {
+    function Interactor(target) {
         this.target = target;
         this.subscribes = {};
         this.coordsOnDown = null;
@@ -563,10 +563,8 @@
         this._downHandler = this._downHandler.bind(this);
         this._upHandler = this._upHandler.bind(this);
         this._wheelHandler = this._wheelHandler.bind(this);
-        this._zoomTwoFingers_TouchmoveHandler =
-            this._zoomTwoFingers_TouchmoveHandler.bind(this);
-        this._zoomTwoFingers_TouchendHandler =
-            this._zoomTwoFingers_TouchendHandler.bind(this);
+        this._touchMoveHandler = this._touchMoveHandler.bind(this);
+        this._touchEndHandler = this._touchEndHandler.bind(this);
         on(
             this.target,
             this.events.down,
@@ -576,43 +574,22 @@
         on(this.target, this.events.up, this._upHandler, this.events.options);
         on(this.target, EVENT_WHEEL, this._wheelHandler);
         if (this.isTouch) {
-            on(this.target, 'touchmove', this._zoomTwoFingers_TouchmoveHandler);
-            on(this.target, 'touchend', this._zoomTwoFingers_TouchendHandler);
+            on(this.target, 'touchmove', this._touchMoveHandler);
+            on(this.target, 'touchend', this._touchEndHandler);
         }
     }
-    Interacter.prototype = {
-        constructor: Interacter,
+    Interactor.prototype = {
+        constructor: Interactor,
         /**
          * @param {string} eventType
          * @param {Function} eventHandler
-         * @returns {Interacter}
+         * @returns {Interactor}
          */ on: function on(eventType, eventHandler) {
             if (!(eventType in this.subscribes)) {
                 this.subscribes[eventType] = [];
             }
             this.subscribes[eventType].push(eventHandler);
             return this;
-        },
-        /**
-         * @param {string} eventType
-         * @param {Event} event
-         */ run: function run(eventType, event) {
-            if (this.subscribes[eventType]) {
-                var _iterator = _createForOfIteratorHelper(
-                        this.subscribes[eventType]
-                    ),
-                    _step;
-                try {
-                    for (_iterator.s(); !(_step = _iterator.n()).done; ) {
-                        var eventHandler = _step.value;
-                        eventHandler(event);
-                    }
-                } catch (err) {
-                    _iterator.e(err);
-                } finally {
-                    _iterator.f();
-                }
-            }
         },
         destroy: function destroy() {
             off(
@@ -634,16 +611,8 @@
                 this.events.options
             );
             if (this.isTouch) {
-                off(
-                    this.target,
-                    'touchmove',
-                    this._zoomTwoFingers_TouchmoveHandler
-                );
-                off(
-                    this.target,
-                    'touchend',
-                    this._zoomTwoFingers_TouchendHandler
-                );
+                off(this.target, 'touchmove', this._touchMoveHandler);
+                off(this.target, 'touchend', this._touchEndHandler);
             }
             for (var key in this) {
                 if (this.hasOwnProperty(key)) {
@@ -652,6 +621,29 @@
             }
         },
         /**
+         * @param {string} eventType
+         * @param {Event} event
+         * @private
+         */ _run: function _run(eventType, event) {
+            if (this.subscribes[eventType]) {
+                var _iterator = _createForOfIteratorHelper(
+                        this.subscribes[eventType]
+                    ),
+                    _step;
+                try {
+                    for (_iterator.s(); !(_step = _iterator.n()).done; ) {
+                        var eventHandler = _step.value;
+                        eventHandler(event);
+                    }
+                } catch (err) {
+                    _iterator.e(err);
+                } finally {
+                    _iterator.f();
+                }
+            }
+        },
+        /**
+         * @param {TouchEvent|MouseEvent|Event} event
          * @private
          */ _downHandler: function _downHandler(event) {
             this.coordsOnDown = null;
@@ -667,6 +659,7 @@
             clearTimeout(this.pressingTimeout);
         },
         /**
+         * @param {TouchEvent|MouseEvent|Event} event
          * @private
          */ _upHandler: function _upHandler(event) {
             var _this = this;
@@ -678,78 +671,78 @@
                         _this.coordsOnDown.x === eventClientX(event) &&
                         _this.coordsOnDown.y === eventClientY(event)
                     ) {
-                        _this.run(EVENT_CLICK, event);
+                        _this._run(EVENT_CLICK, event);
                     }
                     _this.firstClick = true;
                 }, delay);
                 this.firstClick = false;
             } else {
                 this.pressingTimeout = setTimeout(function () {
-                    _this.run(EVENT_DBLCLICK, event);
+                    _this._run(EVENT_DBLCLICK, event);
                     _this.firstClick = true;
                 }, delay / 2);
             }
         },
         /**
+         * @param {WheelEvent|Event} event
          * @private
          */ _wheelHandler: function _wheelHandler(event) {
-            this.run(EVENT_WHEEL, event);
+            this._run(EVENT_WHEEL, event);
+        },
+        /**
+         * @param {TouchEvent|Event} event
+         * @private
+         */ _touchMoveHandler: function _touchMoveHandler(event) {
+            // detect two fingers
+            if (event.targetTouches.length === 2) {
+                var pageX1 = event.targetTouches[0].clientX;
+                var pageY1 = event.targetTouches[0].clientY;
+                var pageX2 = event.targetTouches[1].clientX;
+                var pageY2 = event.targetTouches[1].clientY;
+
+                // Math.hypot() analog
+                var fingersHypotNew = Math.round(
+                    Math.sqrt(
+                        Math.pow(Math.abs(pageX1 - pageX2), 2) +
+                            Math.pow(Math.abs(pageY1 - pageY2), 2)
+                    )
+                );
+                var direction = 0;
+                if (fingersHypotNew > this.fingersHypot + 5) direction = -1;
+                if (fingersHypotNew < this.fingersHypot - 5) direction = 1;
+                if (direction !== 0) {
+                    if (this.fingersHypot !== null || direction === 1) {
+                        // middle position between fingers
+                        var clientX =
+                            Math.min(pageX1, pageX2) +
+                            Math.abs(pageX1 - pageX2) / 2;
+                        var clientY =
+                            Math.min(pageY1, pageY2) +
+                            Math.abs(pageY1 - pageY2) / 2;
+                        event.data = _objectSpread2(
+                            _objectSpread2({}, event.data || {}),
+                            {},
+                            {
+                                clientX: clientX,
+                                clientY: clientY,
+                                direction: direction,
+                            }
+                        );
+                        this._run(EVENT_PINCH_TO_ZOOM, event);
+                    }
+                    this.fingersHypot = fingersHypotNew;
+                    this.zoomPinchWasDetected = true;
+                }
+            }
         },
         /**
          * @private
-         */ _zoomTwoFingers_TouchmoveHandler:
-            function _zoomTwoFingers_TouchmoveHandler(event) {
-                // detect two fingers
-                if (event.targetTouches.length === 2) {
-                    var pageX1 = event.targetTouches[0].clientX;
-                    var pageY1 = event.targetTouches[0].clientY;
-                    var pageX2 = event.targetTouches[1].clientX;
-                    var pageY2 = event.targetTouches[1].clientY;
-
-                    // Math.hypot() analog
-                    var fingersHypotNew = Math.round(
-                        Math.sqrt(
-                            Math.pow(Math.abs(pageX1 - pageX2), 2) +
-                                Math.pow(Math.abs(pageY1 - pageY2), 2)
-                        )
-                    );
-                    var direction = 0;
-                    if (fingersHypotNew > this.fingersHypot + 5) direction = -1;
-                    if (fingersHypotNew < this.fingersHypot - 5) direction = 1;
-                    if (direction !== 0) {
-                        if (this.fingersHypot !== null || direction === 1) {
-                            // middle position between fingers
-                            var clientX =
-                                Math.min(pageX1, pageX2) +
-                                Math.abs(pageX1 - pageX2) / 2;
-                            var clientY =
-                                Math.min(pageY1, pageY2) +
-                                Math.abs(pageY1 - pageY2) / 2;
-                            event.data = _objectSpread2(
-                                _objectSpread2({}, event.data || {}),
-                                {},
-                                {
-                                    clientX: clientX,
-                                    clientY: clientY,
-                                    direction: direction,
-                                }
-                            );
-                            this.run(EVENT_PINCH_TO_ZOOM, event);
-                        }
-                        this.fingersHypot = fingersHypotNew;
-                        this.zoomPinchWasDetected = true;
-                    }
-                }
-            },
-        /**
-         * @private
-         */ _zoomTwoFingers_TouchendHandler:
-            function _zoomTwoFingers_TouchendHandler() {
-                if (this.zoomPinchWasDetected) {
-                    this.fingersHypot = null;
-                    this.zoomPinchWasDetected = false;
-                }
-            },
+         */ _touchEndHandler: function _touchEndHandler() {
+            if (this.zoomPinchWasDetected) {
+                this.fingersHypot = null;
+                this.zoomPinchWasDetected = false;
+            }
+        },
     };
 
     function calculateAlignPoint(options, content, window) {
@@ -876,7 +869,7 @@
         this.direction = 1;
         this.options = null;
         this.dragScrollable = null;
-        this.content.elementInteracter = null;
+        this.content.elementInteractor = null;
         /********************/
         /********************/
 
@@ -977,10 +970,10 @@
          */ _init: function _init() {
             var _this = this;
             this._prepare();
-            if (this.content.elementInteracter) {
-                this.content.elementInteracter.destroy();
+            if (this.content.elementInteractor) {
+                this.content.elementInteractor.destroy();
             }
-            this.content.elementInteracter = new Interacter(
+            this.content.elementInteractor = new Interactor(
                 this.content.$element
             );
             if (this.options.dragScrollable === true) {
@@ -999,7 +992,7 @@
             if (!this.options.disableWheelZoom) {
                 // support for zoom and pinch on touch screen devices
                 if (this.isTouch) {
-                    this.content.elementInteracter.on(
+                    this.content.elementInteractor.on(
                         'pinchtozoom',
                         function (event) {
                             var _event$data = event.data,
@@ -1018,7 +1011,7 @@
                         }
                     );
                 }
-                this.content.elementInteracter.on('wheel', function (event) {
+                this.content.elementInteractor.on('wheel', function (event) {
                     event.preventDefault();
                     var direction = _this.options.reverseWheelDirection
                         ? -event.deltaY
@@ -1038,7 +1031,7 @@
                 var eventType = this.options.zoomOnDblClick
                     ? 'dblclick'
                     : 'click';
-                this.content.elementInteracter.on(eventType, function (event) {
+                this.content.elementInteractor.on(eventType, function (event) {
                     _this._transform(
                         _this._computeNewPosition(
                             _this.direction === 1
@@ -1294,8 +1287,8 @@
             if (this.options.type === 'image') {
                 off(this.content.$element, 'load', this._init);
             }
-            if (this.content.elementInteracter) {
-                this.content.elementInteracter.destroy();
+            if (this.content.elementInteractor) {
+                this.content.elementInteractor.destroy();
             }
             if (this.dragScrollable) {
                 this.dragScrollable.destroy();

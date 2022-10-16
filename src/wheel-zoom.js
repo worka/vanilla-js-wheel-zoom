@@ -10,7 +10,7 @@ import {
     isTouch,
 } from './toolkit';
 import DragScrollable from './drag-scrollable';
-import Interacter from './interacter';
+import Interactor from './interactor';
 import {
     calculateAlignPoint,
     calculateContentMaxShift,
@@ -42,7 +42,7 @@ function WZoom(selectorOrHTMLElement, options = {}) {
     this.options = null;
     this.dragScrollable = null;
 
-    this.content.elementInteracter = null;
+    this.content.elementInteractor = null;
     /********************/
     /********************/
 
@@ -134,11 +134,11 @@ WZoom.prototype = {
     _init() {
         this._prepare();
 
-        if (this.content.elementInteracter) {
-            this.content.elementInteracter.destroy();
+        if (this.content.elementInteractor) {
+            this.content.elementInteractor.destroy();
         }
 
-        this.content.elementInteracter = new Interacter(this.content.$element);
+        this.content.elementInteractor = new Interactor(this.content.$element);
 
         if (this.options.dragScrollable === true) {
             // this can happen if the src of this.content.$element (when type = image) is changed and repeat event load at image
@@ -152,7 +152,7 @@ WZoom.prototype = {
         if (!this.options.disableWheelZoom) {
             // support for zoom and pinch on touch screen devices
             if (this.isTouch) {
-                this.content.elementInteracter.on('pinchtozoom', (event) => {
+                this.content.elementInteractor.on('pinchtozoom', (event) => {
                     const { clientX, clientY, direction } = event.data;
 
                     this._transform(
@@ -166,7 +166,7 @@ WZoom.prototype = {
                 });
             }
 
-            this.content.elementInteracter.on('wheel', (event) => {
+            this.content.elementInteractor.on('wheel', (event) => {
                 event.preventDefault();
 
                 const direction = this.options.reverseWheelDirection ? -event.deltaY : event.deltaY;
@@ -185,7 +185,7 @@ WZoom.prototype = {
         if (this.options.zoomOnClick || this.options.zoomOnDblClick) {
             const eventType = this.options.zoomOnDblClick ? 'dblclick' : 'click';
 
-            this.content.elementInteracter.on(eventType, (event) => {
+            this.content.elementInteractor.on(eventType, (event) => {
                 this._transform(
                     this._computeNewPosition(
                         this.direction === 1 ? this.content.maxScale : this.content.minScale, {
@@ -378,8 +378,8 @@ WZoom.prototype = {
             off(this.content.$element, 'load', this._init);
         }
 
-        if (this.content.elementInteracter) {
-            this.content.elementInteracter.destroy();
+        if (this.content.elementInteractor) {
+            this.content.elementInteractor.destroy();
         }
 
         if (this.dragScrollable) {

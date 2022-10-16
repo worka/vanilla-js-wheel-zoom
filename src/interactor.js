@@ -9,7 +9,7 @@ const EVENT_PINCH_TO_ZOOM = 'pinchtozoom';
  * @param {HTMLElement} target
  * @constructor
  */
-function Interacter(target) {
+function Interactor(target) {
     this.target = target;
     this.subscribes = {};
 
@@ -33,25 +33,25 @@ function Interacter(target) {
     this._upHandler = this._upHandler.bind(this);
     this._wheelHandler = this._wheelHandler.bind(this);
 
-    this._zoomTwoFingers_TouchmoveHandler = this._zoomTwoFingers_TouchmoveHandler.bind(this);
-    this._zoomTwoFingers_TouchendHandler = this._zoomTwoFingers_TouchendHandler.bind(this);
+    this._touchMoveHandler = this._touchMoveHandler.bind(this);
+    this._touchEndHandler = this._touchEndHandler.bind(this);
 
     on(this.target, this.events.down, this._downHandler, this.events.options);
     on(this.target, this.events.up, this._upHandler, this.events.options);
     on(this.target, EVENT_WHEEL, this._wheelHandler);
 
     if (this.isTouch) {
-        on(this.target, 'touchmove', this._zoomTwoFingers_TouchmoveHandler);
-        on(this.target, 'touchend', this._zoomTwoFingers_TouchendHandler);
+        on(this.target, 'touchmove', this._touchMoveHandler);
+        on(this.target, 'touchend', this._touchEndHandler);
     }
 }
 
-Interacter.prototype = {
-    constructor: Interacter,
+Interactor.prototype = {
+    constructor: Interactor,
     /**
      * @param {string} eventType
      * @param {Function} eventHandler
-     * @returns {Interacter}
+     * @returns {Interactor}
      */
     on(eventType, eventHandler) {
         if (!(eventType in this.subscribes)) {
@@ -62,25 +62,14 @@ Interacter.prototype = {
 
         return this;
     },
-    /**
-     * @param {string} eventType
-     * @param {Event} event
-     */
-    run(eventType, event) {
-        if (this.subscribes[eventType]) {
-            for (const eventHandler of this.subscribes[eventType]) {
-                eventHandler(event);
-            }
-        }
-    },
     destroy() {
         off(this.target, this.events.down, this._downHandler, this.events.options);
         off(this.target, this.events.up, this._upHandler, this.events.options);
         off(this.target, EVENT_WHEEL, this._wheelHandler, this.events.options);
 
         if (this.isTouch) {
-            off(this.target, 'touchmove', this._zoomTwoFingers_TouchmoveHandler);
-            off(this.target, 'touchend', this._zoomTwoFingers_TouchendHandler);
+            off(this.target, 'touchmove', this._touchMoveHandler);
+            off(this.target, 'touchend', this._touchEndHandler);
         }
 
         for (let key in this) {
@@ -89,8 +78,20 @@ Interacter.prototype = {
             }
         }
     },
-
     /**
+     * @param {string} eventType
+     * @param {Event} event
+     * @private
+     */
+    _run(eventType, event) {
+        if (this.subscribes[eventType]) {
+            for (const eventHandler of this.subscribes[eventType]) {
+                eventHandler(event);
+            }
+        }
+    },
+    /**
+     * @param {TouchEvent|MouseEvent|Event} event
      * @private
      */
     _downHandler(event) {
@@ -103,6 +104,7 @@ Interacter.prototype = {
         clearTimeout(this.pressingTimeout);
     },
     /**
+     * @param {TouchEvent|MouseEvent|Event} event
      * @private
      */
     _upHandler(event) {
@@ -114,7 +116,7 @@ Interacter.prototype = {
                     this.coordsOnDown.x === eventClientX(event) &&
                     this.coordsOnDown.y === eventClientY(event)
                 ) {
-                    this.run(EVENT_CLICK, event);
+                    this._run(EVENT_CLICK, event);
                 }
 
                 this.firstClick = true;
@@ -123,22 +125,24 @@ Interacter.prototype = {
             this.firstClick = false;
         } else {
             this.pressingTimeout = setTimeout(() => {
-                this.run(EVENT_DBLCLICK, event);
+                this._run(EVENT_DBLCLICK, event);
 
                 this.firstClick = true;
             }, delay / 2);
         }
     },
     /**
+     * @param {WheelEvent|Event} event
      * @private
      */
     _wheelHandler(event) {
-        this.run(EVENT_WHEEL, event);
+        this._run(EVENT_WHEEL, event);
     },
     /**
+     * @param {TouchEvent|Event} event
      * @private
      */
-    _zoomTwoFingers_TouchmoveHandler(event) {
+    _touchMoveHandler(event) {
         // detect two fingers
         if (event.targetTouches.length === 2) {
             const pageX1 = event.targetTouches[0].clientX;
@@ -165,7 +169,7 @@ Interacter.prototype = {
 
                     event.data = { ...event.data || {}, clientX, clientY, direction };
 
-                    this.run(EVENT_PINCH_TO_ZOOM, event);
+                    this._run(EVENT_PINCH_TO_ZOOM, event);
                 }
 
                 this.fingersHypot = fingersHypotNew;
@@ -176,7 +180,7 @@ Interacter.prototype = {
     /**
      * @private
      */
-    _zoomTwoFingers_TouchendHandler() {
+    _touchEndHandler() {
         if (this.zoomPinchWasDetected) {
             this.fingersHypot = null;
             this.zoomPinchWasDetected = false;
@@ -184,4 +188,4 @@ Interacter.prototype = {
     },
 };
 
-export default Interacter;
+export default Interactor;
