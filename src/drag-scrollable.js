@@ -50,7 +50,7 @@ DragScrollable.prototype = {
     moveTimer: null,
     options: {},
     coordinates: null,
-    shift: null,
+    coordinatesShift: null,
     /**
      * @param {Event} event
      * @private
@@ -61,8 +61,8 @@ DragScrollable.prototype = {
             event.preventDefault();
 
             this.isGrab = true;
-            this.coordinates = { left: eventClientX(event), top: eventClientY(event) };
-            this.shift = { left: 0, top: 0 };
+            this.coordinates = { x: eventClientX(event), y: eventClientY(event) };
+            this.coordinatesShift = { x: 0, y: 0 };
 
             on(document, this.events.drop, this._dropHandler, this.events.options);
             on(document, this.events.move, this._moveHandler, this.events.options);
@@ -99,25 +99,25 @@ DragScrollable.prototype = {
 
         event.preventDefault();
 
-        const { window, content, shift, coordinates, options } = this;
+        const { window, content, coordinatesShift, coordinates, options } = this;
 
-        // change of the coordinate of the mouse cursor
-        shift.left = eventClientX(event) - coordinates.left;
-        shift.top = eventClientY(event) - coordinates.top;
+        // change of the coordinate of the mouse cursor along the X/Y axis
+        coordinatesShift.x = eventClientX(event) - coordinates.x;
+        coordinatesShift.y = eventClientY(event) - coordinates.y;
         
-        coordinates.left = eventClientX(event);
-        coordinates.top = eventClientY(event);
+        coordinates.x = eventClientX(event);
+        coordinates.y = eventClientY(event);
 
         clearTimeout(this.moveTimer);
 
         // reset shift if cursor stops
         this.moveTimer = setTimeout(() => {
-            shift.left = 0;
-            shift.top = 0;
+            coordinatesShift.x = 0;
+            coordinatesShift.y = 0;
         }, 50);
 
-        const contentNewLeft = content.currentLeft + shift.left;
-        const contentNewTop = content.currentTop + shift.top;
+        const contentNewLeft = content.currentLeft + coordinatesShift.x;
+        const contentNewTop = content.currentTop + coordinatesShift.y;
 
         let maxAvailableLeft = (content.currentWidth - window.originalWidth) / 2 + content.correctX;
         let maxAvailableTop = (content.currentHeight - window.originalHeight) / 2 + content.correctY;
