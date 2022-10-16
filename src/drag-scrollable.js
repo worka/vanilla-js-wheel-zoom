@@ -50,7 +50,7 @@ DragScrollable.prototype = {
     moveTimer: null,
     options: {},
     coordinates: null,
-    speed: null,
+    shift: null,
     /**
      * @param {Event} event
      * @private
@@ -62,7 +62,7 @@ DragScrollable.prototype = {
 
             this.isGrab = true;
             this.coordinates = { left: eventClientX(event), top: eventClientY(event) };
-            this.speed = { x: 0, y: 0 };
+            this.shift = { x: 0, y: 0 };
 
             on(document, this.events.drop, this._dropHandler, this.events.options);
             on(document, this.events.move, this._moveHandler, this.events.options);
@@ -99,22 +99,22 @@ DragScrollable.prototype = {
 
         event.preventDefault();
 
-        const { window, content, speed, coordinates, options } = this;
+        const { window, content, shift, coordinates, options } = this;
 
-        // speed of change of the coordinate of the mouse cursor along the X/Y axis
-        speed.x = eventClientX(event) - coordinates.left;
-        speed.y = eventClientY(event) - coordinates.top;
+        // change of the coordinate of the mouse cursor along the X/Y axis
+        shift.x = eventClientX(event) - coordinates.left;
+        shift.y = eventClientY(event) - coordinates.top;
 
         clearTimeout(this.moveTimer);
 
-        // reset speed data if cursor stops
+        // reset shift if cursor stops
         this.moveTimer = setTimeout(() => {
-            speed.x = 0;
-            speed.y = 0;
+            shift.x = 0;
+            shift.y = 0;
         }, 50);
 
-        const contentNewLeft = content.currentLeft + speed.x;
-        const contentNewTop = content.currentTop + speed.y;
+        const contentNewLeft = content.currentLeft + shift.x;
+        const contentNewTop = content.currentTop + shift.y;
 
         let maxAvailableLeft = (content.currentWidth - window.originalWidth) / 2 + content.correctX;
         let maxAvailableTop = (content.currentHeight - window.originalHeight) / 2 + content.correctY;
