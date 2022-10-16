@@ -61,6 +61,9 @@ Interacter.prototype = {
         }
     },
 
+    /**
+     * @private
+     */
     _downHandler(event) {
         this.coordsOnDown = null;
 
@@ -70,6 +73,9 @@ Interacter.prototype = {
 
         clearTimeout(this.pressingTimeout);
     },
+    /**
+     * @private
+     */
     _upHandler(event) {
         const delay = this.subscribes[EVENT_DBLCLICK] ? 200 : 0;
 
@@ -94,6 +100,9 @@ Interacter.prototype = {
             }, delay / 2);
         }
     },
+    /**
+     * @private
+     */
     _wheelHandler(event) {
         this.run(EVENT_WHEEL, event);
     },
