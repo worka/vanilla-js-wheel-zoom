@@ -62,7 +62,7 @@ DragScrollable.prototype = {
 
             this.isGrab = true;
             this.coordinates = { left: eventClientX(event), top: eventClientY(event) };
-            this.shift = { x: 0, y: 0 };
+            this.shift = { left: 0, top: 0 };
 
             on(document, this.events.drop, this._dropHandler, this.events.options);
             on(document, this.events.move, this._moveHandler, this.events.options);
@@ -101,20 +101,23 @@ DragScrollable.prototype = {
 
         const { window, content, shift, coordinates, options } = this;
 
-        // change of the coordinate of the mouse cursor along the X/Y axis
-        shift.x = eventClientX(event) - coordinates.left;
-        shift.y = eventClientY(event) - coordinates.top;
+        // change of the coordinate of the mouse cursor
+        shift.left = eventClientX(event) - coordinates.left;
+        shift.top = eventClientY(event) - coordinates.top;
+        
+        coordinates.left = eventClientX(event);
+        coordinates.top = eventClientY(event);
 
         clearTimeout(this.moveTimer);
 
         // reset shift if cursor stops
         this.moveTimer = setTimeout(() => {
-            shift.x = 0;
-            shift.y = 0;
+            shift.left = 0;
+            shift.top = 0;
         }, 50);
 
-        const contentNewLeft = content.currentLeft + shift.x;
-        const contentNewTop = content.currentTop + shift.y;
+        const contentNewLeft = content.currentLeft + shift.left;
+        const contentNewTop = content.currentTop + shift.top;
 
         let maxAvailableLeft = (content.currentWidth - window.originalWidth) / 2 + content.correctX;
         let maxAvailableTop = (content.currentHeight - window.originalHeight) / 2 + content.correctY;
@@ -130,9 +133,6 @@ DragScrollable.prototype = {
             top: content.currentTop,
             scale: content.currentScale,
         }, this.options);
-
-        coordinates.left = eventClientX(event);
-        coordinates.top = eventClientY(event);
 
         if (typeof options.onMove === 'function') {
             options.onMove(event);
