@@ -7,10 +7,17 @@ import {
     off,
     eventClientX,
     eventClientY,
-    isTouch
+    isTouch,
 } from './toolkit';
 import DragScrollable from './drag-scrollable';
 import Interacter from './interacter';
+import {
+    calculateAlignPoint,
+    calculateContentMaxShift,
+    calculateContentShift,
+    calculateCorrectPoint,
+    calculateWindowCenter,
+} from './calculator';
 
 /**
  * @class WZoom
@@ -24,15 +31,6 @@ function WZoom(selectorOrHTMLElement, options = {}) {
     this._computeNewScale = this._computeNewScale.bind(this);
     this._computeNewPosition = this._computeNewPosition.bind(this);
     this._transform = this._transform.bind(this);
-
-    /**
-     * @private
-     */
-    this._zoomTwoFingers_TouchmoveHandler = zoomTwoFingers_TouchmoveHandler.bind(this);
-    /**
-     * @private
-     */
-    this._zoomTwoFingers_TouchendHandler = zoomTwoFingers_TouchendHandler.bind(this);
 
     /********************/
     /********************/
@@ -154,11 +152,18 @@ WZoom.prototype = {
         if (!this.options.disableWheelZoom) {
             // support for zoom and pinch on touch screen devices
             if (this.isTouch) {
-                this.fingersHypot = null;
-                this.zoomPinchWasDetected = false;
+                this.content.elementInteracter.on('pinchtozoom', (event) => {
+                    const { clientX, clientY, direction } = event.data;
 
-                on(this.content.$element, 'touchmove', this._zoomTwoFingers_TouchmoveHandler);
-                on(this.content.$element, 'touchend', this._zoomTwoFingers_TouchendHandler);
+                    this._transform(
+                        this._computeNewPosition(
+                            this._computeNewScale(direction), {
+                                x: clientX,
+                                y: clientY,
+                            }
+                        )
+                    );
+                });
             }
 
             this.content.elementInteracter.on('wheel', (event) => {
@@ -373,13 +378,6 @@ WZoom.prototype = {
             off(this.content.$element, 'load', this._init);
         }
 
-        if (!this.options.disableWheelZoom) {
-            if (this.isTouch) {
-                off(this.content.$element, 'touchmove', this._zoomTwoFingers_TouchmoveHandler);
-                off(this.content.$element, 'touchend', this._zoomTwoFingers_TouchendHandler);
-            }
-        }
-
         if (this.content.elementInteracter) {
             this.content.elementInteracter.destroy();
         }
@@ -395,128 +393,6 @@ WZoom.prototype = {
         }
     }
 };
-
-function zoomTwoFingers_TouchmoveHandler(event) {
-    // detect two fingers
-    if (event.targetTouches.length === 2) {
-        const pageX1 = event.targetTouches[0].clientX;
-        const pageY1 = event.targetTouches[0].clientY;
-
-        const pageX2 = event.targetTouches[1].clientX;
-        const pageY2 = event.targetTouches[1].clientY;
-
-        // Math.hypot() analog
-        const fingersHypotNew = Math.round(Math.sqrt(
-            Math.pow(Math.abs(pageX1 - pageX2), 2) +
-            Math.pow(Math.abs(pageY1 - pageY2), 2)
-        ));
-
-        let direction = 0;
-        if (fingersHypotNew > this.fingersHypot + 5) direction = -1;
-        if (fingersHypotNew < this.fingersHypot - 5) direction = 1;
-
-        if (direction !== 0) {
-            if (this.fingersHypot !== null || direction === 1) {
-                // middle position between fingers
-                const clientX = Math.min(pageX1, pageX2) + (Math.abs(pageX1 - pageX2) / 2);
-                const clientY = Math.min(pageY1, pageY2) + (Math.abs(pageY1 - pageY2) / 2);
-
-                this._transform(
-                    this._computeNewPosition(
-                        this._computeNewScale(direction), {
-                            x: clientX,
-                            y: clientY,
-                        }
-                    )
-                );
-            }
-
-            this.fingersHypot = fingersHypotNew;
-            this.zoomPinchWasDetected = true;
-        }
-    }
-}
-
-function zoomTwoFingers_TouchendHandler() {
-    if (this.zoomPinchWasDetected) {
-        this.fingersHypot = null;
-        this.zoomPinchWasDetected = false;
-    }
-}
-
-function calculateAlignPoint(options, content, window) {
-    let alignPointX = 0;
-    let alignPointY = 0;
-
-    switch (options.alignContent) {
-        case 'left':
-            alignPointX = (content.currentWidth - window.originalWidth) / 2;
-            break;
-        case 'top':
-            alignPointY = (content.currentHeight - window.originalHeight) / 2;
-            break;
-        case 'right':
-            alignPointX = (content.currentWidth - window.originalWidth) / 2 * -1;
-            break;
-        case 'bottom':
-            alignPointY = (content.currentHeight - window.originalHeight) / 2 * -1;
-            break;
-    }
-
-    return [ alignPointX, alignPointY ];
-}
-
-function calculateCorrectPoint(options, content, window) {
-    let correctX = Math.max(0, (window.originalWidth - content.currentWidth) / 2);
-    let correctY = Math.max(0, (window.originalHeight - content.currentHeight) / 2);
-
-    if (options.alignContent === 'left') correctX = correctX * 2;
-    else if (options.alignContent === 'right') correctX = 0;
-
-    if (options.alignContent === 'bottom') correctY = correctY * 2;
-    else if (options.alignContent === 'top') correctY = 0;
-
-    return [ correctX, correctY ];
-}
-
-function calculateContentShift(axisValue, axisScroll, axisWindowPosition, axisContentPosition, originalWindowSize, contentSizeRatio) {
-    const windowShift = axisValue + axisScroll - axisWindowPosition;
-    const centerWindowShift = originalWindowSize / 2 - windowShift;
-    const centerContentShift = centerWindowShift + axisContentPosition;
-
-    return centerContentShift * contentSizeRatio - centerContentShift + axisContentPosition;
-}
-
-function calculateContentMaxShift(options, originalWindowSize, correctCoordinate, size, shift) {
-    switch (options.alignContent) {
-        case 'left':
-            if (size / 2 - shift < originalWindowSize / 2) {
-                shift = (size - originalWindowSize) / 2;
-            }
-            break;
-        case 'right':
-            if (size / 2 + shift < originalWindowSize / 2) {
-                shift = (size - originalWindowSize) / 2 * -1;
-            }
-            break;
-        default:
-            if ((size - originalWindowSize) / 2 + correctCoordinate < Math.abs(shift)) {
-                const positive = shift < 0 ? -1 : 1;
-                shift = ((size - originalWindowSize) / 2 + correctCoordinate) * positive;
-            }
-    }
-
-    return shift;
-}
-
-function calculateWindowCenter(window) {
-    const windowPosition = getElementPosition(window.$element);
-
-    return {
-        x: windowPosition.left + (window.originalWidth / 2) - getPageScrollLeft(),
-        y: windowPosition.top + (window.originalHeight / 2) - getPageScrollTop(),
-    };
-}
 
 /**
  * Create WZoom instance

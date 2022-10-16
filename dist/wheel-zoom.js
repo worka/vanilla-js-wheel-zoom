@@ -9,6 +9,56 @@
 })(this, function () {
     'use strict';
 
+    function ownKeys(object, enumerableOnly) {
+        var keys = Object.keys(object);
+        if (Object.getOwnPropertySymbols) {
+            var symbols = Object.getOwnPropertySymbols(object);
+            enumerableOnly &&
+                (symbols = symbols.filter(function (sym) {
+                    return Object.getOwnPropertyDescriptor(
+                        object,
+                        sym
+                    ).enumerable;
+                })),
+                keys.push.apply(keys, symbols);
+        }
+        return keys;
+    }
+    function _objectSpread2(target) {
+        for (var i = 1; i < arguments.length; i++) {
+            var source = null != arguments[i] ? arguments[i] : {};
+            i % 2
+                ? ownKeys(Object(source), !0).forEach(function (key) {
+                      _defineProperty(target, key, source[key]);
+                  })
+                : Object.getOwnPropertyDescriptors
+                ? Object.defineProperties(
+                      target,
+                      Object.getOwnPropertyDescriptors(source)
+                  )
+                : ownKeys(Object(source)).forEach(function (key) {
+                      Object.defineProperty(
+                          target,
+                          key,
+                          Object.getOwnPropertyDescriptor(source, key)
+                      );
+                  });
+        }
+        return target;
+    }
+    function _defineProperty(obj, key, value) {
+        if (key in obj) {
+            Object.defineProperty(obj, key, {
+                value: value,
+                enumerable: true,
+                configurable: true,
+                writable: true,
+            });
+        } else {
+            obj[key] = value;
+        }
+        return obj;
+    }
     function _slicedToArray(arr, i) {
         return (
             _arrayWithHoles(arr) ||
@@ -17,29 +67,23 @@
             _nonIterableRest()
         );
     }
-
     function _arrayWithHoles(arr) {
         if (Array.isArray(arr)) return arr;
     }
-
     function _iterableToArrayLimit(arr, i) {
         var _i =
             arr == null
                 ? null
                 : (typeof Symbol !== 'undefined' && arr[Symbol.iterator]) ||
                   arr['@@iterator'];
-
         if (_i == null) return;
         var _arr = [];
         var _n = true;
         var _d = false;
-
         var _s, _e;
-
         try {
             for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) {
                 _arr.push(_s.value);
-
                 if (i && _arr.length === i) break;
             }
         } catch (err) {
@@ -52,10 +96,8 @@
                 if (_d) throw _e;
             }
         }
-
         return _arr;
     }
-
     function _unsupportedIterableToArray(o, minLen) {
         if (!o) return;
         if (typeof o === 'string') return _arrayLikeToArray(o, minLen);
@@ -68,26 +110,20 @@
         )
             return _arrayLikeToArray(o, minLen);
     }
-
     function _arrayLikeToArray(arr, len) {
         if (len == null || len > arr.length) len = arr.length;
-
         for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i];
-
         return arr2;
     }
-
     function _nonIterableRest() {
         throw new TypeError(
             'Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.'
         );
     }
-
     function _createForOfIteratorHelper(o, allowArrayLike) {
         var it =
             (typeof Symbol !== 'undefined' && o[Symbol.iterator]) ||
             o['@@iterator'];
-
         if (!it) {
             if (
                 Array.isArray(o) ||
@@ -96,9 +132,7 @@
             ) {
                 if (it) o = it;
                 var i = 0;
-
                 var F = function () {};
-
                 return {
                     s: F,
                     n: function () {
@@ -117,12 +151,10 @@
                     f: F,
                 };
             }
-
             throw new TypeError(
                 'Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.'
             );
         }
-
         var normalCompletion = true,
             didErr = false,
             err;
@@ -170,11 +202,11 @@
             left: left,
         };
     }
+
     /**
      * Get page scroll left
      * @returns {number}
      */
-
     function getPageScrollLeft() {
         var supportPageOffset = window.pageXOffset !== undefined;
         var isCSS1Compat = (document.compatMode || '') === 'CSS1Compat';
@@ -184,11 +216,11 @@
             ? document.documentElement.scrollLeft
             : document.body.scrollLeft;
     }
+
     /**
      * Get page scroll top
      * @returns {number}
      */
-
     function getPageScrollTop() {
         var supportPageOffset = window.pageYOffset !== undefined;
         var isCSS1Compat = (document.compatMode || '') === 'CSS1Compat';
@@ -198,13 +230,13 @@
             ? document.documentElement.scrollTop
             : document.body.scrollTop;
     }
+
     /**
      * Universal alternative to Object.assign()
      * @param {Object} destination
      * @param {Object} source
      * @returns {Object}
      */
-
     function extendObject(destination, source) {
         if (destination && source) {
             for (var key in source) {
@@ -213,16 +245,15 @@
                 }
             }
         }
-
         return destination;
     }
+
     /**
      * @param target
      * @param type
      * @param listener
      * @param options
      */
-
     function on(target, type, listener) {
         var options =
             arguments.length > 3 && arguments[3] !== undefined
@@ -230,13 +261,13 @@
                 : false;
         target.addEventListener(type, listener, options);
     }
+
     /**
      * @param target
      * @param type
      * @param listener
      * @param options
      */
-
     function off(target, type, listener) {
         var options =
             arguments.length > 3 && arguments[3] !== undefined
@@ -244,6 +275,10 @@
                 : false;
         target.removeEventListener(type, listener, options);
     }
+
+    /**
+     * @returns {boolean}
+     */
     function isTouch() {
         return (
             'ontouchstart' in window ||
@@ -251,6 +286,11 @@
             navigator.msMaxTouchPoints > 0
         );
     }
+
+    /**
+     * @param {Event} event
+     * @returns {number}
+     */
     function eventClientX(event) {
         return event.type === 'wheel' ||
             event.type === 'pointerup' ||
@@ -262,6 +302,11 @@
             ? event.clientX
             : event.changedTouches[0].clientX;
     }
+
+    /**
+     * @param {Event} event
+     * @returns {number}
+     */
     function eventClientY(event) {
         return event.type === 'wheel' ||
             event.type === 'pointerup' ||
@@ -281,7 +326,6 @@
      * @param {Object} options
      * @constructor
      */
-
     function DragScrollable(windowObject, contentObject) {
         var options =
             arguments.length > 2 && arguments[2] !== undefined
@@ -290,8 +334,7 @@
         this._dropHandler = this._dropHandler.bind(this);
         this._grabHandler = this._grabHandler.bind(this);
         this._moveHandler = this._moveHandler.bind(this);
-        options.smoothExtinction = Number(options.smoothExtinction);
-        if (isNaN(options.smoothExtinction)) options.smoothExtinction = 0.25;
+        options.smoothExtinction = Number(options.smoothExtinction) || 0.25;
         this.options = extendObject(
             {
                 // smooth extinction
@@ -304,10 +347,11 @@
                 onDrop: null,
             },
             options
-        ); // check if we're using a touch screen
+        );
 
-        this.isTouch = isTouch(); // switch to touch events if using a touch screen
-
+        // check if we're using a touch screen
+        this.isTouch = isTouch();
+        // switch to touch events if using a touch screen
         this.events = this.isTouch
             ? {
                   grab: 'touchstart',
@@ -318,8 +362,8 @@
                   grab: 'mousedown',
                   move: 'mousemove',
                   drop: 'mouseup',
-              }; // for the touch screen we set the parameter forcibly
-
+              };
+        // for the touch screen we set the parameter forcibly
         this.events.options = this.isTouch
             ? {
                   passive: false,
@@ -334,7 +378,6 @@
             this.events.options
         );
     }
-
     DragScrollable.prototype = {
         constructor: DragScrollable,
         window: null,
@@ -346,7 +389,10 @@
         options: {},
         coordinates: null,
         speed: null,
-        _grabHandler: function _grabHandler(event) {
+        /**
+         * @param {Event} event
+         * @private
+         */ _grabHandler: function _grabHandler(event) {
             // if touch started (only one finger) or pressed left mouse button
             if (
                 (this.isTouch && event.touches.length === 1) ||
@@ -374,23 +420,28 @@
                     this._moveHandler,
                     this.events.options
                 );
-
                 if (typeof this.options.onGrab === 'function') {
                     this.options.onGrab(event);
                 }
             }
         },
-        _dropHandler: function _dropHandler(event) {
+        /**
+         * @param {Event} event
+         * @private
+         */ _dropHandler: function _dropHandler(event) {
             event.preventDefault();
             this.isGrab = false;
             off(document, this.events.drop, this._dropHandler);
             off(document, this.events.move, this._moveHandler);
-
             if (typeof this.options.onDrop === 'function') {
                 this.options.onDrop(event);
             }
         },
-        _moveHandler: function _moveHandler(event) {
+        /**
+         * @param {Event} event
+         * @returns {boolean}
+         * @private
+         */ _moveHandler: function _moveHandler(event) {
             // so that it does not move when the touch screen and more than one finger
             if (this.isTouch && event.touches.length > 1) return false;
             event.preventDefault();
@@ -398,12 +449,14 @@
                 content = this.content,
                 speed = this.speed,
                 coordinates = this.coordinates,
-                options = this.options; // speed of change of the coordinate of the mouse cursor along the X/Y axis
+                options = this.options;
 
+            // speed of change of the coordinate of the mouse cursor along the X/Y axis
             speed.x = eventClientX(event) - coordinates.left;
             speed.y = eventClientY(event) - coordinates.top;
-            clearTimeout(this.moveTimer); // reset speed data if cursor stops
+            clearTimeout(this.moveTimer);
 
+            // reset speed data if cursor stops
             this.moveTimer = setTimeout(function () {
                 speed.x = 0;
                 speed.y = 0;
@@ -415,15 +468,16 @@
                 content.correctX;
             var maxAvailableTop =
                 (content.currentHeight - window.originalHeight) / 2 +
-                content.correctY; // if we do not go beyond the permissible boundaries of the window
+                content.correctY;
 
+            // if we do not go beyond the permissible boundaries of the window
             if (Math.abs(contentNewLeft) <= maxAvailableLeft)
-                content.currentLeft = contentNewLeft; // if we do not go beyond the permissible boundaries of the window
+                content.currentLeft = contentNewLeft;
 
+            // if we do not go beyond the permissible boundaries of the window
             if (Math.abs(contentNewTop) <= maxAvailableTop)
                 content.currentTop = contentNewTop;
-
-            _transform(
+            transform(
                 content.$element,
                 {
                     left: content.currentLeft,
@@ -432,10 +486,8 @@
                 },
                 this.options
             );
-
             coordinates.left = eventClientX(event);
             coordinates.top = eventClientY(event);
-
             if (typeof options.onMove === 'function') {
                 options.onMove(event);
             }
@@ -447,7 +499,6 @@
                 this._grabHandler,
                 this.events.options
             );
-
             for (var key in this) {
                 if (this.hasOwnProperty(key)) {
                     this[key] = null;
@@ -455,12 +506,10 @@
             }
         },
     };
-
-    function _transform($element, _ref, options) {
+    function transform($element, _ref, options) {
         var left = _ref.left,
             top = _ref.top,
             scale = _ref.scale;
-
         if (options.smoothExtinction) {
             $element.style.transition = 'transform '.concat(
                 options.smoothExtinction,
@@ -469,7 +518,6 @@
         } else {
             $element.style.removeProperty('transition');
         }
-
         $element.style.transform = 'translate3d('
             .concat(left, 'px, ')
             .concat(top, 'px, 0px) scale(')
@@ -479,20 +527,24 @@
     var EVENT_CLICK = 'click';
     var EVENT_DBLCLICK = 'dblclick';
     var EVENT_WHEEL = 'wheel';
+    var EVENT_PINCH_TO_ZOOM = 'pinchtozoom';
+
     /**
      * @param {HTMLElement} target
      * @constructor
      */
-
     function Interacter(target) {
         this.target = target;
         this.subscribes = {};
         this.coordsOnDown = null;
         this.pressingTimeout = null;
-        this.firstClick = true; // check if we're using a touch screen
+        this.firstClick = true;
+        this.fingersHypot = null;
+        this.zoomPinchWasDetected = false;
 
-        this.isTouch = isTouch(); // switch to touch events if using a touch screen
-
+        // check if we're using a touch screen
+        this.isTouch = isTouch();
+        // switch to touch events if using a touch screen
         this.events = this.isTouch
             ? {
                   down: 'touchstart',
@@ -501,8 +553,8 @@
             : {
                   down: 'mousedown',
                   up: 'mouseup',
-              }; // if using touch screen tells the browser that the default action will not be undone
-
+              };
+        // if using touch screen tells the browser that the default action will not be undone
         this.events.options = this.isTouch
             ? {
                   passive: true,
@@ -511,6 +563,10 @@
         this._downHandler = this._downHandler.bind(this);
         this._upHandler = this._upHandler.bind(this);
         this._wheelHandler = this._wheelHandler.bind(this);
+        this._zoomTwoFingers_TouchmoveHandler =
+            this._zoomTwoFingers_TouchmoveHandler.bind(this);
+        this._zoomTwoFingers_TouchendHandler =
+            this._zoomTwoFingers_TouchendHandler.bind(this);
         on(
             this.target,
             this.events.down,
@@ -519,35 +575,33 @@
         );
         on(this.target, this.events.up, this._upHandler, this.events.options);
         on(this.target, EVENT_WHEEL, this._wheelHandler);
+        if (this.isTouch) {
+            on(this.target, 'touchmove', this._zoomTwoFingers_TouchmoveHandler);
+            on(this.target, 'touchend', this._zoomTwoFingers_TouchendHandler);
+        }
     }
-
     Interacter.prototype = {
         constructor: Interacter,
-
         /**
          * @param {string} eventType
-         * @param {function} eventHandler
-         */
-        on: function on(eventType, eventHandler) {
+         * @param {Function} eventHandler
+         * @returns {Interacter}
+         */ on: function on(eventType, eventHandler) {
             if (!(eventType in this.subscribes)) {
                 this.subscribes[eventType] = [];
             }
-
             this.subscribes[eventType].push(eventHandler);
             return this;
         },
-
         /**
          * @param {string} eventType
          * @param {Event} event
-         */
-        run: function run(eventType, event) {
+         */ run: function run(eventType, event) {
             if (this.subscribes[eventType]) {
                 var _iterator = _createForOfIteratorHelper(
                         this.subscribes[eventType]
                     ),
                     _step;
-
                 try {
                     for (_iterator.s(); !(_step = _iterator.n()).done; ) {
                         var eventHandler = _step.value;
@@ -559,50 +613,6 @@
                     _iterator.f();
                 }
             }
-        },
-        _downHandler: function _downHandler(event) {
-            this.coordsOnDown = null;
-
-            if (
-                (this.isTouch && event.touches.length === 1) ||
-                event.buttons === 1
-            ) {
-                this.coordsOnDown = {
-                    x: eventClientX(event),
-                    y: eventClientY(event),
-                };
-            }
-
-            clearTimeout(this.pressingTimeout);
-        },
-        _upHandler: function _upHandler(event) {
-            var _this = this;
-
-            var delay = this.subscribes[EVENT_DBLCLICK] ? 200 : 0;
-
-            if (this.firstClick) {
-                this.pressingTimeout = setTimeout(function () {
-                    if (
-                        _this.coordsOnDown &&
-                        _this.coordsOnDown.x === eventClientX(event) &&
-                        _this.coordsOnDown.y === eventClientY(event)
-                    ) {
-                        _this.run(EVENT_CLICK, event);
-                    }
-
-                    _this.firstClick = true;
-                }, delay);
-                this.firstClick = false;
-            } else {
-                this.pressingTimeout = setTimeout(function () {
-                    _this.run(EVENT_DBLCLICK, event);
-
-                    _this.firstClick = true;
-                }, delay / 2);
-            }
-        },
-        _wheelHandler: function _wheelHandler(event) {
-            this.run(EVENT_WHEEL, event);
         },
         destroy: function destroy() {
             off(
@@ -623,14 +633,223 @@
                 this._wheelHandler,
                 this.events.options
             );
-
+            if (this.isTouch) {
+                off(
+                    this.target,
+                    'touchmove',
+                    this._zoomTwoFingers_TouchmoveHandler
+                );
+                off(
+                    this.target,
+                    'touchend',
+                    this._zoomTwoFingers_TouchendHandler
+                );
+            }
             for (var key in this) {
                 if (this.hasOwnProperty(key)) {
                     this[key] = null;
                 }
             }
         },
+        /**
+         * @private
+         */ _downHandler: function _downHandler(event) {
+            this.coordsOnDown = null;
+            if (
+                (this.isTouch && event.touches.length === 1) ||
+                event.buttons === 1
+            ) {
+                this.coordsOnDown = {
+                    x: eventClientX(event),
+                    y: eventClientY(event),
+                };
+            }
+            clearTimeout(this.pressingTimeout);
+        },
+        /**
+         * @private
+         */ _upHandler: function _upHandler(event) {
+            var _this = this;
+            var delay = this.subscribes[EVENT_DBLCLICK] ? 200 : 0;
+            if (this.firstClick) {
+                this.pressingTimeout = setTimeout(function () {
+                    if (
+                        _this.coordsOnDown &&
+                        _this.coordsOnDown.x === eventClientX(event) &&
+                        _this.coordsOnDown.y === eventClientY(event)
+                    ) {
+                        _this.run(EVENT_CLICK, event);
+                    }
+                    _this.firstClick = true;
+                }, delay);
+                this.firstClick = false;
+            } else {
+                this.pressingTimeout = setTimeout(function () {
+                    _this.run(EVENT_DBLCLICK, event);
+                    _this.firstClick = true;
+                }, delay / 2);
+            }
+        },
+        /**
+         * @private
+         */ _wheelHandler: function _wheelHandler(event) {
+            this.run(EVENT_WHEEL, event);
+        },
+        /**
+         * @private
+         */ _zoomTwoFingers_TouchmoveHandler:
+            function _zoomTwoFingers_TouchmoveHandler(event) {
+                // detect two fingers
+                if (event.targetTouches.length === 2) {
+                    var pageX1 = event.targetTouches[0].clientX;
+                    var pageY1 = event.targetTouches[0].clientY;
+                    var pageX2 = event.targetTouches[1].clientX;
+                    var pageY2 = event.targetTouches[1].clientY;
+
+                    // Math.hypot() analog
+                    var fingersHypotNew = Math.round(
+                        Math.sqrt(
+                            Math.pow(Math.abs(pageX1 - pageX2), 2) +
+                                Math.pow(Math.abs(pageY1 - pageY2), 2)
+                        )
+                    );
+                    var direction = 0;
+                    if (fingersHypotNew > this.fingersHypot + 5) direction = -1;
+                    if (fingersHypotNew < this.fingersHypot - 5) direction = 1;
+                    if (direction !== 0) {
+                        if (this.fingersHypot !== null || direction === 1) {
+                            // middle position between fingers
+                            var clientX =
+                                Math.min(pageX1, pageX2) +
+                                Math.abs(pageX1 - pageX2) / 2;
+                            var clientY =
+                                Math.min(pageY1, pageY2) +
+                                Math.abs(pageY1 - pageY2) / 2;
+                            event.data = _objectSpread2(
+                                _objectSpread2({}, event.data || {}),
+                                {},
+                                {
+                                    clientX: clientX,
+                                    clientY: clientY,
+                                    direction: direction,
+                                }
+                            );
+                            this.run(EVENT_PINCH_TO_ZOOM, event);
+                        }
+                        this.fingersHypot = fingersHypotNew;
+                        this.zoomPinchWasDetected = true;
+                    }
+                }
+            },
+        /**
+         * @private
+         */ _zoomTwoFingers_TouchendHandler:
+            function _zoomTwoFingers_TouchendHandler() {
+                if (this.zoomPinchWasDetected) {
+                    this.fingersHypot = null;
+                    this.zoomPinchWasDetected = false;
+                }
+            },
     };
+
+    function calculateAlignPoint(options, content, window) {
+        var alignPointX = 0;
+        var alignPointY = 0;
+        switch (options.alignContent) {
+            case 'left':
+                alignPointX = (content.currentWidth - window.originalWidth) / 2;
+                break;
+            case 'top':
+                alignPointY =
+                    (content.currentHeight - window.originalHeight) / 2;
+                break;
+            case 'right':
+                alignPointX =
+                    ((content.currentWidth - window.originalWidth) / 2) * -1;
+                break;
+            case 'bottom':
+                alignPointY =
+                    ((content.currentHeight - window.originalHeight) / 2) * -1;
+                break;
+        }
+        return [alignPointX, alignPointY];
+    }
+    function calculateCorrectPoint(options, content, window) {
+        var correctX = Math.max(
+            0,
+            (window.originalWidth - content.currentWidth) / 2
+        );
+        var correctY = Math.max(
+            0,
+            (window.originalHeight - content.currentHeight) / 2
+        );
+        if (options.alignContent === 'left') correctX = correctX * 2;
+        else if (options.alignContent === 'right') correctX = 0;
+        if (options.alignContent === 'bottom') correctY = correctY * 2;
+        else if (options.alignContent === 'top') correctY = 0;
+        return [correctX, correctY];
+    }
+    function calculateContentShift(
+        axisValue,
+        axisScroll,
+        axisWindowPosition,
+        axisContentPosition,
+        originalWindowSize,
+        contentSizeRatio
+    ) {
+        var windowShift = axisValue + axisScroll - axisWindowPosition;
+        var centerWindowShift = originalWindowSize / 2 - windowShift;
+        var centerContentShift = centerWindowShift + axisContentPosition;
+        return (
+            centerContentShift * contentSizeRatio -
+            centerContentShift +
+            axisContentPosition
+        );
+    }
+    function calculateContentMaxShift(
+        options,
+        originalWindowSize,
+        correctCoordinate,
+        size,
+        shift
+    ) {
+        switch (options.alignContent) {
+            case 'left':
+                if (size / 2 - shift < originalWindowSize / 2) {
+                    shift = (size - originalWindowSize) / 2;
+                }
+                break;
+            case 'right':
+                if (size / 2 + shift < originalWindowSize / 2) {
+                    shift = ((size - originalWindowSize) / 2) * -1;
+                }
+                break;
+            default:
+                if (
+                    (size - originalWindowSize) / 2 + correctCoordinate <
+                    Math.abs(shift)
+                ) {
+                    var positive = shift < 0 ? -1 : 1;
+                    shift =
+                        ((size - originalWindowSize) / 2 + correctCoordinate) *
+                        positive;
+                }
+        }
+        return shift;
+    }
+    function calculateWindowCenter(window) {
+        var windowPosition = getElementPosition(window.$element);
+        return {
+            x:
+                windowPosition.left +
+                window.originalWidth / 2 -
+                getPageScrollLeft(),
+            y:
+                windowPosition.top +
+                window.originalHeight / 2 -
+                getPageScrollTop(),
+        };
+    }
 
     /**
      * @class WZoom
@@ -638,7 +857,6 @@
      * @param {Object} options
      * @constructor
      */
-
     function WZoom(selectorOrHTMLElement) {
         var options =
             arguments.length > 1 && arguments[1] !== undefined
@@ -649,14 +867,9 @@
         this._computeNewScale = this._computeNewScale.bind(this);
         this._computeNewPosition = this._computeNewPosition.bind(this);
         this._transform = this._transform.bind(this);
-        this._zoomTwoFingers_TouchmoveHandler =
-            _zoomTwoFingers_TouchmoveHandler.bind(this);
-        this._zoomTwoFingers_TouchendHandler =
-            _zoomTwoFingers_TouchendHandler.bind(this);
-        /********************/
 
         /********************/
-
+        /********************/
         this.content = {};
         this.window = {};
         this.isTouch = false;
@@ -665,7 +878,6 @@
         this.dragScrollable = null;
         this.content.elementInteracter = null;
         /********************/
-
         /********************/
 
         var defaults = {
@@ -696,13 +908,11 @@
             smoothExtinction: 0.3,
             // align content `center`, `left`, `top`, `right`, `bottom`
             alignContent: 'center',
-
             /********************/
             disableWheelZoom: false,
             // option to reverse wheel direction
             reverseWheelDirection: false,
         };
-
         if (typeof selectorOrHTMLElement === 'string') {
             this.content.$element = document.querySelector(
                 selectorOrHTMLElement
@@ -713,33 +923,31 @@
             throw 'WZoom: `selectorOrHTMLElement` must be selector or HTMLElement, and not '.concat(
                 {}.toString.call(selectorOrHTMLElement)
             );
-        } // check if we're using a touch screen
+        }
 
+        // check if we're using a touch screen
         this.isTouch = isTouch();
-
         if (this.content.$element) {
             options.smoothExtinction =
                 Number(options.smoothExtinction) || defaults.smoothExtinction;
             this.options = extendObject(defaults, options);
-
             if (
                 this.options.minScale &&
                 this.options.minScale >= this.options.maxScale
             ) {
                 this.options.minScale = null;
-            } // for window take just the parent
+            }
 
+            // for window take just the parent
             this.window.$element = this.content.$element.parentNode;
-
             if (this.options.type === 'image') {
-                var initAlreadyDone = false; // if the `image` has already been loaded
+                var initAlreadyDone = false;
 
+                // if the `image` has already been loaded
                 if (this.content.$element.complete) {
                     this._init();
-
                     initAlreadyDone = true;
                 }
-
                 if (
                     !initAlreadyDone ||
                     this.options.watchImageChange === true
@@ -748,7 +956,8 @@
                     on(
                         this.content.$element,
                         'load',
-                        this._init, // if watchImageChange == false listen add only until the first call
+                        this._init,
+                        // if watchImageChange == false listen add only until the first call
                         this.options.watchImageChange
                             ? false
                             : {
@@ -761,28 +970,24 @@
             }
         }
     }
-
     WZoom.prototype = {
         constructor: WZoom,
-        _init: function _init() {
+        /**
+         * @private
+         */ _init: function _init() {
             var _this = this;
-
             this._prepare();
-
             if (this.content.elementInteracter) {
                 this.content.elementInteracter.destroy();
             }
-
             this.content.elementInteracter = new Interacter(
                 this.content.$element
             );
-
             if (this.options.dragScrollable === true) {
                 // this can happen if the src of this.content.$element (when type = image) is changed and repeat event load at image
                 if (this.dragScrollable) {
                     this.dragScrollable.destroy();
                 }
-
                 this.setDragScrollable(
                     new DragScrollable(
                         this.window,
@@ -791,30 +996,33 @@
                     )
                 );
             }
-
             if (!this.options.disableWheelZoom) {
                 // support for zoom and pinch on touch screen devices
                 if (this.isTouch) {
-                    this.fingersHypot = null;
-                    this.zoomPinchWasDetected = false;
-                    on(
-                        this.content.$element,
-                        'touchmove',
-                        this._zoomTwoFingers_TouchmoveHandler
-                    );
-                    on(
-                        this.content.$element,
-                        'touchend',
-                        this._zoomTwoFingers_TouchendHandler
+                    this.content.elementInteracter.on(
+                        'pinchtozoom',
+                        function (event) {
+                            var _event$data = event.data,
+                                clientX = _event$data.clientX,
+                                clientY = _event$data.clientY,
+                                direction = _event$data.direction;
+                            _this._transform(
+                                _this._computeNewPosition(
+                                    _this._computeNewScale(direction),
+                                    {
+                                        x: clientX,
+                                        y: clientY,
+                                    }
+                                )
+                            );
+                        }
                     );
                 }
-
                 this.content.elementInteracter.on('wheel', function (event) {
                     event.preventDefault();
                     var direction = _this.options.reverseWheelDirection
                         ? -event.deltaY
                         : event.deltaY;
-
                     _this._transform(
                         _this._computeNewPosition(
                             _this._computeNewScale(direction),
@@ -826,7 +1034,6 @@
                     );
                 });
             }
-
             if (this.options.zoomOnClick || this.options.zoomOnDblClick) {
                 var eventType = this.options.zoomOnDblClick
                     ? 'dblclick'
@@ -843,19 +1050,22 @@
                             }
                         )
                     );
-
                     _this.direction *= -1;
                 });
             }
         },
-        _prepare: function _prepare() {
-            var windowPosition = getElementPosition(this.window.$element); // original window sizes and position
+        /**
+         * @private
+         */ _prepare: function _prepare() {
+            var windowPosition = getElementPosition(this.window.$element);
 
+            // original window sizes and position
             this.window.originalWidth = this.window.$element.offsetWidth;
             this.window.originalHeight = this.window.$element.offsetHeight;
             this.window.positionLeft = windowPosition.left;
-            this.window.positionTop = windowPosition.top; // original content sizes
+            this.window.positionTop = windowPosition.top;
 
+            // original content sizes
             if (this.options.type === 'image') {
                 this.content.originalWidth =
                     this.options.width || this.content.$element.naturalWidth;
@@ -866,37 +1076,35 @@
                     this.options.width || this.content.$element.offsetWidth;
                 this.content.originalHeight =
                     this.options.height || this.content.$element.offsetHeight;
-            } // minScale && maxScale
+            }
 
+            // minScale && maxScale
             this.content.minScale =
                 this.options.minScale ||
                 Math.min(
                     this.window.originalWidth / this.content.originalWidth,
                     this.window.originalHeight / this.content.originalHeight
                 );
-            this.content.maxScale = this.options.maxScale; // current content sizes and transform data
+            this.content.maxScale = this.options.maxScale;
 
+            // current content sizes and transform data
             this.content.currentWidth =
                 this.content.originalWidth * this.content.minScale;
             this.content.currentHeight =
                 this.content.originalHeight * this.content.minScale;
-
-            var _calculateAlignPoint2 = _calculateAlignPoint(
+            var _calculateAlignPoint = calculateAlignPoint(
                     this.options,
                     this.content,
                     this.window
                 ),
-                _calculateAlignPoint3 = _slicedToArray(
-                    _calculateAlignPoint2,
-                    2
-                ),
-                alignPointX = _calculateAlignPoint3[0],
-                alignPointY = _calculateAlignPoint3[1];
-
+                _calculateAlignPoint2 = _slicedToArray(_calculateAlignPoint, 2),
+                alignPointX = _calculateAlignPoint2[0],
+                alignPointY = _calculateAlignPoint2[1];
             this.content.alignPointX = alignPointX;
-            this.content.alignPointY = alignPointY; // calculate indent-left and indent-top to of content from window borders
+            this.content.alignPointY = alignPointY;
 
-            var _calculateCorrectPoin = _calculateCorrectPoint(
+            // calculate indent-left and indent-top to of content from window borders
+            var _calculateCorrectPoin = calculateCorrectPoint(
                     this.options,
                     this.content,
                     this.window
@@ -907,7 +1115,6 @@
                 ),
                 correctX = _calculateCorrectPoin2[0],
                 correctY = _calculateCorrectPoin2[1];
-
             this.content.correctX = correctX;
             this.content.correctY = correctY;
             this.content.currentLeft = this.content.alignPointX;
@@ -917,12 +1124,13 @@
                 .concat(this.content.alignPointX, 'px, ')
                 .concat(this.content.alignPointY, 'px, 0px) scale(')
                 .concat(this.content.minScale, ')');
-
             if (typeof this.options.prepare === 'function') {
                 this.options.prepare();
             }
         },
-        _computeNewScale: function _computeNewScale(direction) {
+        /**
+         * @private
+         */ _computeNewScale: function _computeNewScale(direction) {
             this.direction = direction < 0 ? 1 : -1;
             var _this$content = this.content,
                 minScale = _this$content.minScale,
@@ -930,20 +1138,20 @@
                 currentScale = _this$content.currentScale;
             var contentNewScale =
                 currentScale + this.direction / this.options.speed;
-
             if (contentNewScale < minScale) {
                 this.direction = 1;
             } else if (contentNewScale > maxScale) {
                 this.direction = -1;
             }
-
             return contentNewScale < minScale
                 ? minScale
                 : contentNewScale > maxScale
                 ? maxScale
                 : contentNewScale;
         },
-        _computeNewPosition: function _computeNewPosition(
+        /**
+         * @private
+         */ _computeNewPosition: function _computeNewPosition(
             contentNewScale,
             _ref
         ) {
@@ -954,18 +1162,20 @@
             var contentNewWidth = content.originalWidth * contentNewScale;
             var contentNewHeight = content.originalHeight * contentNewScale;
             var scrollLeft = getPageScrollLeft();
-            var scrollTop = getPageScrollTop(); // calculate the parameters along the X axis
+            var scrollTop = getPageScrollTop();
 
-            var contentNewLeft = _calculateContentShift(
+            // calculate the parameters along the X axis
+            var contentNewLeft = calculateContentShift(
                 x,
                 scrollLeft,
                 window.positionLeft,
                 content.currentLeft,
                 window.originalWidth,
                 contentNewWidth / content.currentWidth
-            ); // calculate the parameters along the Y axis
+            );
 
-            var contentNewTop = _calculateContentShift(
+            // calculate the parameters along the Y axis
+            var contentNewTop = calculateContentShift(
                 y,
                 scrollTop,
                 window.positionTop,
@@ -973,18 +1183,18 @@
                 window.originalHeight,
                 contentNewHeight / content.currentHeight
             );
-
             if (this.direction === -1) {
                 // check that the content does not go beyond the X axis
-                contentNewLeft = _calculateContentMaxShift(
+                contentNewLeft = calculateContentMaxShift(
                     this.options,
                     window.originalWidth,
                     content.correctX,
                     contentNewWidth,
                     contentNewLeft
-                ); // check that the content does not go beyond the Y axis
+                );
 
-                contentNewTop = _calculateContentMaxShift(
+                // check that the content does not go beyond the Y axis
+                contentNewTop = calculateContentMaxShift(
                     this.options,
                     window.originalHeight,
                     content.correctY,
@@ -992,12 +1202,10 @@
                     contentNewTop
                 );
             }
-
             if (contentNewScale === this.content.minScale) {
                 contentNewLeft = this.content.alignPointX;
                 contentNewTop = this.content.alignPointY;
             }
-
             var response = {
                 currentLeft: content.currentLeft,
                 newLeft: contentNewLeft,
@@ -1013,14 +1221,15 @@
             content.currentScale = contentNewScale;
             return response;
         },
-        _transform: function _transform(_ref2) {
+        /**
+         * @private
+         */ _transform: function _transform(_ref2) {
             _ref2.currentLeft;
             var newLeft = _ref2.newLeft;
             _ref2.currentTop;
             var newTop = _ref2.newTop;
             _ref2.currentScale;
             var newScale = _ref2.newScale;
-
             if (this.options.smoothExtinction) {
                 this.content.$element.style.transition = 'transform '.concat(
                     this.options.smoothExtinction,
@@ -1029,25 +1238,27 @@
             } else {
                 this.content.$element.style.removeProperty('transition');
             }
-
             this.content.$element.style.transform = 'translate3d('
                 .concat(newLeft, 'px, ')
                 .concat(newTop, 'px, 0px) scale(')
                 .concat(newScale, ')');
-
             if (typeof this.options.rescale === 'function') {
                 this.options.rescale();
             }
         },
-        _zoom: function _zoom(scale, coordinates) {
+        /**
+         * @private
+         */ _zoom: function _zoom(scale, coordinates) {
             // if the coordinates are not passed, then use the coordinates of the center
             if (
                 coordinates === undefined ||
                 coordinates.x === undefined ||
                 coordinates.y === undefined
             ) {
-                coordinates = _calculateWindowCenter(this.window);
-            } // @TODO добавить проверку на то что бы переданные координаты не выходили за пределы возможного
+                coordinates = calculateWindowCenter(this.window);
+            }
+
+            // @TODO добавить проверку на то что бы переданные координаты не выходили за пределы возможного
 
             this._transform(this._computeNewPosition(scale, coordinates));
         },
@@ -1080,34 +1291,15 @@
         },
         destroy: function destroy() {
             this.content.$element.style.transform = '';
-
             if (this.options.type === 'image') {
                 off(this.content.$element, 'load', this._init);
             }
-
-            if (!this.options.disableWheelZoom) {
-                if (this.isTouch) {
-                    off(
-                        this.content.$element,
-                        'touchmove',
-                        this._zoomTwoFingers_TouchmoveHandler
-                    );
-                    off(
-                        this.content.$element,
-                        'touchend',
-                        this._zoomTwoFingers_TouchendHandler
-                    );
-                }
-            }
-
             if (this.content.elementInteracter) {
                 this.content.elementInteracter.destroy();
             }
-
             if (this.dragScrollable) {
                 this.dragScrollable.destroy();
             }
-
             for (var key in this) {
                 if (this.hasOwnProperty(key)) {
                     this[key] = null;
@@ -1116,177 +1308,12 @@
         },
     };
 
-    function _zoomTwoFingers_TouchmoveHandler(event) {
-        // detect two fingers
-        if (event.targetTouches.length === 2) {
-            var pageX1 = event.targetTouches[0].clientX;
-            var pageY1 = event.targetTouches[0].clientY;
-            var pageX2 = event.targetTouches[1].clientX;
-            var pageY2 = event.targetTouches[1].clientY; // Math.hypot() analog
-
-            var fingersHypotNew = Math.round(
-                Math.sqrt(
-                    Math.pow(Math.abs(pageX1 - pageX2), 2) +
-                        Math.pow(Math.abs(pageY1 - pageY2), 2)
-                )
-            );
-            var direction = 0;
-            if (fingersHypotNew > this.fingersHypot + 5) direction = -1;
-            if (fingersHypotNew < this.fingersHypot - 5) direction = 1;
-
-            if (direction !== 0) {
-                if (this.fingersHypot !== null || direction === 1) {
-                    // middle position between fingers
-                    var clientX =
-                        Math.min(pageX1, pageX2) +
-                        Math.abs(pageX1 - pageX2) / 2;
-                    var clientY =
-                        Math.min(pageY1, pageY2) +
-                        Math.abs(pageY1 - pageY2) / 2;
-
-                    this._transform(
-                        this._computeNewPosition(
-                            this._computeNewScale(direction),
-                            {
-                                x: clientX,
-                                y: clientY,
-                            }
-                        )
-                    );
-                }
-
-                this.fingersHypot = fingersHypotNew;
-                this.zoomPinchWasDetected = true;
-            }
-        }
-    }
-
-    function _zoomTwoFingers_TouchendHandler() {
-        if (this.zoomPinchWasDetected) {
-            this.fingersHypot = null;
-            this.zoomPinchWasDetected = false;
-        }
-    }
-
-    function _calculateAlignPoint(options, content, window) {
-        var alignPointX = 0;
-        var alignPointY = 0;
-
-        switch (options.alignContent) {
-            case 'left':
-                alignPointX = (content.currentWidth - window.originalWidth) / 2;
-                break;
-
-            case 'top':
-                alignPointY =
-                    (content.currentHeight - window.originalHeight) / 2;
-                break;
-
-            case 'right':
-                alignPointX =
-                    ((content.currentWidth - window.originalWidth) / 2) * -1;
-                break;
-
-            case 'bottom':
-                alignPointY =
-                    ((content.currentHeight - window.originalHeight) / 2) * -1;
-                break;
-        }
-
-        return [alignPointX, alignPointY];
-    }
-
-    function _calculateCorrectPoint(options, content, window) {
-        var correctX = Math.max(
-            0,
-            (window.originalWidth - content.currentWidth) / 2
-        );
-        var correctY = Math.max(
-            0,
-            (window.originalHeight - content.currentHeight) / 2
-        );
-        if (options.alignContent === 'left') correctX = correctX * 2;
-        else if (options.alignContent === 'right') correctX = 0;
-        if (options.alignContent === 'bottom') correctY = correctY * 2;
-        else if (options.alignContent === 'top') correctY = 0;
-        return [correctX, correctY];
-    }
-
-    function _calculateContentShift(
-        axisValue,
-        axisScroll,
-        axisWindowPosition,
-        axisContentPosition,
-        originalWindowSize,
-        contentSizeRatio
-    ) {
-        var windowShift = axisValue + axisScroll - axisWindowPosition;
-        var centerWindowShift = originalWindowSize / 2 - windowShift;
-        var centerContentShift = centerWindowShift + axisContentPosition;
-        return (
-            centerContentShift * contentSizeRatio -
-            centerContentShift +
-            axisContentPosition
-        );
-    }
-
-    function _calculateContentMaxShift(
-        options,
-        originalWindowSize,
-        correctCoordinate,
-        size,
-        shift
-    ) {
-        switch (options.alignContent) {
-            case 'left':
-                if (size / 2 - shift < originalWindowSize / 2) {
-                    shift = (size - originalWindowSize) / 2;
-                }
-
-                break;
-
-            case 'right':
-                if (size / 2 + shift < originalWindowSize / 2) {
-                    shift = ((size - originalWindowSize) / 2) * -1;
-                }
-
-                break;
-
-            default:
-                if (
-                    (size - originalWindowSize) / 2 + correctCoordinate <
-                    Math.abs(shift)
-                ) {
-                    var positive = shift < 0 ? -1 : 1;
-                    shift =
-                        ((size - originalWindowSize) / 2 + correctCoordinate) *
-                        positive;
-                }
-        }
-
-        return shift;
-    }
-
-    function _calculateWindowCenter(window) {
-        var windowPosition = getElementPosition(window.$element);
-        return {
-            x:
-                windowPosition.left +
-                window.originalWidth / 2 -
-                getPageScrollLeft(),
-            y:
-                windowPosition.top +
-                window.originalHeight / 2 -
-                getPageScrollTop(),
-        };
-    }
     /**
      * Create WZoom instance
      * @param {string|HTMLElement} selectorOrHTMLElement
      * @param {Object} [options]
      * @returns {WZoom}
      */
-
     WZoom.create = function (selectorOrHTMLElement, options) {
         return new WZoom(selectorOrHTMLElement, options);
     };

@@ -3,12 +3,12 @@
     "version": "6.16.0",
     "main": "src/wheel-zoom.js",
     "devDependencies": {
-        "@babel/core": "^7.19.1",
-        "@babel/preset-env": "^7.19.1",
+        "@babel/core": "^7.19.3",
+        "@babel/preset-env": "^7.19.4",
         "@rollup/plugin-babel": "^5.3.1",
         "prettier": "2.7.1",
         "rollup": "^2.79.1",
-        "terser": "^5.15.0"
+        "terser": "^5.15.1"
     },
     "scripts": {
         "build": "yarn rollup && yarn prettier && yarn minify",
