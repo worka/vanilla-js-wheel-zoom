@@ -1,4 +1,4 @@
-import { babel } from '@rollup/plugin-babel';
+const babel = require('@rollup/plugin-babel');
 
 module.exports = {
     input: 'src/wheel-zoom.js',
