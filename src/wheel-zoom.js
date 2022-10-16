@@ -25,8 +25,14 @@ function WZoom(selectorOrHTMLElement, options = {}) {
     this._computeNewPosition = this._computeNewPosition.bind(this);
     this._transform = this._transform.bind(this);
 
-    this._zoomTwoFingers_TouchmoveHandler = _zoomTwoFingers_TouchmoveHandler.bind(this);
-    this._zoomTwoFingers_TouchendHandler = _zoomTwoFingers_TouchendHandler.bind(this);
+    /**
+     * @private
+     */
+    this._zoomTwoFingers_TouchmoveHandler = zoomTwoFingers_TouchmoveHandler.bind(this);
+    /**
+     * @private
+     */
+    this._zoomTwoFingers_TouchendHandler = zoomTwoFingers_TouchendHandler.bind(this);
 
     /********************/
     /********************/
@@ -124,6 +130,9 @@ function WZoom(selectorOrHTMLElement, options = {}) {
 
 WZoom.prototype = {
     constructor: WZoom,
+    /**
+     * @private
+     */
     _init() {
         this._prepare();
 
@@ -185,6 +194,9 @@ WZoom.prototype = {
             });
         }
     },
+    /**
+     * @private
+     */
     _prepare() {
         const windowPosition = getElementPosition(this.window.$element);
 
@@ -211,13 +223,13 @@ WZoom.prototype = {
         this.content.currentWidth = this.content.originalWidth * this.content.minScale;
         this.content.currentHeight = this.content.originalHeight * this.content.minScale;
 
-        const [ alignPointX, alignPointY ] = _calculateAlignPoint(this.options, this.content, this.window);
+        const [ alignPointX, alignPointY ] = calculateAlignPoint(this.options, this.content, this.window);
 
         this.content.alignPointX = alignPointX;
         this.content.alignPointY = alignPointY;
 
         // calculate indent-left and indent-top to of content from window borders
-        const [ correctX, correctY ] = _calculateCorrectPoint(this.options, this.content, this.window);
+        const [ correctX, correctY ] = calculateCorrectPoint(this.options, this.content, this.window);
 
         this.content.correctX = correctX;
         this.content.correctY = correctY;
@@ -232,6 +244,9 @@ WZoom.prototype = {
             this.options.prepare();
         }
     },
+    /**
+     * @private
+     */
     _computeNewScale(direction) {
         this.direction = direction < 0 ? 1 : -1;
 
@@ -247,6 +262,9 @@ WZoom.prototype = {
 
         return contentNewScale < minScale ? minScale : (contentNewScale > maxScale ? maxScale : contentNewScale);
     },
+    /**
+     * @private
+     */
     _computeNewPosition(contentNewScale, { x, y }) {
         const { window, content } = this;
 
@@ -257,17 +275,17 @@ WZoom.prototype = {
         const scrollTop = getPageScrollTop();
 
         // calculate the parameters along the X axis
-        let contentNewLeft = _calculateContentShift(x, scrollLeft, window.positionLeft, content.currentLeft, window.originalWidth, contentNewWidth / content.currentWidth);
+        let contentNewLeft = calculateContentShift(x, scrollLeft, window.positionLeft, content.currentLeft, window.originalWidth, contentNewWidth / content.currentWidth);
 
         // calculate the parameters along the Y axis
-        let contentNewTop = _calculateContentShift(y, scrollTop, window.positionTop, content.currentTop, window.originalHeight, contentNewHeight / content.currentHeight);
+        let contentNewTop = calculateContentShift(y, scrollTop, window.positionTop, content.currentTop, window.originalHeight, contentNewHeight / content.currentHeight);
 
         if (this.direction === -1) {
             // check that the content does not go beyond the X axis
-            contentNewLeft = _calculateContentMaxShift(this.options, window.originalWidth, content.correctX, contentNewWidth, contentNewLeft);
+            contentNewLeft = calculateContentMaxShift(this.options, window.originalWidth, content.correctX, contentNewWidth, contentNewLeft);
 
             // check that the content does not go beyond the Y axis
-            contentNewTop = _calculateContentMaxShift(this.options, window.originalHeight, content.correctY, contentNewHeight, contentNewTop);
+            contentNewTop = calculateContentMaxShift(this.options, window.originalHeight, content.correctY, contentNewHeight, contentNewTop);
         }
 
         if (contentNewScale === this.content.minScale) {
@@ -292,6 +310,9 @@ WZoom.prototype = {
 
         return response;
     },
+    /**
+     * @private
+     */
     _transform({ currentLeft, newLeft, currentTop, newTop, currentScale, newScale }, iterations = 1) {
         if (this.options.smoothExtinction) {
             this.content.$element.style.transition = `transform ${ this.options.smoothExtinction }s`;
@@ -305,10 +326,13 @@ WZoom.prototype = {
             this.options.rescale();
         }
     },
+    /**
+     * @private
+     */
     _zoom(scale, coordinates) {
         // if the coordinates are not passed, then use the coordinates of the center
         if (coordinates === undefined || coordinates.x === undefined || coordinates.y === undefined) {
-            coordinates = _calculateWindowCenter(this.window);
+            coordinates = calculateWindowCenter(this.window);
         }
 
         // @TODO добавить проверку на то что бы переданные координаты не выходили за пределы возможного
@@ -372,7 +396,7 @@ WZoom.prototype = {
     }
 };
 
-function _zoomTwoFingers_TouchmoveHandler(event) {
+function zoomTwoFingers_TouchmoveHandler(event) {
     // detect two fingers
     if (event.targetTouches.length === 2) {
         const pageX1 = event.targetTouches[0].clientX;
@@ -413,14 +437,14 @@ function _zoomTwoFingers_TouchmoveHandler(event) {
     }
 }
 
-function _zoomTwoFingers_TouchendHandler() {
+function zoomTwoFingers_TouchendHandler() {
     if (this.zoomPinchWasDetected) {
         this.fingersHypot = null;
         this.zoomPinchWasDetected = false;
     }
 }
 
-function _calculateAlignPoint(options, content, window) {
+function calculateAlignPoint(options, content, window) {
     let alignPointX = 0;
     let alignPointY = 0;
 
@@ -442,7 +466,7 @@ function _calculateAlignPoint(options, content, window) {
     return [ alignPointX, alignPointY ];
 }
 
-function _calculateCorrectPoint(options, content, window) {
+function calculateCorrectPoint(options, content, window) {
     let correctX = Math.max(0, (window.originalWidth - content.currentWidth) / 2);
     let correctY = Math.max(0, (window.originalHeight - content.currentHeight) / 2);
 
@@ -455,7 +479,7 @@ function _calculateCorrectPoint(options, content, window) {
     return [ correctX, correctY ];
 }
 
-function _calculateContentShift(axisValue, axisScroll, axisWindowPosition, axisContentPosition, originalWindowSize, contentSizeRatio) {
+function calculateContentShift(axisValue, axisScroll, axisWindowPosition, axisContentPosition, originalWindowSize, contentSizeRatio) {
     const windowShift = axisValue + axisScroll - axisWindowPosition;
     const centerWindowShift = originalWindowSize / 2 - windowShift;
     const centerContentShift = centerWindowShift + axisContentPosition;
@@ -463,7 +487,7 @@ function _calculateContentShift(axisValue, axisScroll, axisWindowPosition, axisC
     return centerContentShift * contentSizeRatio - centerContentShift + axisContentPosition;
 }
 
-function _calculateContentMaxShift(options, originalWindowSize, correctCoordinate, size, shift) {
+function calculateContentMaxShift(options, originalWindowSize, correctCoordinate, size, shift) {
     switch (options.alignContent) {
         case 'left':
             if (size / 2 - shift < originalWindowSize / 2) {
@@ -485,12 +509,12 @@ function _calculateContentMaxShift(options, originalWindowSize, correctCoordinat
     return shift;
 }
 
-function _calculateWindowCenter(window) {
+function calculateWindowCenter(window) {
     const windowPosition = getElementPosition(window.$element);
 
     return {
         x: windowPosition.left + (window.originalWidth / 2) - getPageScrollLeft(),
-        y: windowPosition.top + (window.originalHeight / 2) - getPageScrollTop()
+        y: windowPosition.top + (window.originalHeight / 2) - getPageScrollTop(),
     };
 }
 

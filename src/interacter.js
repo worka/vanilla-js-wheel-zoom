@@ -39,6 +39,7 @@ Interacter.prototype = {
     /**
      * @param {string} eventType
      * @param {Function} eventHandler
+     * @returns {Interacter}
      */
     on(eventType, eventHandler) {
         if (!(eventType in this.subscribes)) {

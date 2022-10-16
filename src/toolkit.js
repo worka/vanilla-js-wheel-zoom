@@ -80,10 +80,17 @@ export function off(target, type, listener, options = false) {
     target.removeEventListener(type, listener, options);
 }
 
+/**
+ * @returns {boolean}
+ */
 export function isTouch() {
     return 'ontouchstart' in window || navigator.MaxTouchPoints > 0 || navigator.msMaxTouchPoints > 0;
 }
 
+/**
+ * @param {Event} event
+ * @returns {number}
+ */
 export function eventClientX(event) {
     return event.type === 'wheel' ||
     event.type === 'pointerup' ||
@@ -94,6 +101,10 @@ export function eventClientX(event) {
     event.type === 'mouseup' ? event.clientX : event.changedTouches[0].clientX;
 }
 
+/**
+ * @param {Event} event
+ * @returns {number}
+ */
 export function eventClientY(event) {
     return event.type === 'wheel' ||
     event.type === 'pointerup' ||

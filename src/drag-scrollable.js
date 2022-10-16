@@ -11,7 +11,7 @@ function DragScrollable(windowObject, contentObject, options = {}) {
     this._dropHandler = this._dropHandler.bind(this);
     this._grabHandler = this._grabHandler.bind(this);
     this._moveHandler = this._moveHandler.bind(this);
-    
+
     options.smoothExtinction = Number(options.smoothExtinction) || .25;
 
     this.options = extendObject({
@@ -22,15 +22,15 @@ function DragScrollable(windowObject, contentObject, options = {}) {
         // callback triggered when moving an element
         onMove: null,
         // callback triggered when dropping an element
-        onDrop: null
+        onDrop: null,
     }, options);
 
     // check if we're using a touch screen
     this.isTouch = isTouch();
     // switch to touch events if using a touch screen
-    this.events = this.isTouch ?
-        { grab: 'touchstart', move: 'touchmove', drop: 'touchend' } :
-        { grab: 'mousedown', move: 'mousemove', drop: 'mouseup' };
+    this.events = this.isTouch
+        ? { grab: 'touchstart', move: 'touchmove', drop: 'touchend' }
+        : { grab: 'mousedown', move: 'mousemove', drop: 'mouseup' };
     // for the touch screen we set the parameter forcibly
     this.events.options = this.isTouch ? { passive: false } : false;
 
@@ -51,6 +51,10 @@ DragScrollable.prototype = {
     options: {},
     coordinates: null,
     speed: null,
+    /**
+     * @param {Event} event
+     * @private
+     */
     _grabHandler(event) {
         // if touch started (only one finger) or pressed left mouse button
         if ((this.isTouch && event.touches.length === 1) || event.buttons === 1) {
@@ -68,6 +72,10 @@ DragScrollable.prototype = {
             }
         }
     },
+    /**
+     * @param {Event} event
+     * @private
+     */
     _dropHandler(event) {
         event.preventDefault();
 
@@ -80,6 +88,11 @@ DragScrollable.prototype = {
             this.options.onDrop(event);
         }
     },
+    /**
+     * @param {Event} event
+     * @returns {boolean}
+     * @private
+     */
     _moveHandler(event) {
         // so that it does not move when the touch screen and more than one finger
         if (this.isTouch && event.touches.length > 1) return false;
@@ -112,10 +125,10 @@ DragScrollable.prototype = {
         // if we do not go beyond the permissible boundaries of the window
         if (Math.abs(contentNewTop) <= maxAvailableTop) content.currentTop = contentNewTop;
 
-        _transform(content.$element, {
+        transform(content.$element, {
             left: content.currentLeft,
             top: content.currentTop,
-            scale: content.currentScale
+            scale: content.currentScale,
         }, this.options);
 
         coordinates.left = eventClientX(event);
@@ -136,7 +149,7 @@ DragScrollable.prototype = {
     }
 };
 
-function _transform($element, { left, top, scale }, options) {
+function transform($element, { left, top, scale }, options) {
     if (options.smoothExtinction) {
         $element.style.transition = `transform ${ options.smoothExtinction }s`;
     } else {
