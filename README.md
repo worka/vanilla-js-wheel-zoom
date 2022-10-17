@@ -61,7 +61,7 @@ yarn add vanilla-js-wheel-zoom
 
 ```html
 <div id="myWindow" style="width:600px;height:600px;">
-    <img id="myContent" src="https://placehold.it/2400x1400" alt="image" />
+    <img id="myContent" src="https://via.placeholder.com/2400x1400" alt="image" />
 </div>
 ```
 
@@ -120,7 +120,7 @@ const wzoom = WZoom.create(selectorOrHTMLElement[, options]);
 <div id="myWindow" style="width:600px;height:600px;">
     <div id="myContent">
         <div id="myBadge" style="left:900px;top:500px;">Badge</div>
-        <img id="myImage" src="https://placehold.it/2500x1500" alt="image"/>
+        <img id="myImage" src="https://via.placeholder.com/2500x1500" alt="image"/>
     </div>
 </div>
 ```
