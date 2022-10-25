@@ -388,11 +388,12 @@
         moveTimer: null,
         options: {},
         coordinates: null,
-        speed: null,
+        coordinatesShift: null,
         /**
          * @param {Event} event
          * @private
-         */ _grabHandler: function _grabHandler(event) {
+         */
+        _grabHandler: function _grabHandler(event) {
             // if touch started (only one finger) or pressed left mouse button
             if (
                 (this.isTouch && event.touches.length === 1) ||
@@ -401,10 +402,10 @@
                 event.preventDefault();
                 this.isGrab = true;
                 this.coordinates = {
-                    left: eventClientX(event),
-                    top: eventClientY(event),
+                    x: eventClientX(event),
+                    y: eventClientY(event),
                 };
-                this.speed = {
+                this.coordinatesShift = {
                     x: 0,
                     y: 0,
                 };
@@ -428,7 +429,8 @@
         /**
          * @param {Event} event
          * @private
-         */ _dropHandler: function _dropHandler(event) {
+         */
+        _dropHandler: function _dropHandler(event) {
             event.preventDefault();
             this.isGrab = false;
             off(document, this.events.drop, this._dropHandler);
@@ -441,28 +443,31 @@
          * @param {Event} event
          * @returns {boolean}
          * @private
-         */ _moveHandler: function _moveHandler(event) {
+         */
+        _moveHandler: function _moveHandler(event) {
             // so that it does not move when the touch screen and more than one finger
             if (this.isTouch && event.touches.length > 1) return false;
             event.preventDefault();
             var window = this.window,
                 content = this.content,
-                speed = this.speed,
+                coordinatesShift = this.coordinatesShift,
                 coordinates = this.coordinates,
                 options = this.options;
 
-            // speed of change of the coordinate of the mouse cursor along the X/Y axis
-            speed.x = eventClientX(event) - coordinates.left;
-            speed.y = eventClientY(event) - coordinates.top;
+            // change of the coordinate of the mouse cursor along the X/Y axis
+            coordinatesShift.x = eventClientX(event) - coordinates.x;
+            coordinatesShift.y = eventClientY(event) - coordinates.y;
+            coordinates.x = eventClientX(event);
+            coordinates.y = eventClientY(event);
             clearTimeout(this.moveTimer);
 
-            // reset speed data if cursor stops
+            // reset shift if cursor stops
             this.moveTimer = setTimeout(function () {
-                speed.x = 0;
-                speed.y = 0;
+                coordinatesShift.x = 0;
+                coordinatesShift.y = 0;
             }, 50);
-            var contentNewLeft = content.currentLeft + speed.x;
-            var contentNewTop = content.currentTop + speed.y;
+            var contentNewLeft = content.currentLeft + coordinatesShift.x;
+            var contentNewTop = content.currentTop + coordinatesShift.y;
             var maxAvailableLeft =
                 (content.currentWidth - window.originalWidth) / 2 +
                 content.correctX;
@@ -486,8 +491,6 @@
                 },
                 this.options
             );
-            coordinates.left = eventClientX(event);
-            coordinates.top = eventClientY(event);
             if (typeof options.onMove === 'function') {
                 options.onMove(event);
             }
@@ -584,7 +587,8 @@
          * @param {string} eventType
          * @param {Function} eventHandler
          * @returns {Interactor}
-         */ on: function on(eventType, eventHandler) {
+         */
+        on: function on(eventType, eventHandler) {
             if (!(eventType in this.subscribes)) {
                 this.subscribes[eventType] = [];
             }
@@ -624,7 +628,8 @@
          * @param {string} eventType
          * @param {Event} event
          * @private
-         */ _run: function _run(eventType, event) {
+         */
+        _run: function _run(eventType, event) {
             if (this.subscribes[eventType]) {
                 var _iterator = _createForOfIteratorHelper(
                         this.subscribes[eventType]
@@ -645,7 +650,8 @@
         /**
          * @param {TouchEvent|MouseEvent|Event} event
          * @private
-         */ _downHandler: function _downHandler(event) {
+         */
+        _downHandler: function _downHandler(event) {
             this.coordsOnDown = null;
             if (
                 (this.isTouch && event.touches.length === 1) ||
@@ -661,7 +667,8 @@
         /**
          * @param {TouchEvent|MouseEvent|Event} event
          * @private
-         */ _upHandler: function _upHandler(event) {
+         */
+        _upHandler: function _upHandler(event) {
             var _this = this;
             var delay = this.subscribes[EVENT_DBLCLICK] ? 200 : 0;
             if (this.firstClick) {
@@ -686,13 +693,15 @@
         /**
          * @param {WheelEvent|Event} event
          * @private
-         */ _wheelHandler: function _wheelHandler(event) {
+         */
+        _wheelHandler: function _wheelHandler(event) {
             this._run(EVENT_WHEEL, event);
         },
         /**
          * @param {TouchEvent|Event} event
          * @private
-         */ _touchMoveHandler: function _touchMoveHandler(event) {
+         */
+        _touchMoveHandler: function _touchMoveHandler(event) {
             // detect two fingers
             if (event.targetTouches.length === 2) {
                 var pageX1 = event.targetTouches[0].clientX;
@@ -737,7 +746,8 @@
         },
         /**
          * @private
-         */ _touchEndHandler: function _touchEndHandler() {
+         */
+        _touchEndHandler: function _touchEndHandler() {
             if (this.zoomPinchWasDetected) {
                 this.fingersHypot = null;
                 this.zoomPinchWasDetected = false;
@@ -745,42 +755,64 @@
         },
     };
 
-    function calculateAlignPoint(options, content, window) {
-        var alignPointX = 0;
-        var alignPointY = 0;
-        switch (options.alignContent) {
-            case 'left':
-                alignPointX = (content.currentWidth - window.originalWidth) / 2;
-                break;
+    /**
+     * @param {string} align
+     * @param {WZoomContent} content
+     * @param {WZoomWindow} window
+     * @returns {number[]}
+     */
+    function calculateAlignPoint(align, content, window) {
+        var pointX = 0;
+        var pointY = 0;
+        switch (align) {
             case 'top':
-                alignPointY =
-                    (content.currentHeight - window.originalHeight) / 2;
+                pointY = (content.currentHeight - window.originalHeight) / 2;
                 break;
             case 'right':
-                alignPointX =
+                pointX =
                     ((content.currentWidth - window.originalWidth) / 2) * -1;
                 break;
             case 'bottom':
-                alignPointY =
+                pointY =
                     ((content.currentHeight - window.originalHeight) / 2) * -1;
                 break;
+            case 'left':
+                pointX = (content.currentWidth - window.originalWidth) / 2;
+                break;
         }
-        return [alignPointX, alignPointY];
+        return [pointX, pointY];
     }
-    function calculateCorrectPoint(options, content, window) {
-        var correctX = Math.max(
+
+    /**
+     * @param {string} align
+     * @param {WZoomContent} content
+     * @param {WZoomWindow} window
+     * @returns {number[]}
+     */
+    function calculateCorrectPoint(align, content, window) {
+        var pointX = Math.max(
             0,
             (window.originalWidth - content.currentWidth) / 2
         );
-        var correctY = Math.max(
+        var pointY = Math.max(
             0,
             (window.originalHeight - content.currentHeight) / 2
         );
-        if (options.alignContent === 'left') correctX = correctX * 2;
-        else if (options.alignContent === 'right') correctX = 0;
-        if (options.alignContent === 'bottom') correctY = correctY * 2;
-        else if (options.alignContent === 'top') correctY = 0;
-        return [correctX, correctY];
+        switch (align) {
+            case 'top':
+                pointY = 0;
+                break;
+            case 'right':
+                pointX = 0;
+                break;
+            case 'bottom':
+                pointY = pointY * 2;
+                break;
+            case 'left':
+                pointX = pointX * 2;
+                break;
+        }
+        return [pointX, pointY];
     }
     function calculateContentShift(
         axisValue,
@@ -800,13 +832,13 @@
         );
     }
     function calculateContentMaxShift(
-        options,
+        align,
         originalWindowSize,
         correctCoordinate,
         size,
         shift
     ) {
-        switch (options.alignContent) {
+        switch (align) {
             case 'left':
                 if (size / 2 - shift < originalWindowSize / 2) {
                     shift = (size - originalWindowSize) / 2;
@@ -830,6 +862,11 @@
         }
         return shift;
     }
+
+    /**
+     * @param {WZoomWindow} window
+     * @returns {{x: number, y: number}}
+     */
     function calculateWindowCenter(window) {
         var windowPosition = getElementPosition(window.$element);
         return {
@@ -861,10 +898,13 @@
         this._computeNewPosition = this._computeNewPosition.bind(this);
         this._transform = this._transform.bind(this);
 
-        /********************/
-        /********************/
+        /** @type {WZoomContent} */
         this.content = {};
+        /** @type {WZoomWindow} */
         this.window = {};
+
+        /********************/
+        /********************/
         this.isTouch = false;
         this.direction = 1;
         this.options = null;
@@ -967,7 +1007,8 @@
         constructor: WZoom,
         /**
          * @private
-         */ _init: function _init() {
+         */
+        _init: function _init() {
             var _this = this;
             this._prepare();
             if (this.content.elementInteractor) {
@@ -1049,7 +1090,8 @@
         },
         /**
          * @private
-         */ _prepare: function _prepare() {
+         */
+        _prepare: function _prepare() {
             var windowPosition = getElementPosition(this.window.$element);
 
             // original window sizes and position
@@ -1086,7 +1128,7 @@
             this.content.currentHeight =
                 this.content.originalHeight * this.content.minScale;
             var _calculateAlignPoint = calculateAlignPoint(
-                    this.options,
+                    this.options.alignContent,
                     this.content,
                     this.window
                 ),
@@ -1098,7 +1140,7 @@
 
             // calculate indent-left and indent-top to of content from window borders
             var _calculateCorrectPoin = calculateCorrectPoint(
-                    this.options,
+                    this.options.alignContent,
                     this.content,
                     this.window
                 ),
@@ -1123,7 +1165,8 @@
         },
         /**
          * @private
-         */ _computeNewScale: function _computeNewScale(direction) {
+         */
+        _computeNewScale: function _computeNewScale(direction) {
             this.direction = direction < 0 ? 1 : -1;
             var _this$content = this.content,
                 minScale = _this$content.minScale,
@@ -1144,7 +1187,8 @@
         },
         /**
          * @private
-         */ _computeNewPosition: function _computeNewPosition(
+         */
+        _computeNewPosition: function _computeNewPosition(
             contentNewScale,
             _ref
         ) {
@@ -1179,7 +1223,7 @@
             if (this.direction === -1) {
                 // check that the content does not go beyond the X axis
                 contentNewLeft = calculateContentMaxShift(
-                    this.options,
+                    this.options.alignContent,
                     window.originalWidth,
                     content.correctX,
                     contentNewWidth,
@@ -1188,7 +1232,7 @@
 
                 // check that the content does not go beyond the Y axis
                 contentNewTop = calculateContentMaxShift(
-                    this.options,
+                    this.options.alignContent,
                     window.originalHeight,
                     content.correctY,
                     contentNewHeight,
@@ -1216,7 +1260,8 @@
         },
         /**
          * @private
-         */ _transform: function _transform(_ref2) {
+         */
+        _transform: function _transform(_ref2) {
             _ref2.currentLeft;
             var newLeft = _ref2.newLeft;
             _ref2.currentTop;
@@ -1241,7 +1286,8 @@
         },
         /**
          * @private
-         */ _zoom: function _zoom(scale, coordinates) {
+         */
+        _zoom: function _zoom(scale, coordinates) {
             // if the coordinates are not passed, then use the coordinates of the center
             if (
                 coordinates === undefined ||
@@ -1310,6 +1356,38 @@
     WZoom.create = function (selectorOrHTMLElement, options) {
         return new WZoom(selectorOrHTMLElement, options);
     };
+
+    // @todo define types without any
+
+    /**
+     * @typedef WZoomContent
+     * @type {object}
+     * @property {?Interactor} elementInteractor,
+     * @property {HTMLElement} [$element],
+     * @property {any} [originalWidth],
+     * @property {any} [originalHeight],
+     * @property {any} [currentWidth],
+     * @property {any} [currentHeight],
+     * @property {any} [currentLeft],
+     * @property {any} [currentTop],
+     * @property {any} [currentScale],
+     * @property {any} [maxScale],
+     * @property {any} [minScale],
+     * @property {any} [alignPointX],
+     * @property {any} [alignPointY],
+     * @property {any} [correctX],
+     * @property {any} [correctY],
+     */
+
+    /**
+     * @typedef WZoomWindow
+     * @type {object}
+     * @property {HTMLElement} [$element],
+     * @property {any} [originalWidth],
+     * @property {any} [originalHeight],
+     * @property {any} [positionLeft]
+     * @property {any} [positionTop]
+     */
 
     return WZoom;
 });

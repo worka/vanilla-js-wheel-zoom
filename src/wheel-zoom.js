@@ -32,11 +32,13 @@ function WZoom(selectorOrHTMLElement, options = {}) {
     this._computeNewPosition = this._computeNewPosition.bind(this);
     this._transform = this._transform.bind(this);
 
-    /********************/
-    /********************/
+    /** @type {WZoomContent} */
     this.content = {};
+    /** @type {WZoomWindow} */
     this.window = {};
 
+    /********************/
+    /********************/
     this.isTouch = false;
     this.direction = 1;
     this.options = null;
@@ -228,13 +230,13 @@ WZoom.prototype = {
         this.content.currentWidth = this.content.originalWidth * this.content.minScale;
         this.content.currentHeight = this.content.originalHeight * this.content.minScale;
 
-        const [ alignPointX, alignPointY ] = calculateAlignPoint(this.options, this.content, this.window);
+        const [ alignPointX, alignPointY ] = calculateAlignPoint(this.options.alignContent, this.content, this.window);
 
         this.content.alignPointX = alignPointX;
         this.content.alignPointY = alignPointY;
 
         // calculate indent-left and indent-top to of content from window borders
-        const [ correctX, correctY ] = calculateCorrectPoint(this.options, this.content, this.window);
+        const [ correctX, correctY ] = calculateCorrectPoint(this.options.alignContent, this.content, this.window);
 
         this.content.correctX = correctX;
         this.content.correctY = correctY;
@@ -287,10 +289,10 @@ WZoom.prototype = {
 
         if (this.direction === -1) {
             // check that the content does not go beyond the X axis
-            contentNewLeft = calculateContentMaxShift(this.options, window.originalWidth, content.correctX, contentNewWidth, contentNewLeft);
+            contentNewLeft = calculateContentMaxShift(this.options.alignContent, window.originalWidth, content.correctX, contentNewWidth, contentNewLeft);
 
             // check that the content does not go beyond the Y axis
-            contentNewTop = calculateContentMaxShift(this.options, window.originalHeight, content.correctY, contentNewHeight, contentNewTop);
+            contentNewTop = calculateContentMaxShift(this.options.alignContent, window.originalHeight, content.correctY, contentNewHeight, contentNewTop);
         }
 
         if (contentNewScale === this.content.minScale) {
@@ -405,3 +407,35 @@ WZoom.create = function (selectorOrHTMLElement, options) {
 };
 
 export default WZoom;
+
+// @todo define types without any
+
+/**
+ * @typedef WZoomContent
+ * @type {object}
+ * @property {?Interactor} elementInteractor,
+ * @property {HTMLElement} [$element],
+ * @property {any} [originalWidth],
+ * @property {any} [originalHeight],
+ * @property {any} [currentWidth],
+ * @property {any} [currentHeight],
+ * @property {any} [currentLeft],
+ * @property {any} [currentTop],
+ * @property {any} [currentScale],
+ * @property {any} [maxScale],
+ * @property {any} [minScale],
+ * @property {any} [alignPointX],
+ * @property {any} [alignPointY],
+ * @property {any} [correctX],
+ * @property {any} [correctY],
+ */
+
+/**
+ * @typedef WZoomWindow
+ * @type {object}
+ * @property {HTMLElement} [$element],
+ * @property {any} [originalWidth],
+ * @property {any} [originalHeight],
+ * @property {any} [positionLeft]
+ * @property {any} [positionTop]
+ */

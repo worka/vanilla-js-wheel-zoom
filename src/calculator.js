@@ -1,38 +1,59 @@
 import { getElementPosition, getPageScrollLeft, getPageScrollTop } from './toolkit';
 
-export function calculateAlignPoint(options, content, window) {
-    let alignPointX = 0;
-    let alignPointY = 0;
+/**
+ * @param {string} align
+ * @param {WZoomContent} content
+ * @param {WZoomWindow} window
+ * @returns {number[]}
+ */
+export function calculateAlignPoint(align, content, window) {
+    let pointX = 0;
+    let pointY = 0;
 
-    switch (options.alignContent) {
-        case 'left':
-            alignPointX = (content.currentWidth - window.originalWidth) / 2;
-            break;
+    switch (align) {
         case 'top':
-            alignPointY = (content.currentHeight - window.originalHeight) / 2;
+            pointY = (content.currentHeight - window.originalHeight) / 2;
             break;
         case 'right':
-            alignPointX = (content.currentWidth - window.originalWidth) / 2 * -1;
+            pointX = (content.currentWidth - window.originalWidth) / 2 * -1;
             break;
         case 'bottom':
-            alignPointY = (content.currentHeight - window.originalHeight) / 2 * -1;
+            pointY = (content.currentHeight - window.originalHeight) / 2 * -1;
+            break;
+        case 'left':
+            pointX = (content.currentWidth - window.originalWidth) / 2;
             break;
     }
 
-    return [ alignPointX, alignPointY ];
+    return [ pointX, pointY ];
 }
 
-export function calculateCorrectPoint(options, content, window) {
-    let correctX = Math.max(0, (window.originalWidth - content.currentWidth) / 2);
-    let correctY = Math.max(0, (window.originalHeight - content.currentHeight) / 2);
+/**
+ * @param {string} align
+ * @param {WZoomContent} content
+ * @param {WZoomWindow} window
+ * @returns {number[]}
+ */
+export function calculateCorrectPoint(align, content, window) {
+    let pointX = Math.max(0, (window.originalWidth - content.currentWidth) / 2);
+    let pointY = Math.max(0, (window.originalHeight - content.currentHeight) / 2);
 
-    if (options.alignContent === 'left') correctX = correctX * 2;
-    else if (options.alignContent === 'right') correctX = 0;
+    switch (align) {
+        case 'top':
+            pointY = 0;
+            break;
+        case 'right':
+            pointX = 0;
+            break;
+        case 'bottom':
+            pointY = pointY * 2
+            break;
+        case 'left':
+            pointX = pointX * 2;
+            break;
+    }
 
-    if (options.alignContent === 'bottom') correctY = correctY * 2;
-    else if (options.alignContent === 'top') correctY = 0;
-
-    return [ correctX, correctY ];
+    return [ pointX, pointY ];
 }
 
 export function calculateContentShift(axisValue, axisScroll, axisWindowPosition, axisContentPosition, originalWindowSize, contentSizeRatio) {
@@ -43,8 +64,8 @@ export function calculateContentShift(axisValue, axisScroll, axisWindowPosition,
     return centerContentShift * contentSizeRatio - centerContentShift + axisContentPosition;
 }
 
-export function calculateContentMaxShift(options, originalWindowSize, correctCoordinate, size, shift) {
-    switch (options.alignContent) {
+export function calculateContentMaxShift(align, originalWindowSize, correctCoordinate, size, shift) {
+    switch (align) {
         case 'left':
             if (size / 2 - shift < originalWindowSize / 2) {
                 shift = (size - originalWindowSize) / 2;
@@ -65,6 +86,10 @@ export function calculateContentMaxShift(options, originalWindowSize, correctCoo
     return shift;
 }
 
+/**
+ * @param {WZoomWindow} window
+ * @returns {{x: number, y: number}}
+ */
 export function calculateWindowCenter(window) {
     const windowPosition = getElementPosition(window.$element);
 
