@@ -1,10 +1,11 @@
 import { extendObject, on, off, eventClientX, eventClientY, isTouch } from './toolkit';
+import { dragScrollableDefaultOptions } from './default-options';
 
 /**
  * @class DragScrollable
- * @param {Object} windowObject
- * @param {Object} contentObject
- * @param {Object} options
+ * @param {WZoomWindow} windowObject
+ * @param {WZoomContent} contentObject
+ * @param {DragScrollableOptions} options
  * @constructor
  */
 function DragScrollable(windowObject, contentObject, options = {}) {
@@ -12,18 +13,13 @@ function DragScrollable(windowObject, contentObject, options = {}) {
     this._grabHandler = this._grabHandler.bind(this);
     this._moveHandler = this._moveHandler.bind(this);
 
-    options.smoothExtinction = Number(options.smoothExtinction) || .25;
+    /** @type {WZoomWindow} */
+    this.window = windowObject;
+    /** @type {WZoomContent} */
+    this.content = contentObject;
 
-    this.options = extendObject({
-        // smooth extinction
-        smoothExtinction: .25,
-        // callback triggered when grabbing an element
-        onGrab: null,
-        // callback triggered when moving an element
-        onMove: null,
-        // callback triggered when dropping an element
-        onDrop: null,
-    }, options);
+    /** @type {DragScrollableOptions} */
+    this.options = extendObject(dragScrollableDefaultOptions, options);
 
     // check if we're using a touch screen
     this.isTouch = isTouch();
@@ -34,21 +30,13 @@ function DragScrollable(windowObject, contentObject, options = {}) {
     // for the touch screen we set the parameter forcibly
     this.events.options = this.isTouch ? { passive: false } : false;
 
-    this.window = windowObject;
-    this.content = contentObject;
-
     on(this.content.$element, this.events.grab, this._grabHandler, this.events.options);
 }
 
 DragScrollable.prototype = {
     constructor: DragScrollable,
-    window: null,
-    content: null,
-    isTouch: false,
     isGrab: false,
-    events: null,
     moveTimer: null,
-    options: {},
     coordinates: null,
     coordinatesShift: null,
     /**
@@ -104,7 +92,7 @@ DragScrollable.prototype = {
         // change of the coordinate of the mouse cursor along the X/Y axis
         coordinatesShift.x = eventClientX(event) - coordinates.x;
         coordinatesShift.y = eventClientY(event) - coordinates.y;
-        
+
         coordinates.x = eventClientX(event);
         coordinates.y = eventClientY(event);
 

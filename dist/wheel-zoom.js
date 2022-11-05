@@ -46,6 +46,28 @@
         }
         return target;
     }
+    function _classCallCheck(instance, Constructor) {
+        if (!(instance instanceof Constructor)) {
+            throw new TypeError('Cannot call a class as a function');
+        }
+    }
+    function _defineProperties(target, props) {
+        for (var i = 0; i < props.length; i++) {
+            var descriptor = props[i];
+            descriptor.enumerable = descriptor.enumerable || false;
+            descriptor.configurable = true;
+            if ('value' in descriptor) descriptor.writable = true;
+            Object.defineProperty(target, descriptor.key, descriptor);
+        }
+    }
+    function _createClass(Constructor, protoProps, staticProps) {
+        if (protoProps) _defineProperties(Constructor.prototype, protoProps);
+        if (staticProps) _defineProperties(Constructor, staticProps);
+        Object.defineProperty(Constructor, 'prototype', {
+            writable: false,
+        });
+        return Constructor;
+    }
     function _defineProperty(obj, key, value) {
         if (key in obj) {
             Object.defineProperty(obj, key, {
@@ -320,10 +342,212 @@
     }
 
     /**
+     * @param {string} align
+     * @param {WZoomContent} content
+     * @param {WZoomWindow} window
+     * @returns {number[]}
+     */
+    function calculateAlignPoint(align, content, window) {
+        var pointX = 0;
+        var pointY = 0;
+        switch (align) {
+            case 'top':
+                pointY = (content.currentHeight - window.originalHeight) / 2;
+                break;
+            case 'right':
+                pointX =
+                    ((content.currentWidth - window.originalWidth) / 2) * -1;
+                break;
+            case 'bottom':
+                pointY =
+                    ((content.currentHeight - window.originalHeight) / 2) * -1;
+                break;
+            case 'left':
+                pointX = (content.currentWidth - window.originalWidth) / 2;
+                break;
+        }
+        return [pointX, pointY];
+    }
+
+    /**
+     * @param {string} align
+     * @param {WZoomContent} content
+     * @param {WZoomWindow} window
+     * @returns {number[]}
+     */
+    function calculateCorrectPoint(align, content, window) {
+        var pointX = Math.max(
+            0,
+            (window.originalWidth - content.currentWidth) / 2
+        );
+        var pointY = Math.max(
+            0,
+            (window.originalHeight - content.currentHeight) / 2
+        );
+        switch (align) {
+            case 'top':
+                pointY = 0;
+                break;
+            case 'right':
+                pointX = 0;
+                break;
+            case 'bottom':
+                pointY = pointY * 2;
+                break;
+            case 'left':
+                pointX = pointX * 2;
+                break;
+        }
+        return [pointX, pointY];
+    }
+    function calculateContentShift(
+        axisValue,
+        axisScroll,
+        axisWindowPosition,
+        axisContentPosition,
+        originalWindowSize,
+        contentSizeRatio
+    ) {
+        var windowShift = axisValue + axisScroll - axisWindowPosition;
+        var centerWindowShift = originalWindowSize / 2 - windowShift;
+        var centerContentShift = centerWindowShift + axisContentPosition;
+        return (
+            centerContentShift * contentSizeRatio -
+            centerContentShift +
+            axisContentPosition
+        );
+    }
+    function calculateContentMaxShift(
+        align,
+        originalWindowSize,
+        correctCoordinate,
+        size,
+        shift
+    ) {
+        switch (align) {
+            case 'left':
+                if (size / 2 - shift < originalWindowSize / 2) {
+                    shift = (size - originalWindowSize) / 2;
+                }
+                break;
+            case 'right':
+                if (size / 2 + shift < originalWindowSize / 2) {
+                    shift = ((size - originalWindowSize) / 2) * -1;
+                }
+                break;
+            default:
+                if (
+                    (size - originalWindowSize) / 2 + correctCoordinate <
+                    Math.abs(shift)
+                ) {
+                    var positive = shift < 0 ? -1 : 1;
+                    shift =
+                        ((size - originalWindowSize) / 2 + correctCoordinate) *
+                        positive;
+                }
+        }
+        return shift;
+    }
+
+    /**
+     * @param {WZoomWindow} window
+     * @returns {{x: number, y: number}}
+     */
+    function calculateWindowCenter(window) {
+        var windowPosition = getElementPosition(window.$element);
+        return {
+            x:
+                windowPosition.left +
+                window.originalWidth / 2 -
+                getPageScrollLeft(),
+            y:
+                windowPosition.top +
+                window.originalHeight / 2 -
+                getPageScrollTop(),
+        };
+    }
+
+    /** @type {WZoomOptions} */
+    var wZoomDefaultOptions = {
+        // type content: `image` - only one image, `html` - any HTML content
+        type: 'image',
+        // for type `image` computed auto (if width set null), for type `html` need set real html content width, else computed auto
+        width: null,
+        // for type `image` computed auto (if height set null), for type `html` need set real html content height, else computed auto
+        height: null,
+        // drag scrollable content
+        dragScrollable: true,
+        // options for the DragScrollable module
+        dragScrollableOptions: {},
+        // minimum allowed proportion of scale (computed auto if null)
+        minScale: null,
+        // maximum allowed proportion of scale (1 = 100% content size)
+        maxScale: 1,
+        // content resizing speed
+        speed: 50,
+        // zoom to maximum (minimum) size on click
+        zoomOnClick: true,
+        // zoom to maximum (minimum) size on double click
+        zoomOnDblClick: false,
+        // if is true, then when the source image changes, the plugin will automatically restart init function (used with type = image)
+        // attention: if false, it will work correctly only if the images are of the same size
+        watchImageChange: true,
+        // smooth extinction
+        smoothExtinction: 0.3,
+        // align content `center`, `left`, `top`, `right`, `bottom`
+        alignContent: 'center',
+        /********************/
+        disableWheelZoom: false,
+        // option to reverse wheel direction
+        reverseWheelDirection: false,
+    };
+
+    /** @type {DragScrollableOptions} */
+    var dragScrollableDefaultOptions = {
+        // smooth extinction
+        smoothExtinction: 0.25,
+        // callback triggered when grabbing an element
+        onGrab: null,
+        // callback triggered when moving an element
+        onMove: null,
+        // callback triggered when dropping an element
+        onDrop: null,
+    };
+
+    /**
+     * @typedef WZoomOptions
+     * @type {Object}
+     * @property {string} type
+     * @property {?number} width
+     * @property {?number} height
+     * @property {boolean} dragScrollable
+     * @property {DragScrollableOptions} dragScrollableOptions
+     * @property {?number} minScale
+     * @property {number} maxScale
+     * @property {number} speed
+     * @property {boolean} zoomOnClick
+     * @property {boolean} zoomOnDblClick
+     * @property {boolean} watchImageChange
+     * @property {number} smoothExtinction
+     * @property {string} alignContent
+     * @property {boolean} disableWheelZoom
+     * @property {boolean} reverseWheelDirection
+     */
+
+    /**
+     * @typedef DragScrollableOptions
+     * @type {Object}
+     * @property {number} smoothExtinction
+     * @property {?Function} onGrab
+     * @property {?Function} onMove
+     * @property {?Function} onDrop
+     */
+
+    /**
      * @class DragScrollable
-     * @param {Object} windowObject
-     * @param {Object} contentObject
-     * @param {Object} options
+     * @param {WZoomWindow} windowObject
+     * @param {WZoomContent} contentObject
+     * @param {DragScrollableOptions} options
      * @constructor
      */
     function DragScrollable(windowObject, contentObject) {
@@ -334,20 +558,14 @@
         this._dropHandler = this._dropHandler.bind(this);
         this._grabHandler = this._grabHandler.bind(this);
         this._moveHandler = this._moveHandler.bind(this);
-        options.smoothExtinction = Number(options.smoothExtinction) || 0.25;
-        this.options = extendObject(
-            {
-                // smooth extinction
-                smoothExtinction: 0.25,
-                // callback triggered when grabbing an element
-                onGrab: null,
-                // callback triggered when moving an element
-                onMove: null,
-                // callback triggered when dropping an element
-                onDrop: null,
-            },
-            options
-        );
+
+        /** @type {WZoomWindow} */
+        this.window = windowObject;
+        /** @type {WZoomContent} */
+        this.content = contentObject;
+
+        /** @type {DragScrollableOptions} */
+        this.options = extendObject(dragScrollableDefaultOptions, options);
 
         // check if we're using a touch screen
         this.isTouch = isTouch();
@@ -369,8 +587,6 @@
                   passive: false,
               }
             : false;
-        this.window = windowObject;
-        this.content = contentObject;
         on(
             this.content.$element,
             this.events.grab,
@@ -380,13 +596,8 @@
     }
     DragScrollable.prototype = {
         constructor: DragScrollable,
-        window: null,
-        content: null,
-        isTouch: false,
         isGrab: false,
-        events: null,
         moveTimer: null,
-        options: {},
         coordinates: null,
         coordinatesShift: null,
         /**
@@ -531,360 +742,278 @@
     var EVENT_DBLCLICK = 'dblclick';
     var EVENT_WHEEL = 'wheel';
     var EVENT_PINCH_TO_ZOOM = 'pinchtozoom';
-
-    /**
-     * @param {HTMLElement} target
-     * @constructor
-     */
-    function Interactor(target) {
-        this.target = target;
-        this.subscribes = {};
-        this.coordsOnDown = null;
-        this.pressingTimeout = null;
-        this.firstClick = true;
-        this.fingersHypot = null;
-        this.zoomPinchWasDetected = false;
-
-        // check if we're using a touch screen
-        this.isTouch = isTouch();
-        // switch to touch events if using a touch screen
-        this.events = this.isTouch
-            ? {
-                  down: 'touchstart',
-                  up: 'touchend',
-              }
-            : {
-                  down: 'mousedown',
-                  up: 'mouseup',
-              };
-        // if using touch screen tells the browser that the default action will not be undone
-        this.events.options = this.isTouch
-            ? {
-                  passive: true,
-              }
-            : false;
-        this._downHandler = this._downHandler.bind(this);
-        this._upHandler = this._upHandler.bind(this);
-        this._wheelHandler = this._wheelHandler.bind(this);
-        this._touchMoveHandler = this._touchMoveHandler.bind(this);
-        this._touchEndHandler = this._touchEndHandler.bind(this);
-        on(
-            this.target,
-            this.events.down,
-            this._downHandler,
-            this.events.options
-        );
-        on(this.target, this.events.up, this._upHandler, this.events.options);
-        on(this.target, EVENT_WHEEL, this._wheelHandler);
-        if (this.isTouch) {
-            on(this.target, 'touchmove', this._touchMoveHandler);
-            on(this.target, 'touchend', this._touchEndHandler);
-        }
-    }
-    Interactor.prototype = {
-        constructor: Interactor,
+    var Interactor = /*#__PURE__*/ (function () {
         /**
-         * @param {string} eventType
-         * @param {Function} eventHandler
-         * @returns {Interactor}
+         * @param {HTMLElement} target
+         * @constructor
          */
-        on: function on(eventType, eventHandler) {
-            if (!(eventType in this.subscribes)) {
-                this.subscribes[eventType] = [];
-            }
-            this.subscribes[eventType].push(eventHandler);
-            return this;
-        },
-        destroy: function destroy() {
-            off(
+        function Interactor(target) {
+            _classCallCheck(this, Interactor);
+            this.target = target;
+            this.subscribes = {};
+            this.coordsOnDown = null;
+            this.pressingTimeout = null;
+            this.firstClick = true;
+            this.fingersHypot = null;
+            this.zoomPinchWasDetected = false;
+
+            // check if we're using a touch screen
+            this.isTouch = isTouch();
+            // switch to touch events if using a touch screen
+            this.events = this.isTouch
+                ? {
+                      down: 'touchstart',
+                      up: 'touchend',
+                  }
+                : {
+                      down: 'mousedown',
+                      up: 'mouseup',
+                  };
+            // if using touch screen tells the browser that the default action will not be undone
+            this.events.options = this.isTouch
+                ? {
+                      passive: true,
+                  }
+                : false;
+            this._downHandler = this._downHandler.bind(this);
+            this._upHandler = this._upHandler.bind(this);
+            this._wheelHandler = this._wheelHandler.bind(this);
+            this._touchMoveHandler = this._touchMoveHandler.bind(this);
+            this._touchEndHandler = this._touchEndHandler.bind(this);
+            on(
                 this.target,
                 this.events.down,
                 this._downHandler,
                 this.events.options
             );
-            off(
+            on(
                 this.target,
                 this.events.up,
                 this._upHandler,
                 this.events.options
             );
-            off(
-                this.target,
-                EVENT_WHEEL,
-                this._wheelHandler,
-                this.events.options
-            );
+            on(this.target, EVENT_WHEEL, this._wheelHandler);
             if (this.isTouch) {
-                off(this.target, 'touchmove', this._touchMoveHandler);
-                off(this.target, 'touchend', this._touchEndHandler);
+                on(this.target, 'touchmove', this._touchMoveHandler);
+                on(this.target, 'touchend', this._touchEndHandler);
             }
-            for (var key in this) {
-                if (this.hasOwnProperty(key)) {
-                    this[key] = null;
-                }
-            }
-        },
+        }
+
         /**
          * @param {string} eventType
-         * @param {Event} event
-         * @private
+         * @param {Function} eventHandler
+         * @returns {Interactor}
          */
-        _run: function _run(eventType, event) {
-            if (this.subscribes[eventType]) {
-                var _iterator = _createForOfIteratorHelper(
-                        this.subscribes[eventType]
-                    ),
-                    _step;
-                try {
-                    for (_iterator.s(); !(_step = _iterator.n()).done; ) {
-                        var eventHandler = _step.value;
-                        eventHandler(event);
+        _createClass(Interactor, [
+            {
+                key: 'on',
+                value: function on(eventType, eventHandler) {
+                    if (!(eventType in this.subscribes)) {
+                        this.subscribes[eventType] = [];
                     }
-                } catch (err) {
-                    _iterator.e(err);
-                } finally {
-                    _iterator.f();
-                }
-            }
-        },
-        /**
-         * @param {TouchEvent|MouseEvent|Event} event
-         * @private
-         */
-        _downHandler: function _downHandler(event) {
-            this.coordsOnDown = null;
-            if (
-                (this.isTouch && event.touches.length === 1) ||
-                event.buttons === 1
-            ) {
-                this.coordsOnDown = {
-                    x: eventClientX(event),
-                    y: eventClientY(event),
-                };
-            }
-            clearTimeout(this.pressingTimeout);
-        },
-        /**
-         * @param {TouchEvent|MouseEvent|Event} event
-         * @private
-         */
-        _upHandler: function _upHandler(event) {
-            var _this = this;
-            var delay = this.subscribes[EVENT_DBLCLICK] ? 200 : 0;
-            if (this.firstClick) {
-                this.pressingTimeout = setTimeout(function () {
-                    if (
-                        _this.coordsOnDown &&
-                        _this.coordsOnDown.x === eventClientX(event) &&
-                        _this.coordsOnDown.y === eventClientY(event)
-                    ) {
-                        _this._run(EVENT_CLICK, event);
+                    this.subscribes[eventType].push(eventHandler);
+                    return this;
+                },
+            },
+            {
+                key: 'destroy',
+                value: function destroy() {
+                    off(
+                        this.target,
+                        this.events.down,
+                        this._downHandler,
+                        this.events.options
+                    );
+                    off(
+                        this.target,
+                        this.events.up,
+                        this._upHandler,
+                        this.events.options
+                    );
+                    off(
+                        this.target,
+                        EVENT_WHEEL,
+                        this._wheelHandler,
+                        this.events.options
+                    );
+                    if (this.isTouch) {
+                        off(this.target, 'touchmove', this._touchMoveHandler);
+                        off(this.target, 'touchend', this._touchEndHandler);
                     }
-                    _this.firstClick = true;
-                }, delay);
-                this.firstClick = false;
-            } else {
-                this.pressingTimeout = setTimeout(function () {
-                    _this._run(EVENT_DBLCLICK, event);
-                    _this.firstClick = true;
-                }, delay / 2);
-            }
-        },
-        /**
-         * @param {WheelEvent|Event} event
-         * @private
-         */
-        _wheelHandler: function _wheelHandler(event) {
-            this._run(EVENT_WHEEL, event);
-        },
-        /**
-         * @param {TouchEvent|Event} event
-         * @private
-         */
-        _touchMoveHandler: function _touchMoveHandler(event) {
-            // detect two fingers
-            if (event.targetTouches.length === 2) {
-                var pageX1 = event.targetTouches[0].clientX;
-                var pageY1 = event.targetTouches[0].clientY;
-                var pageX2 = event.targetTouches[1].clientX;
-                var pageY2 = event.targetTouches[1].clientY;
+                    for (var key in this) {
+                        if (this.hasOwnProperty(key)) {
+                            this[key] = null;
+                        }
+                    }
+                },
 
-                // Math.hypot() analog
-                var fingersHypotNew = Math.round(
-                    Math.sqrt(
-                        Math.pow(Math.abs(pageX1 - pageX2), 2) +
-                            Math.pow(Math.abs(pageY1 - pageY2), 2)
-                    )
-                );
-                var direction = 0;
-                if (fingersHypotNew > this.fingersHypot + 5) direction = -1;
-                if (fingersHypotNew < this.fingersHypot - 5) direction = 1;
-                if (direction !== 0) {
-                    if (this.fingersHypot !== null || direction === 1) {
-                        // middle position between fingers
-                        var clientX =
-                            Math.min(pageX1, pageX2) +
-                            Math.abs(pageX1 - pageX2) / 2;
-                        var clientY =
-                            Math.min(pageY1, pageY2) +
-                            Math.abs(pageY1 - pageY2) / 2;
-                        event.data = _objectSpread2(
-                            _objectSpread2({}, event.data || {}),
-                            {},
-                            {
-                                clientX: clientX,
-                                clientY: clientY,
-                                direction: direction,
+                /**
+                 * @param {string} eventType
+                 * @param {Event} event
+                 * @private
+                 */
+            },
+            {
+                key: '_run',
+                value: function _run(eventType, event) {
+                    if (this.subscribes[eventType]) {
+                        var _iterator = _createForOfIteratorHelper(
+                                this.subscribes[eventType]
+                            ),
+                            _step;
+                        try {
+                            for (
+                                _iterator.s();
+                                !(_step = _iterator.n()).done;
+
+                            ) {
+                                var eventHandler = _step.value;
+                                eventHandler(event);
                             }
-                        );
-                        this._run(EVENT_PINCH_TO_ZOOM, event);
+                        } catch (err) {
+                            _iterator.e(err);
+                        } finally {
+                            _iterator.f();
+                        }
                     }
-                    this.fingersHypot = fingersHypotNew;
-                    this.zoomPinchWasDetected = true;
-                }
-            }
-        },
-        /**
-         * @private
-         */
-        _touchEndHandler: function _touchEndHandler() {
-            if (this.zoomPinchWasDetected) {
-                this.fingersHypot = null;
-                this.zoomPinchWasDetected = false;
-            }
-        },
-    };
+                },
 
-    /**
-     * @param {string} align
-     * @param {WZoomContent} content
-     * @param {WZoomWindow} window
-     * @returns {number[]}
-     */
-    function calculateAlignPoint(align, content, window) {
-        var pointX = 0;
-        var pointY = 0;
-        switch (align) {
-            case 'top':
-                pointY = (content.currentHeight - window.originalHeight) / 2;
-                break;
-            case 'right':
-                pointX =
-                    ((content.currentWidth - window.originalWidth) / 2) * -1;
-                break;
-            case 'bottom':
-                pointY =
-                    ((content.currentHeight - window.originalHeight) / 2) * -1;
-                break;
-            case 'left':
-                pointX = (content.currentWidth - window.originalWidth) / 2;
-                break;
-        }
-        return [pointX, pointY];
-    }
+                /**
+                 * @param {TouchEvent|MouseEvent|Event} event
+                 * @private
+                 */
+            },
+            {
+                key: '_downHandler',
+                value: function _downHandler(event) {
+                    this.coordsOnDown = null;
+                    if (
+                        (this.isTouch && event.touches.length === 1) ||
+                        event.buttons === 1
+                    ) {
+                        this.coordsOnDown = {
+                            x: eventClientX(event),
+                            y: eventClientY(event),
+                        };
+                    }
+                    clearTimeout(this.pressingTimeout);
+                },
 
-    /**
-     * @param {string} align
-     * @param {WZoomContent} content
-     * @param {WZoomWindow} window
-     * @returns {number[]}
-     */
-    function calculateCorrectPoint(align, content, window) {
-        var pointX = Math.max(
-            0,
-            (window.originalWidth - content.currentWidth) / 2
-        );
-        var pointY = Math.max(
-            0,
-            (window.originalHeight - content.currentHeight) / 2
-        );
-        switch (align) {
-            case 'top':
-                pointY = 0;
-                break;
-            case 'right':
-                pointX = 0;
-                break;
-            case 'bottom':
-                pointY = pointY * 2;
-                break;
-            case 'left':
-                pointX = pointX * 2;
-                break;
-        }
-        return [pointX, pointY];
-    }
-    function calculateContentShift(
-        axisValue,
-        axisScroll,
-        axisWindowPosition,
-        axisContentPosition,
-        originalWindowSize,
-        contentSizeRatio
-    ) {
-        var windowShift = axisValue + axisScroll - axisWindowPosition;
-        var centerWindowShift = originalWindowSize / 2 - windowShift;
-        var centerContentShift = centerWindowShift + axisContentPosition;
-        return (
-            centerContentShift * contentSizeRatio -
-            centerContentShift +
-            axisContentPosition
-        );
-    }
-    function calculateContentMaxShift(
-        align,
-        originalWindowSize,
-        correctCoordinate,
-        size,
-        shift
-    ) {
-        switch (align) {
-            case 'left':
-                if (size / 2 - shift < originalWindowSize / 2) {
-                    shift = (size - originalWindowSize) / 2;
-                }
-                break;
-            case 'right':
-                if (size / 2 + shift < originalWindowSize / 2) {
-                    shift = ((size - originalWindowSize) / 2) * -1;
-                }
-                break;
-            default:
-                if (
-                    (size - originalWindowSize) / 2 + correctCoordinate <
-                    Math.abs(shift)
-                ) {
-                    var positive = shift < 0 ? -1 : 1;
-                    shift =
-                        ((size - originalWindowSize) / 2 + correctCoordinate) *
-                        positive;
-                }
-        }
-        return shift;
-    }
+                /**
+                 * @param {TouchEvent|MouseEvent|Event} event
+                 * @private
+                 */
+            },
+            {
+                key: '_upHandler',
+                value: function _upHandler(event) {
+                    var _this = this;
+                    var delay = this.subscribes[EVENT_DBLCLICK] ? 200 : 0;
+                    if (this.firstClick) {
+                        this.pressingTimeout = setTimeout(function () {
+                            if (
+                                _this.coordsOnDown &&
+                                _this.coordsOnDown.x === eventClientX(event) &&
+                                _this.coordsOnDown.y === eventClientY(event)
+                            ) {
+                                _this._run(EVENT_CLICK, event);
+                            }
+                            _this.firstClick = true;
+                        }, delay);
+                        this.firstClick = false;
+                    } else {
+                        this.pressingTimeout = setTimeout(function () {
+                            _this._run(EVENT_DBLCLICK, event);
+                            _this.firstClick = true;
+                        }, delay / 2);
+                    }
+                },
 
-    /**
-     * @param {WZoomWindow} window
-     * @returns {{x: number, y: number}}
-     */
-    function calculateWindowCenter(window) {
-        var windowPosition = getElementPosition(window.$element);
-        return {
-            x:
-                windowPosition.left +
-                window.originalWidth / 2 -
-                getPageScrollLeft(),
-            y:
-                windowPosition.top +
-                window.originalHeight / 2 -
-                getPageScrollTop(),
-        };
-    }
+                /**
+                 * @param {WheelEvent|Event} event
+                 * @private
+                 */
+            },
+            {
+                key: '_wheelHandler',
+                value: function _wheelHandler(event) {
+                    this._run(EVENT_WHEEL, event);
+                },
+
+                /**
+                 * @param {TouchEvent|Event} event
+                 * @private
+                 */
+            },
+            {
+                key: '_touchMoveHandler',
+                value: function _touchMoveHandler(event) {
+                    // detect two fingers
+                    if (event.targetTouches.length === 2) {
+                        var pageX1 = event.targetTouches[0].clientX;
+                        var pageY1 = event.targetTouches[0].clientY;
+                        var pageX2 = event.targetTouches[1].clientX;
+                        var pageY2 = event.targetTouches[1].clientY;
+
+                        // Math.hypot() analog
+                        var fingersHypotNew = Math.round(
+                            Math.sqrt(
+                                Math.pow(Math.abs(pageX1 - pageX2), 2) +
+                                    Math.pow(Math.abs(pageY1 - pageY2), 2)
+                            )
+                        );
+                        var direction = 0;
+                        if (fingersHypotNew > this.fingersHypot + 5)
+                            direction = -1;
+                        if (fingersHypotNew < this.fingersHypot - 5)
+                            direction = 1;
+                        if (direction !== 0) {
+                            if (this.fingersHypot !== null || direction === 1) {
+                                // middle position between fingers
+                                var clientX =
+                                    Math.min(pageX1, pageX2) +
+                                    Math.abs(pageX1 - pageX2) / 2;
+                                var clientY =
+                                    Math.min(pageY1, pageY2) +
+                                    Math.abs(pageY1 - pageY2) / 2;
+                                event.data = _objectSpread2(
+                                    _objectSpread2({}, event.data || {}),
+                                    {},
+                                    {
+                                        clientX: clientX,
+                                        clientY: clientY,
+                                        direction: direction,
+                                    }
+                                );
+                                this._run(EVENT_PINCH_TO_ZOOM, event);
+                            }
+                            this.fingersHypot = fingersHypotNew;
+                            this.zoomPinchWasDetected = true;
+                        }
+                    }
+                },
+
+                /**
+                 * @private
+                 */
+            },
+            {
+                key: '_touchEndHandler',
+                value: function _touchEndHandler() {
+                    if (this.zoomPinchWasDetected) {
+                        this.fingersHypot = null;
+                        this.zoomPinchWasDetected = false;
+                    }
+                },
+            },
+        ]);
+        return Interactor;
+    })();
 
     /**
      * @class WZoom
      * @param {string|HTMLElement} selectorOrHTMLElement
-     * @param {Object} options
+     * @param {WZoomOptions} options
      * @constructor
      */
     function WZoom(selectorOrHTMLElement) {
@@ -900,52 +1029,14 @@
 
         /** @type {WZoomContent} */
         this.content = {};
+        this.content.elementInteractor = null;
         /** @type {WZoomWindow} */
         this.window = {};
-
-        /********************/
-        /********************/
+        /** @type {WZoomOptions} */
+        this.options = extendObject(wZoomDefaultOptions, options);
         this.isTouch = false;
         this.direction = 1;
-        this.options = null;
         this.dragScrollable = null;
-        this.content.elementInteractor = null;
-        /********************/
-        /********************/
-
-        var defaults = {
-            // type content: `image` - only one image, `html` - any HTML content
-            type: 'image',
-            // for type `image` computed auto (if width set null), for type `html` need set real html content width, else computed auto
-            width: null,
-            // for type `image` computed auto (if height set null), for type `html` need set real html content height, else computed auto
-            height: null,
-            // drag scrollable content
-            dragScrollable: true,
-            // options for the DragScrollable module
-            dragScrollableOptions: {},
-            // minimum allowed proportion of scale (computed auto if null)
-            minScale: null,
-            // maximum allowed proportion of scale (1 = 100% content size)
-            maxScale: 1,
-            // content resizing speed
-            speed: 50,
-            // zoom to maximum (minimum) size on click
-            zoomOnClick: true,
-            // zoom to maximum (minimum) size on double click
-            zoomOnDblClick: false,
-            // if is true, then when the source image changes, the plugin will automatically restart init function (used with type = image)
-            // attention: if false, it will work correctly only if the images are of the same size
-            watchImageChange: true,
-            // smooth extinction
-            smoothExtinction: 0.3,
-            // align content `center`, `left`, `top`, `right`, `bottom`
-            alignContent: 'center',
-            /********************/
-            disableWheelZoom: false,
-            // option to reverse wheel direction
-            reverseWheelDirection: false,
-        };
         if (typeof selectorOrHTMLElement === 'string') {
             this.content.$element = document.querySelector(
                 selectorOrHTMLElement
@@ -961,9 +1052,6 @@
         // check if we're using a touch screen
         this.isTouch = isTouch();
         if (this.content.$element) {
-            options.smoothExtinction =
-                Number(options.smoothExtinction) || defaults.smoothExtinction;
-            this.options = extendObject(defaults, options);
             if (
                 this.options.minScale &&
                 this.options.minScale >= this.options.maxScale
@@ -1350,10 +1438,18 @@
     /**
      * Create WZoom instance
      * @param {string|HTMLElement} selectorOrHTMLElement
-     * @param {Object} [options]
+     * @param {WZoomOptions} [options]
      * @returns {WZoom}
      */
     WZoom.create = function (selectorOrHTMLElement, options) {
+        options.smoothExtinction =
+            Number(options.smoothExtinction) ||
+            wZoomDefaultOptions.smoothExtinction;
+        if (options.dragScrollableOptions) {
+            options.dragScrollableOptions.smoothExtinction =
+                Number(options.dragScrollableOptions.smoothExtinction) ||
+                dragScrollableDefaultOptions.smoothExtinction;
+        }
         return new WZoom(selectorOrHTMLElement, options);
     };
 

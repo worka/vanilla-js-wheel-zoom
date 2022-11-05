@@ -5,49 +5,48 @@ const EVENT_DBLCLICK = 'dblclick';
 const EVENT_WHEEL = 'wheel';
 const EVENT_PINCH_TO_ZOOM = 'pinchtozoom';
 
-/**
- * @param {HTMLElement} target
- * @constructor
- */
-function Interactor(target) {
-    this.target = target;
-    this.subscribes = {};
+class Interactor {
+    /**
+     * @param {HTMLElement} target
+     * @constructor
+     */
+    constructor(target) {
+        this.target = target;
+        this.subscribes = {};
 
-    this.coordsOnDown = null;
-    this.pressingTimeout = null;
-    this.firstClick = true;
+        this.coordsOnDown = null;
+        this.pressingTimeout = null;
+        this.firstClick = true;
 
-    this.fingersHypot = null;
-    this.zoomPinchWasDetected = false;
+        this.fingersHypot = null;
+        this.zoomPinchWasDetected = false;
 
-    // check if we're using a touch screen
-    this.isTouch = isTouch();
-    // switch to touch events if using a touch screen
-    this.events = this.isTouch
-        ? { down: 'touchstart', up: 'touchend' }
-        : { down: 'mousedown', up: 'mouseup' };
-    // if using touch screen tells the browser that the default action will not be undone
-    this.events.options = this.isTouch ? { passive: true } : false;
+        // check if we're using a touch screen
+        this.isTouch = isTouch();
+        // switch to touch events if using a touch screen
+        this.events = this.isTouch
+            ? { down: 'touchstart', up: 'touchend' }
+            : { down: 'mousedown', up: 'mouseup' };
+        // if using touch screen tells the browser that the default action will not be undone
+        this.events.options = this.isTouch ? { passive: true } : false;
 
-    this._downHandler = this._downHandler.bind(this);
-    this._upHandler = this._upHandler.bind(this);
-    this._wheelHandler = this._wheelHandler.bind(this);
+        this._downHandler = this._downHandler.bind(this);
+        this._upHandler = this._upHandler.bind(this);
+        this._wheelHandler = this._wheelHandler.bind(this);
 
-    this._touchMoveHandler = this._touchMoveHandler.bind(this);
-    this._touchEndHandler = this._touchEndHandler.bind(this);
+        this._touchMoveHandler = this._touchMoveHandler.bind(this);
+        this._touchEndHandler = this._touchEndHandler.bind(this);
 
-    on(this.target, this.events.down, this._downHandler, this.events.options);
-    on(this.target, this.events.up, this._upHandler, this.events.options);
-    on(this.target, EVENT_WHEEL, this._wheelHandler);
+        on(this.target, this.events.down, this._downHandler, this.events.options);
+        on(this.target, this.events.up, this._upHandler, this.events.options);
+        on(this.target, EVENT_WHEEL, this._wheelHandler);
 
-    if (this.isTouch) {
-        on(this.target, 'touchmove', this._touchMoveHandler);
-        on(this.target, 'touchend', this._touchEndHandler);
+        if (this.isTouch) {
+            on(this.target, 'touchmove', this._touchMoveHandler);
+            on(this.target, 'touchend', this._touchEndHandler);
+        }
     }
-}
 
-Interactor.prototype = {
-    constructor: Interactor,
     /**
      * @param {string} eventType
      * @param {Function} eventHandler
@@ -61,7 +60,8 @@ Interactor.prototype = {
         this.subscribes[eventType].push(eventHandler);
 
         return this;
-    },
+    }
+
     destroy() {
         off(this.target, this.events.down, this._downHandler, this.events.options);
         off(this.target, this.events.up, this._upHandler, this.events.options);
@@ -77,7 +77,8 @@ Interactor.prototype = {
                 this[key] = null;
             }
         }
-    },
+    }
+
     /**
      * @param {string} eventType
      * @param {Event} event
@@ -89,7 +90,8 @@ Interactor.prototype = {
                 eventHandler(event);
             }
         }
-    },
+    }
+
     /**
      * @param {TouchEvent|MouseEvent|Event} event
      * @private
@@ -102,7 +104,8 @@ Interactor.prototype = {
         }
 
         clearTimeout(this.pressingTimeout);
-    },
+    }
+
     /**
      * @param {TouchEvent|MouseEvent|Event} event
      * @private
@@ -130,14 +133,16 @@ Interactor.prototype = {
                 this.firstClick = true;
             }, delay / 2);
         }
-    },
+    }
+
     /**
      * @param {WheelEvent|Event} event
      * @private
      */
     _wheelHandler(event) {
         this._run(EVENT_WHEEL, event);
-    },
+    }
+
     /**
      * @param {TouchEvent|Event} event
      * @private
@@ -176,7 +181,8 @@ Interactor.prototype = {
                 this.zoomPinchWasDetected = true;
             }
         }
-    },
+    }
+
     /**
      * @private
      */
@@ -185,7 +191,7 @@ Interactor.prototype = {
             this.fingersHypot = null;
             this.zoomPinchWasDetected = false;
         }
-    },
-};
+    }
+}
 
 export default Interactor;

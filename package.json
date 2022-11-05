@@ -3,11 +3,11 @@
     "version": "6.17.2",
     "main": "src/wheel-zoom.js",
     "devDependencies": {
-        "@babel/core": "^7.19.6",
-        "@babel/preset-env": "^7.19.4",
+        "@babel/core": "^7.20.2",
+        "@babel/preset-env": "^7.20.2",
         "@rollup/plugin-babel": "^6.0.2",
         "prettier": "2.7.1",
-        "rollup": "^3.2.3",
+        "rollup": "^3.2.5",
         "terser": "^5.15.1"
     },
     "scripts": {
