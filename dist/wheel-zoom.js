@@ -543,183 +543,201 @@
      * @property {?Function} onDrop
      */
 
-    /**
-     * @class DragScrollable
-     * @param {WZoomWindow} windowObject
-     * @param {WZoomContent} contentObject
-     * @param {DragScrollableOptions} options
-     * @constructor
-     */
-    function DragScrollable(windowObject, contentObject) {
-        var options =
-            arguments.length > 2 && arguments[2] !== undefined
-                ? arguments[2]
-                : {};
-        this._dropHandler = this._dropHandler.bind(this);
-        this._grabHandler = this._grabHandler.bind(this);
-        this._moveHandler = this._moveHandler.bind(this);
-
-        /** @type {WZoomWindow} */
-        this.window = windowObject;
-        /** @type {WZoomContent} */
-        this.content = contentObject;
-
-        /** @type {DragScrollableOptions} */
-        this.options = extendObject(dragScrollableDefaultOptions, options);
-
-        // check if we're using a touch screen
-        this.isTouch = isTouch();
-        // switch to touch events if using a touch screen
-        this.events = this.isTouch
-            ? {
-                  grab: 'touchstart',
-                  move: 'touchmove',
-                  drop: 'touchend',
-              }
-            : {
-                  grab: 'mousedown',
-                  move: 'mousemove',
-                  drop: 'mouseup',
-              };
-        // for the touch screen we set the parameter forcibly
-        this.events.options = this.isTouch
-            ? {
-                  passive: false,
-              }
-            : false;
-        on(
-            this.content.$element,
-            this.events.grab,
-            this._grabHandler,
-            this.events.options
-        );
-    }
-    DragScrollable.prototype = {
-        constructor: DragScrollable,
-        isGrab: false,
-        moveTimer: null,
-        coordinates: null,
-        coordinatesShift: null,
+    var DragScrollable = /*#__PURE__*/ (function () {
         /**
-         * @param {Event} event
-         * @private
+         * @param {WZoomWindow} windowObject
+         * @param {WZoomContent} contentObject
+         * @param {DragScrollableOptions} options
+         * @constructor
          */
-        _grabHandler: function _grabHandler(event) {
-            // if touch started (only one finger) or pressed left mouse button
-            if (
-                (this.isTouch && event.touches.length === 1) ||
-                event.buttons === 1
-            ) {
-                event.preventDefault();
-                this.isGrab = true;
-                this.coordinates = {
-                    x: eventClientX(event),
-                    y: eventClientY(event),
-                };
-                this.coordinatesShift = {
-                    x: 0,
-                    y: 0,
-                };
-                on(
-                    document,
-                    this.events.drop,
-                    this._dropHandler,
-                    this.events.options
-                );
-                on(
-                    document,
-                    this.events.move,
-                    this._moveHandler,
-                    this.events.options
-                );
-                if (typeof this.options.onGrab === 'function') {
-                    this.options.onGrab(event);
-                }
-            }
-        },
-        /**
-         * @param {Event} event
-         * @private
-         */
-        _dropHandler: function _dropHandler(event) {
-            event.preventDefault();
+        function DragScrollable(windowObject, contentObject) {
+            var options =
+                arguments.length > 2 && arguments[2] !== undefined
+                    ? arguments[2]
+                    : {};
+            _classCallCheck(this, DragScrollable);
+            this._dropHandler = this._dropHandler.bind(this);
+            this._grabHandler = this._grabHandler.bind(this);
+            this._moveHandler = this._moveHandler.bind(this);
+
+            /** @type {WZoomWindow} */
+            this.window = windowObject;
+            /** @type {WZoomContent} */
+            this.content = contentObject;
+
+            /** @type {DragScrollableOptions} */
+            this.options = extendObject(dragScrollableDefaultOptions, options);
             this.isGrab = false;
-            off(document, this.events.drop, this._dropHandler);
-            off(document, this.events.move, this._moveHandler);
-            if (typeof this.options.onDrop === 'function') {
-                this.options.onDrop(event);
-            }
-        },
-        /**
-         * @param {Event} event
-         * @returns {boolean}
-         * @private
-         */
-        _moveHandler: function _moveHandler(event) {
-            // so that it does not move when the touch screen and more than one finger
-            if (this.isTouch && event.touches.length > 1) return false;
-            event.preventDefault();
-            var window = this.window,
-                content = this.content,
-                coordinatesShift = this.coordinatesShift,
-                coordinates = this.coordinates,
-                options = this.options;
+            this.moveTimer = null;
+            this.coordinates = null;
+            this.coordinatesShift = null;
 
-            // change of the coordinate of the mouse cursor along the X/Y axis
-            coordinatesShift.x = eventClientX(event) - coordinates.x;
-            coordinatesShift.y = eventClientY(event) - coordinates.y;
-            coordinates.x = eventClientX(event);
-            coordinates.y = eventClientY(event);
-            clearTimeout(this.moveTimer);
-
-            // reset shift if cursor stops
-            this.moveTimer = setTimeout(function () {
-                coordinatesShift.x = 0;
-                coordinatesShift.y = 0;
-            }, 50);
-            var contentNewLeft = content.currentLeft + coordinatesShift.x;
-            var contentNewTop = content.currentTop + coordinatesShift.y;
-            var maxAvailableLeft =
-                (content.currentWidth - window.originalWidth) / 2 +
-                content.correctX;
-            var maxAvailableTop =
-                (content.currentHeight - window.originalHeight) / 2 +
-                content.correctY;
-
-            // if we do not go beyond the permissible boundaries of the window
-            if (Math.abs(contentNewLeft) <= maxAvailableLeft)
-                content.currentLeft = contentNewLeft;
-
-            // if we do not go beyond the permissible boundaries of the window
-            if (Math.abs(contentNewTop) <= maxAvailableTop)
-                content.currentTop = contentNewTop;
-            transform(
-                content.$element,
-                {
-                    left: content.currentLeft,
-                    top: content.currentTop,
-                    scale: content.currentScale,
-                },
-                this.options
-            );
-            if (typeof options.onMove === 'function') {
-                options.onMove(event);
-            }
-        },
-        destroy: function destroy() {
-            off(
+            // check if we're using a touch screen
+            this.isTouch = isTouch();
+            // switch to touch events if using a touch screen
+            this.events = this.isTouch
+                ? {
+                      grab: 'touchstart',
+                      move: 'touchmove',
+                      drop: 'touchend',
+                  }
+                : {
+                      grab: 'mousedown',
+                      move: 'mousemove',
+                      drop: 'mouseup',
+                  };
+            // for the touch screen we set the parameter forcibly
+            this.events.options = this.isTouch
+                ? {
+                      passive: false,
+                  }
+                : false;
+            on(
                 this.content.$element,
                 this.events.grab,
                 this._grabHandler,
                 this.events.options
             );
-            for (var key in this) {
-                if (this.hasOwnProperty(key)) {
-                    this[key] = null;
-                }
-            }
-        },
-    };
+        }
+        _createClass(DragScrollable, [
+            {
+                key: 'destroy',
+                value: function destroy() {
+                    off(
+                        this.content.$element,
+                        this.events.grab,
+                        this._grabHandler,
+                        this.events.options
+                    );
+                    for (var key in this) {
+                        if (this.hasOwnProperty(key)) {
+                            this[key] = null;
+                        }
+                    }
+                },
+
+                /**
+                 * @param {Event} event
+                 * @private
+                 */
+            },
+            {
+                key: '_grabHandler',
+                value: function _grabHandler(event) {
+                    // if touch started (only one finger) or pressed left mouse button
+                    if (
+                        (this.isTouch && event.touches.length === 1) ||
+                        event.buttons === 1
+                    ) {
+                        event.preventDefault();
+                        this.isGrab = true;
+                        this.coordinates = {
+                            x: eventClientX(event),
+                            y: eventClientY(event),
+                        };
+                        this.coordinatesShift = {
+                            x: 0,
+                            y: 0,
+                        };
+                        on(
+                            document,
+                            this.events.drop,
+                            this._dropHandler,
+                            this.events.options
+                        );
+                        on(
+                            document,
+                            this.events.move,
+                            this._moveHandler,
+                            this.events.options
+                        );
+                        if (typeof this.options.onGrab === 'function') {
+                            this.options.onGrab(event);
+                        }
+                    }
+                },
+
+                /**
+                 * @param {Event} event
+                 * @private
+                 */
+            },
+            {
+                key: '_dropHandler',
+                value: function _dropHandler(event) {
+                    event.preventDefault();
+                    this.isGrab = false;
+                    off(document, this.events.drop, this._dropHandler);
+                    off(document, this.events.move, this._moveHandler);
+                    if (typeof this.options.onDrop === 'function') {
+                        this.options.onDrop(event);
+                    }
+                },
+
+                /**
+                 * @param {Event} event
+                 * @returns {boolean}
+                 * @private
+                 */
+            },
+            {
+                key: '_moveHandler',
+                value: function _moveHandler(event) {
+                    // so that it does not move when the touch screen and more than one finger
+                    if (this.isTouch && event.touches.length > 1) return false;
+                    event.preventDefault();
+                    var window = this.window,
+                        content = this.content,
+                        coordinatesShift = this.coordinatesShift,
+                        coordinates = this.coordinates,
+                        options = this.options;
+
+                    // change of the coordinate of the mouse cursor along the X/Y axis
+                    coordinatesShift.x = eventClientX(event) - coordinates.x;
+                    coordinatesShift.y = eventClientY(event) - coordinates.y;
+                    coordinates.x = eventClientX(event);
+                    coordinates.y = eventClientY(event);
+                    clearTimeout(this.moveTimer);
+
+                    // reset shift if cursor stops
+                    this.moveTimer = setTimeout(function () {
+                        coordinatesShift.x = 0;
+                        coordinatesShift.y = 0;
+                    }, 50);
+                    var contentNewLeft =
+                        content.currentLeft + coordinatesShift.x;
+                    var contentNewTop = content.currentTop + coordinatesShift.y;
+                    var maxAvailableLeft =
+                        (content.currentWidth - window.originalWidth) / 2 +
+                        content.correctX;
+                    var maxAvailableTop =
+                        (content.currentHeight - window.originalHeight) / 2 +
+                        content.correctY;
+
+                    // if we do not go beyond the permissible boundaries of the window
+                    if (Math.abs(contentNewLeft) <= maxAvailableLeft)
+                        content.currentLeft = contentNewLeft;
+
+                    // if we do not go beyond the permissible boundaries of the window
+                    if (Math.abs(contentNewTop) <= maxAvailableTop)
+                        content.currentTop = contentNewTop;
+                    transform(
+                        content.$element,
+                        {
+                            left: content.currentLeft,
+                            top: content.currentTop,
+                            scale: content.currentScale,
+                        },
+                        this.options
+                    );
+                    if (typeof options.onMove === 'function') {
+                        options.onMove(event);
+                    }
+                },
+            },
+        ]);
+        return DragScrollable;
+    })();
     function transform($element, _ref, options) {
         var left = _ref.left,
             top = _ref.top,

@@ -1,44 +1,53 @@
 import { extendObject, on, off, eventClientX, eventClientY, isTouch } from './toolkit';
 import { dragScrollableDefaultOptions } from './default-options';
 
-/**
- * @class DragScrollable
- * @param {WZoomWindow} windowObject
- * @param {WZoomContent} contentObject
- * @param {DragScrollableOptions} options
- * @constructor
- */
-function DragScrollable(windowObject, contentObject, options = {}) {
-    this._dropHandler = this._dropHandler.bind(this);
-    this._grabHandler = this._grabHandler.bind(this);
-    this._moveHandler = this._moveHandler.bind(this);
+class DragScrollable {
+    /**
+     * @param {WZoomWindow} windowObject
+     * @param {WZoomContent} contentObject
+     * @param {DragScrollableOptions} options
+     * @constructor
+     */
+    constructor(windowObject, contentObject, options = {}) {
+        this._dropHandler = this._dropHandler.bind(this);
+        this._grabHandler = this._grabHandler.bind(this);
+        this._moveHandler = this._moveHandler.bind(this);
 
-    /** @type {WZoomWindow} */
-    this.window = windowObject;
-    /** @type {WZoomContent} */
-    this.content = contentObject;
+        /** @type {WZoomWindow} */
+        this.window = windowObject;
+        /** @type {WZoomContent} */
+        this.content = contentObject;
 
-    /** @type {DragScrollableOptions} */
-    this.options = extendObject(dragScrollableDefaultOptions, options);
+        /** @type {DragScrollableOptions} */
+        this.options = extendObject(dragScrollableDefaultOptions, options);
 
-    // check if we're using a touch screen
-    this.isTouch = isTouch();
-    // switch to touch events if using a touch screen
-    this.events = this.isTouch
-        ? { grab: 'touchstart', move: 'touchmove', drop: 'touchend' }
-        : { grab: 'mousedown', move: 'mousemove', drop: 'mouseup' };
-    // for the touch screen we set the parameter forcibly
-    this.events.options = this.isTouch ? { passive: false } : false;
+        this.isGrab = false;
+        this.moveTimer = null;
+        this.coordinates = null;
+        this.coordinatesShift = null;
 
-    on(this.content.$element, this.events.grab, this._grabHandler, this.events.options);
-}
+        // check if we're using a touch screen
+        this.isTouch = isTouch();
+        // switch to touch events if using a touch screen
+        this.events = this.isTouch
+            ? { grab: 'touchstart', move: 'touchmove', drop: 'touchend' }
+            : { grab: 'mousedown', move: 'mousemove', drop: 'mouseup' };
+        // for the touch screen we set the parameter forcibly
+        this.events.options = this.isTouch ? { passive: false } : false;
 
-DragScrollable.prototype = {
-    constructor: DragScrollable,
-    isGrab: false,
-    moveTimer: null,
-    coordinates: null,
-    coordinatesShift: null,
+        on(this.content.$element, this.events.grab, this._grabHandler, this.events.options);
+    }
+
+    destroy() {
+        off(this.content.$element, this.events.grab, this._grabHandler, this.events.options);
+
+        for (let key in this) {
+            if (this.hasOwnProperty(key)) {
+                this[key] = null;
+            }
+        }
+    }
+
     /**
      * @param {Event} event
      * @private
@@ -59,7 +68,8 @@ DragScrollable.prototype = {
                 this.options.onGrab(event);
             }
         }
-    },
+    }
+
     /**
      * @param {Event} event
      * @private
@@ -75,7 +85,8 @@ DragScrollable.prototype = {
         if (typeof this.options.onDrop === 'function') {
             this.options.onDrop(event);
         }
-    },
+    }
+
     /**
      * @param {Event} event
      * @returns {boolean}
@@ -125,17 +136,8 @@ DragScrollable.prototype = {
         if (typeof options.onMove === 'function') {
             options.onMove(event);
         }
-    },
-    destroy() {
-        off(this.content.$element, this.events.grab, this._grabHandler, this.events.options);
-
-        for (let key in this) {
-            if (this.hasOwnProperty(key)) {
-                this[key] = null;
-            }
-        }
     }
-};
+}
 
 function transform($element, { left, top, scale }, options) {
     if (options.smoothExtinction) {
