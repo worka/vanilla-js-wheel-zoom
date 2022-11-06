@@ -3,20 +3,20 @@ import { dragScrollableDefaultOptions } from './default-options';
 
 class DragScrollable {
     /**
-     * @param {WZoomWindow} windowObject
-     * @param {WZoomContent} contentObject
+     * @param {WZoomViewport} viewport
+     * @param {WZoomContent} content
      * @param {DragScrollableOptions} options
      * @constructor
      */
-    constructor(windowObject, contentObject, options = {}) {
+    constructor(viewport, content, options = {}) {
         this._dropHandler = this._dropHandler.bind(this);
         this._grabHandler = this._grabHandler.bind(this);
         this._moveHandler = this._moveHandler.bind(this);
 
-        /** @type {WZoomWindow} */
-        this.window = windowObject;
+        /** @type {WZoomViewport} */
+        this.viewport = viewport;
         /** @type {WZoomContent} */
-        this.content = contentObject;
+        this.content = content;
 
         /** @type {DragScrollableOptions} */
         this.options = extendObject(dragScrollableDefaultOptions, options);
@@ -89,7 +89,6 @@ class DragScrollable {
 
     /**
      * @param {Event} event
-     * @returns {boolean}
      * @private
      */
     _moveHandler(event) {
@@ -98,7 +97,7 @@ class DragScrollable {
 
         event.preventDefault();
 
-        const { window, content, coordinatesShift, coordinates, options } = this;
+        const { viewport, content, coordinatesShift, coordinates, options } = this;
 
         // change of the coordinate of the mouse cursor along the X/Y axis
         coordinatesShift.x = eventClientX(event) - coordinates.x;
@@ -118,20 +117,22 @@ class DragScrollable {
         const contentNewLeft = content.currentLeft + coordinatesShift.x;
         const contentNewTop = content.currentTop + coordinatesShift.y;
 
-        let maxAvailableLeft = (content.currentWidth - window.originalWidth) / 2 + content.correctX;
-        let maxAvailableTop = (content.currentHeight - window.originalHeight) / 2 + content.correctY;
+        let maxAvailableLeft = (content.currentWidth - viewport.originalWidth) / 2 + content.correctX;
+        let maxAvailableTop = (content.currentHeight - viewport.originalHeight) / 2 + content.correctY;
 
-        // if we do not go beyond the permissible boundaries of the window
+        // if we do not go beyond the permissible boundaries of the viewport
         if (Math.abs(contentNewLeft) <= maxAvailableLeft) content.currentLeft = contentNewLeft;
 
-        // if we do not go beyond the permissible boundaries of the window
+        // if we do not go beyond the permissible boundaries of the viewport
         if (Math.abs(contentNewTop) <= maxAvailableTop) content.currentTop = contentNewTop;
 
-        transform(content.$element, {
-            left: content.currentLeft,
-            top: content.currentTop,
-            scale: content.currentScale,
-        }, this.options);
+        transform(
+            content.$element,
+            content.currentLeft,
+            content.currentTop,
+            content.currentScale,
+            this.options.smoothExtinction,
+        );
 
         if (typeof options.onMove === 'function') {
             options.onMove(event);
@@ -139,9 +140,16 @@ class DragScrollable {
     }
 }
 
-function transform($element, { left, top, scale }, options) {
-    if (options.smoothExtinction) {
-        $element.style.transition = `transform ${ options.smoothExtinction }s`;
+/**
+ * @param {HTMLElement} $element
+ * @param {number} left
+ * @param {number} top
+ * @param {number} scale
+ * @param {number} smoothExtinction
+ */
+function transform($element, left, top, scale, smoothExtinction) {
+    if (smoothExtinction) {
+        $element.style.transition = `transform ${ smoothExtinction }s`;
     } else {
         $element.style.removeProperty('transition');
     }

@@ -12,6 +12,8 @@ class Interactor {
      */
     constructor(target) {
         this.target = target;
+
+        /** @type {Object<string, (event: Event) => void>} */
         this.subscribes = {};
 
         this.coordsOnDown = null;
@@ -49,7 +51,7 @@ class Interactor {
 
     /**
      * @param {string} eventType
-     * @param {Function} eventHandler
+     * @param {(event: Event) => void} eventHandler
      * @returns {Interactor}
      */
     on(eventType, eventHandler) {
@@ -93,7 +95,7 @@ class Interactor {
     }
 
     /**
-     * @param {TouchEvent|MouseEvent|Event} event
+     * @param {TouchEvent|MouseEvent|PointerEvent} event
      * @private
      */
     _downHandler(event) {
@@ -107,7 +109,7 @@ class Interactor {
     }
 
     /**
-     * @param {TouchEvent|MouseEvent|Event} event
+     * @param {TouchEvent|MouseEvent|PointerEvent} event
      * @private
      */
     _upHandler(event) {
@@ -136,7 +138,7 @@ class Interactor {
     }
 
     /**
-     * @param {WheelEvent|Event} event
+     * @param {WheelEvent} event
      * @private
      */
     _wheelHandler(event) {
@@ -144,7 +146,7 @@ class Interactor {
     }
 
     /**
-     * @param {TouchEvent|Event} event
+     * @param {TouchEvent|PointerEvent} event
      * @private
      */
     _touchMoveHandler(event) {

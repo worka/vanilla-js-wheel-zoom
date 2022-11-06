@@ -14,7 +14,7 @@ import {
     calculateContentMaxShift,
     calculateContentShift,
     calculateCorrectPoint,
-    calculateWindowCenter,
+    calculateViewportCenter,
 } from './calculator';
 import { dragScrollableDefaultOptions, wZoomDefaultOptions } from './default-options.js';
 import DragScrollable from './drag-scrollable';
@@ -29,15 +29,15 @@ import Interactor from './interactor';
 function WZoom(selectorOrHTMLElement, options = {}) {
     this._init = this._init.bind(this);
     this._prepare = this._prepare.bind(this);
-    this._computeNewScale = this._computeNewScale.bind(this);
-    this._computeNewPosition = this._computeNewPosition.bind(this);
+    this._computeScale = this._computeScale.bind(this);
+    this._computePosition = this._computePosition.bind(this);
     this._transform = this._transform.bind(this);
 
     /** @type {WZoomContent} */
     this.content = {};
     this.content.elementInteractor = null;
-    /** @type {WZoomWindow} */
-    this.window = {};
+    /** @type {WZoomViewport} */
+    this.viewport = {};
     /** @type {WZoomOptions} */
     this.options = extendObject(wZoomDefaultOptions, options);
 
@@ -61,8 +61,8 @@ function WZoom(selectorOrHTMLElement, options = {}) {
             this.options.minScale = null;
         }
 
-        // for window take just the parent
-        this.window.$element = this.content.$element.parentNode;
+        // for viewport take just the parent
+        this.viewport.$element = this.content.$element.parentNode;
 
         if (this.options.type === 'image') {
             let initAlreadyDone = false;
@@ -107,7 +107,7 @@ WZoom.prototype = {
                 this.dragScrollable.destroy();
             }
 
-            this.setDragScrollable(new DragScrollable(this.window, this.content, this.options.dragScrollableOptions));
+            this.setDragScrollable(new DragScrollable(this.viewport, this.content, this.options.dragScrollableOptions));
         }
 
         if (!this.options.disableWheelZoom) {
@@ -116,14 +116,10 @@ WZoom.prototype = {
                 this.content.elementInteractor.on('pinchtozoom', (event) => {
                     const { clientX, clientY, direction } = event.data;
 
-                    this._transform(
-                        this._computeNewPosition(
-                            this._computeNewScale(direction), {
-                                x: clientX,
-                                y: clientY,
-                            }
-                        )
-                    );
+                    const scale = this._computeScale(direction);
+                    const position = this._computePosition(scale, clientX, clientY);
+
+                    this._transform(position.left, position.top, scale);
                 });
             }
 
@@ -131,15 +127,10 @@ WZoom.prototype = {
                 event.preventDefault();
 
                 const direction = this.options.reverseWheelDirection ? -event.deltaY : event.deltaY;
+                const scale = this._computeScale(direction);
+                const position = this._computePosition(scale, eventClientX(event), eventClientY(event));
 
-                this._transform(
-                    this._computeNewPosition(
-                        this._computeNewScale(direction), {
-                            x: eventClientX(event),
-                            y: eventClientY(event),
-                        }
-                    )
-                );
+                this._transform(position.left, position.top, scale);
             });
         }
 
@@ -147,14 +138,10 @@ WZoom.prototype = {
             const eventType = this.options.zoomOnDblClick ? 'dblclick' : 'click';
 
             this.content.elementInteractor.on(eventType, (event) => {
-                this._transform(
-                    this._computeNewPosition(
-                        this.direction === 1 ? this.content.maxScale : this.content.minScale, {
-                            x: eventClientX(event),
-                            y: eventClientY(event),
-                        }
-                    )
-                );
+                const scale = this.direction === 1 ? this.content.maxScale : this.content.minScale;
+                const position = this._computePosition(scale, eventClientX(event), eventClientY(event));
+
+                this._transform(position.left, position.top, scale);
 
                 this.direction *= -1;
             });
@@ -164,13 +151,13 @@ WZoom.prototype = {
      * @private
      */
     _prepare() {
-        const windowPosition = getElementPosition(this.window.$element);
+        const viewportPosition = getElementPosition(this.viewport.$element);
 
-        // original window sizes and position
-        this.window.originalWidth = this.window.$element.offsetWidth;
-        this.window.originalHeight = this.window.$element.offsetHeight;
-        this.window.positionLeft = windowPosition.left;
-        this.window.positionTop = windowPosition.top;
+        // original viewport sizes and position
+        this.viewport.originalWidth = this.viewport.$element.offsetWidth;
+        this.viewport.originalHeight = this.viewport.$element.offsetHeight;
+        this.viewport.positionLeft = viewportPosition.left;
+        this.viewport.positionTop = viewportPosition.top;
 
         // original content sizes
         if (this.options.type === 'image') {
@@ -182,20 +169,20 @@ WZoom.prototype = {
         }
 
         // minScale && maxScale
-        this.content.minScale = this.options.minScale || Math.min(this.window.originalWidth / this.content.originalWidth, this.window.originalHeight / this.content.originalHeight);
+        this.content.minScale = this.options.minScale || Math.min(this.viewport.originalWidth / this.content.originalWidth, this.viewport.originalHeight / this.content.originalHeight);
         this.content.maxScale = this.options.maxScale;
 
         // current content sizes and transform data
         this.content.currentWidth = this.content.originalWidth * this.content.minScale;
         this.content.currentHeight = this.content.originalHeight * this.content.minScale;
 
-        const [ alignPointX, alignPointY ] = calculateAlignPoint(this.options.alignContent, this.content, this.window);
+        const [ alignPointX, alignPointY ] = calculateAlignPoint(this.viewport, this.content, this.options.alignContent);
 
         this.content.alignPointX = alignPointX;
         this.content.alignPointY = alignPointY;
 
-        // calculate indent-left and indent-top to of content from window borders
-        const [ correctX, correctY ] = calculateCorrectPoint(this.options.alignContent, this.content, this.window);
+        // calculate indent-left and indent-top to of content from viewport borders
+        const [ correctX, correctY ] = calculateCorrectPoint(this.viewport, this.content, this.options.alignContent);
 
         this.content.correctX = correctX;
         this.content.correctY = correctY;
@@ -213,106 +200,112 @@ WZoom.prototype = {
     /**
      * @private
      */
-    _computeNewScale(direction) {
+    _computeScale(direction) {
         this.direction = direction < 0 ? 1 : -1;
 
         const { minScale, maxScale, currentScale } = this.content;
 
-        let contentNewScale = currentScale + (this.direction / this.options.speed);
+        let scale = currentScale + (this.direction / this.options.speed);
 
-        if (contentNewScale < minScale) {
+        if (scale < minScale) {
             this.direction = 1;
-        } else if (contentNewScale > maxScale) {
-            this.direction = -1;
+            return minScale;
         }
 
-        return contentNewScale < minScale ? minScale : (contentNewScale > maxScale ? maxScale : contentNewScale);
+        if (scale > maxScale) {
+            this.direction = -1;
+            return maxScale;
+        }
+
+        return scale;
     },
     /**
+     * @param {number} scale
+     * @param {number} x
+     * @param {number} y
+     * @returns {{top: number, left: number}}
      * @private
      */
-    _computeNewPosition(contentNewScale, { x, y }) {
-        const { window, content } = this;
+    _computePosition(scale, x, y) {
+        const { viewport, content, options, direction } = this;
 
-        const contentNewWidth = content.originalWidth * contentNewScale;
-        const contentNewHeight = content.originalHeight * contentNewScale;
+        const contentNewWidth = content.originalWidth * scale;
+        const contentNewHeight = content.originalHeight * scale;
 
         const scrollLeft = getPageScrollLeft();
         const scrollTop = getPageScrollTop();
 
         // calculate the parameters along the X axis
-        let contentNewLeft = calculateContentShift(x, scrollLeft, window.positionLeft, content.currentLeft, window.originalWidth, contentNewWidth / content.currentWidth);
-
+        let contentNewLeft = calculateContentShift(x, scrollLeft, viewport.positionLeft, content.currentLeft, viewport.originalWidth, contentNewWidth / content.currentWidth);
         // calculate the parameters along the Y axis
-        let contentNewTop = calculateContentShift(y, scrollTop, window.positionTop, content.currentTop, window.originalHeight, contentNewHeight / content.currentHeight);
+        let contentNewTop = calculateContentShift(y, scrollTop, viewport.positionTop, content.currentTop, viewport.originalHeight, contentNewHeight / content.currentHeight);
 
-        if (this.direction === -1) {
+        if (direction === -1) {
             // check that the content does not go beyond the X axis
-            contentNewLeft = calculateContentMaxShift(this.options.alignContent, window.originalWidth, content.correctX, contentNewWidth, contentNewLeft);
-
+            contentNewLeft = calculateContentMaxShift(options.alignContent, viewport.originalWidth, content.correctX, contentNewWidth, contentNewLeft);
             // check that the content does not go beyond the Y axis
-            contentNewTop = calculateContentMaxShift(this.options.alignContent, window.originalHeight, content.correctY, contentNewHeight, contentNewTop);
+            contentNewTop = calculateContentMaxShift(options.alignContent, viewport.originalHeight, content.correctY, contentNewHeight, contentNewTop);
         }
 
-        if (contentNewScale === this.content.minScale) {
-            contentNewLeft = this.content.alignPointX;
-            contentNewTop = this.content.alignPointY;
+        if (scale === content.minScale) {
+            contentNewLeft = content.alignPointX;
+            contentNewTop = content.alignPointY;
         }
-
-        const response = {
-            currentLeft: content.currentLeft,
-            newLeft: contentNewLeft,
-            currentTop: content.currentTop,
-            newTop: contentNewTop,
-            currentScale: content.currentScale,
-            newScale: contentNewScale
-        };
 
         content.currentWidth = contentNewWidth;
         content.currentHeight = contentNewHeight;
         content.currentLeft = contentNewLeft;
         content.currentTop = contentNewTop;
-        content.currentScale = contentNewScale;
+        content.currentScale = scale;
 
-        return response;
+        return {
+            left: contentNewLeft,
+            top: contentNewTop,
+        };
     },
     /**
+     * @param {number} left
+     * @param {number} top
+     * @param {number} scale
      * @private
      */
-    _transform({ currentLeft, newLeft, currentTop, newTop, currentScale, newScale }, iterations = 1) {
+    _transform(left, top, scale) {
         if (this.options.smoothExtinction) {
             this.content.$element.style.transition = `transform ${ this.options.smoothExtinction }s`;
         } else {
             this.content.$element.style.removeProperty('transition');
         }
 
-        this.content.$element.style.transform = `translate3d(${ newLeft }px, ${ newTop }px, 0px) scale(${ newScale })`;
+        this.content.$element.style.transform = `translate3d(${ left }px, ${ top }px, 0px) scale(${ scale })`;
 
         if (typeof this.options.rescale === 'function') {
             this.options.rescale();
         }
     },
     /**
+     * @TODO добавить проверку на то что бы переданные координаты не выходили за пределы возможного
+     * @param {number} scale
+     * @param {Object} coordinates
      * @private
      */
-    _zoom(scale, coordinates) {
+    _zoom(scale, coordinates = {}) {
         // if the coordinates are not passed, then use the coordinates of the center
-        if (coordinates === undefined || coordinates.x === undefined || coordinates.y === undefined) {
-            coordinates = calculateWindowCenter(this.window);
+        if (coordinates.x === undefined || coordinates.y === undefined) {
+            coordinates = calculateViewportCenter(this.viewport);
         }
 
-        // @TODO добавить проверку на то что бы переданные координаты не выходили за пределы возможного
+        const position = this._computePosition(scale, coordinates.x, coordinates.y);
 
-        this._transform(this._computeNewPosition(scale, coordinates));
+        this._transform(position.left, position.top, scale);
     },
     prepare() {
         this._prepare();
     },
     zoomUp() {
-        this._zoom(this._computeNewScale(-1));
+        this._zoom(this._computeScale(-1));
     },
     zoomDown() {
-        this._zoom(this._computeNewScale(1));
+        this._zoom(this._computeScale(1));
     },
     maxZoomUp() {
         this._zoom(this.content.maxScale);
@@ -321,10 +314,10 @@ WZoom.prototype = {
         this._zoom(this.content.minScale);
     },
     zoomUpToPoint(coordinates) {
-        this._zoom(this._computeNewScale(-1), coordinates);
+        this._zoom(this._computeScale(-1), coordinates);
     },
     zoomDownToPoint(coordinates) {
-        this._zoom(this._computeNewScale(1), coordinates);
+        this._zoom(this._computeScale(1), coordinates);
     },
     maxZoomUpToPoint(coordinates) {
         this._zoom(this.content.maxScale, coordinates);
@@ -374,34 +367,32 @@ WZoom.create = function (selectorOrHTMLElement, options) {
 
 export default WZoom;
 
-// @todo define types without any
-
 /**
  * @typedef WZoomContent
- * @type {object}
- * @property {?Interactor} elementInteractor,
- * @property {HTMLElement} [$element],
- * @property {any} [originalWidth],
- * @property {any} [originalHeight],
- * @property {any} [currentWidth],
- * @property {any} [currentHeight],
- * @property {any} [currentLeft],
- * @property {any} [currentTop],
- * @property {any} [currentScale],
- * @property {any} [maxScale],
- * @property {any} [minScale],
- * @property {any} [alignPointX],
- * @property {any} [alignPointY],
- * @property {any} [correctX],
- * @property {any} [correctY],
+ * @type {Object}
+ * @property {?Interactor} elementInteractor
+ * @property {HTMLElement} [$element]
+ * @property {number} [originalWidth]
+ * @property {number} [originalHeight]
+ * @property {number} [currentWidth]
+ * @property {number} [currentHeight]
+ * @property {number} [currentLeft]
+ * @property {number} [currentTop]
+ * @property {number} [currentScale]
+ * @property {number} [maxScale]
+ * @property {number} [minScale]
+ * @property {number} [alignPointX]
+ * @property {number} [alignPointY]
+ * @property {number} [correctX]
+ * @property {number} [correctY]
  */
 
 /**
- * @typedef WZoomWindow
- * @type {object}
- * @property {HTMLElement} [$element],
- * @property {any} [originalWidth],
- * @property {any} [originalHeight],
- * @property {any} [positionLeft]
- * @property {any} [positionTop]
+ * @typedef WZoomViewport
+ * @type {Object}
+ * @property {HTMLElement} [$element]
+ * @property {number} [originalWidth]
+ * @property {number} [originalHeight]
+ * @property {number} [positionLeft]
+ * @property {number} [positionTop]
  */

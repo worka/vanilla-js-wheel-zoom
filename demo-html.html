@@ -9,7 +9,7 @@
           integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
     <style>
-        #myWindow {
+        #myViewport {
             cursor: grab;
             display: flex;
             align-items: center;
@@ -58,7 +58,7 @@
             </div>
 
             <div class="embed-responsive embed-responsive-4by3 rounded bg-secondary">
-                <div id="myWindow" class="embed-responsive-item">
+                <div id="myViewport" class="embed-responsive-item">
                     <div id="myContent">
                         <div class="border border-primary rounded-circle p-5 bg-primary"
                              style="left:1200px;top:1200px">Badge
@@ -94,10 +94,10 @@
                 height: imageElement.naturalHeight,
                 dragScrollableOptions: {
                     onGrab: function () {
-                        document.getElementById('myWindow').style.cursor = 'grabbing';
+                        document.getElementById('myViewport').style.cursor = 'grabbing';
                     },
                     onDrop: function () {
-                        document.getElementById('myWindow').style.cursor = 'grab';
+                        document.getElementById('myViewport').style.cursor = 'grab';
                     }
                 },
                 prepare: function () {

@@ -1,27 +1,27 @@
 import { getElementPosition, getPageScrollLeft, getPageScrollTop } from './toolkit';
 
 /**
- * @param {string} align
+ * @param {WZoomViewport} viewport
  * @param {WZoomContent} content
- * @param {WZoomWindow} window
+ * @param {string} align
  * @returns {number[]}
  */
-export function calculateAlignPoint(align, content, window) {
+export function calculateAlignPoint(viewport, content, align) {
     let pointX = 0;
     let pointY = 0;
 
     switch (align) {
         case 'top':
-            pointY = (content.currentHeight - window.originalHeight) / 2;
+            pointY = (content.currentHeight - viewport.originalHeight) / 2;
             break;
         case 'right':
-            pointX = (content.currentWidth - window.originalWidth) / 2 * -1;
+            pointX = (content.currentWidth - viewport.originalWidth) / 2 * -1;
             break;
         case 'bottom':
-            pointY = (content.currentHeight - window.originalHeight) / 2 * -1;
+            pointY = (content.currentHeight - viewport.originalHeight) / 2 * -1;
             break;
         case 'left':
-            pointX = (content.currentWidth - window.originalWidth) / 2;
+            pointX = (content.currentWidth - viewport.originalWidth) / 2;
             break;
     }
 
@@ -29,14 +29,14 @@ export function calculateAlignPoint(align, content, window) {
 }
 
 /**
- * @param {string} align
+ * @param {WZoomViewport} viewport
  * @param {WZoomContent} content
- * @param {WZoomWindow} window
+ * @param {string} align
  * @returns {number[]}
  */
-export function calculateCorrectPoint(align, content, window) {
-    let pointX = Math.max(0, (window.originalWidth - content.currentWidth) / 2);
-    let pointY = Math.max(0, (window.originalHeight - content.currentHeight) / 2);
+export function calculateCorrectPoint(viewport, content, align) {
+    let pointX = Math.max(0, (viewport.originalWidth - content.currentWidth) / 2);
+    let pointY = Math.max(0, (viewport.originalHeight - content.currentHeight) / 2);
 
     switch (align) {
         case 'top':
@@ -46,7 +46,7 @@ export function calculateCorrectPoint(align, content, window) {
             pointX = 0;
             break;
         case 'bottom':
-            pointY = pointY * 2
+            pointY = pointY * 2;
             break;
         case 'left':
             pointX = pointX * 2;
@@ -56,30 +56,33 @@ export function calculateCorrectPoint(align, content, window) {
     return [ pointX, pointY ];
 }
 
-export function calculateContentShift(axisValue, axisScroll, axisWindowPosition, axisContentPosition, originalWindowSize, contentSizeRatio) {
-    const windowShift = axisValue + axisScroll - axisWindowPosition;
-    const centerWindowShift = originalWindowSize / 2 - windowShift;
-    const centerContentShift = centerWindowShift + axisContentPosition;
+/**
+ * @returns {number}
+ */
+export function calculateContentShift(axisValue, axisScroll, axisViewportPosition, axisContentPosition, originalViewportSize, contentSizeRatio) {
+    const viewportShift = axisValue + axisScroll - axisViewportPosition;
+    const centerViewportShift = originalViewportSize / 2 - viewportShift;
+    const centerContentShift = centerViewportShift + axisContentPosition;
 
     return centerContentShift * contentSizeRatio - centerContentShift + axisContentPosition;
 }
 
-export function calculateContentMaxShift(align, originalWindowSize, correctCoordinate, size, shift) {
+export function calculateContentMaxShift(align, originalViewportSize, correctCoordinate, size, shift) {
     switch (align) {
         case 'left':
-            if (size / 2 - shift < originalWindowSize / 2) {
-                shift = (size - originalWindowSize) / 2;
+            if (size / 2 - shift < originalViewportSize / 2) {
+                shift = (size - originalViewportSize) / 2;
             }
             break;
         case 'right':
-            if (size / 2 + shift < originalWindowSize / 2) {
-                shift = (size - originalWindowSize) / 2 * -1;
+            if (size / 2 + shift < originalViewportSize / 2) {
+                shift = (size - originalViewportSize) / 2 * -1;
             }
             break;
         default:
-            if ((size - originalWindowSize) / 2 + correctCoordinate < Math.abs(shift)) {
+            if ((size - originalViewportSize) / 2 + correctCoordinate < Math.abs(shift)) {
                 const positive = shift < 0 ? -1 : 1;
-                shift = ((size - originalWindowSize) / 2 + correctCoordinate) * positive;
+                shift = ((size - originalViewportSize) / 2 + correctCoordinate) * positive;
             }
     }
 
@@ -87,14 +90,14 @@ export function calculateContentMaxShift(align, originalWindowSize, correctCoord
 }
 
 /**
- * @param {WZoomWindow} window
+ * @param {WZoomViewport} viewport
  * @returns {{x: number, y: number}}
  */
-export function calculateWindowCenter(window) {
-    const windowPosition = getElementPosition(window.$element);
+export function calculateViewportCenter(viewport) {
+    const viewportPosition = getElementPosition(viewport.$element);
 
     return {
-        x: windowPosition.left + (window.originalWidth / 2) - getPageScrollLeft(),
-        y: windowPosition.top + (window.originalHeight / 2) - getPageScrollTop(),
+        x: viewportPosition.left + (viewport.originalWidth / 2) - getPageScrollLeft(),
+        y: viewportPosition.top + (viewport.originalHeight / 2) - getPageScrollTop(),
     };
 }

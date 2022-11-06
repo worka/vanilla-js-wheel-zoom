@@ -9,7 +9,7 @@
           integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
     <style>
-        #myWindow {
+        #myViewport {
             cursor: grab;
             display: flex;
             align-items: center;
@@ -52,7 +52,7 @@
             </div>
 
             <div class="embed-responsive embed-responsive-4by3 rounded bg-secondary">
-                <div id="myWindow" class="embed-responsive-item">
+                <div id="myViewport" class="embed-responsive-item">
                     <img id="myContent" src="https://worka.github.io/files/wheel_zoom_example.jpg" alt="image"/>
                 </div>
             </div>
@@ -71,7 +71,7 @@
 
 <script type="text/javascript">
     document.addEventListener('DOMContentLoaded', function () {
-        var frame = document.getElementById('myWindow');
+        var frame = document.getElementById('myViewport');
         var image = document.getElementById('myContent');
 
         var zoomUpButton = document.querySelector('[data-zoom-up]');

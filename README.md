@@ -15,9 +15,9 @@ Advantages:
 
 > Starting with version 5, the plugin switched to using `style transform`. To use the plugin in older browsers, switch to earlier versions.
 
-> You need to center the image (or any HTML content) in the "window" in which scaling will take place. The "window" is taken automatically as the parent of the image in DOM.
+> You need to center the image (or any HTML content) in the "viewport" in which scaling will take place. The "viewport" is taken automatically as the parent of the image in DOM.
 
-> HTML content can be of any structure, but the topmost child element in the “window” must be one. In the example with "badge" below, it will be more clear what is meant.
+> HTML content can be of any structure, but the topmost child element in the “viewport” must be one. In the example with "badge" below, it will be more clear what is meant.
 
 🖐 If you find my plugin helpful, please <a href="https://paypal.me/bworka">donate me</a> 🤝
 
@@ -44,7 +44,7 @@ yarn add vanilla-js-wheel-zoom
 ### Get started
 
 ```css
-#myWindow {
+#myViewport {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -60,7 +60,7 @@ yarn add vanilla-js-wheel-zoom
 ```
 
 ```html
-<div id="myWindow" style="width:600px;height:600px;">
+<div id="myViewport" style="width:600px;height:600px;">
     <img id="myContent" src="https://via.placeholder.com/2400x1400" alt="image" />
 </div>
 ```
@@ -86,7 +86,7 @@ const wzoom = WZoom.create(selectorOrHTMLElement[, options]);
 #### Badge on the image
 
 ```css
-#myWindow {
+#myViewport {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -117,7 +117,7 @@ const wzoom = WZoom.create(selectorOrHTMLElement[, options]);
 ```
 
 ``` html
-<div id="myWindow" style="width:600px;height:600px;">
+<div id="myViewport" style="width:600px;height:600px;">
     <div id="myContent">
         <div id="myBadge" style="left:900px;top:500px;">Badge</div>
         <img id="myImage" src="https://via.placeholder.com/2500x1500" alt="image"/>
