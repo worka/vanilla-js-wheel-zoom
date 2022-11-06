@@ -1,4 +1,4 @@
-import { extendObject, on, off, eventClientX, eventClientY, isTouch } from './toolkit';
+import { on, off, eventClientX, eventClientY, isTouch } from './toolkit';
 import { dragScrollableDefaultOptions } from './default-options';
 
 class DragScrollable {
@@ -19,7 +19,7 @@ class DragScrollable {
         this.content = content;
 
         /** @type {DragScrollableOptions} */
-        this.options = extendObject(dragScrollableDefaultOptions, options);
+        this.options = Object.assign({}, dragScrollableDefaultOptions, options);
 
         this.isGrab = false;
         this.moveTimer = null;

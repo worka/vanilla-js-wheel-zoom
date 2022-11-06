@@ -254,23 +254,6 @@
     }
 
     /**
-     * Universal alternative to Object.assign()
-     * @param {Object} destination
-     * @param {Object} source
-     * @returns {Object}
-     */
-    function extendObject(destination, source) {
-        if (destination && source) {
-            for (var key in source) {
-                if (source.hasOwnProperty(key)) {
-                    destination[key] = source[key];
-                }
-            }
-        }
-        return destination;
-    }
-
-    /**
      * @param target
      * @param type
      * @param listener
@@ -572,7 +555,11 @@
             this.content = content;
 
             /** @type {DragScrollableOptions} */
-            this.options = extendObject(dragScrollableDefaultOptions, options);
+            this.options = Object.assign(
+                {},
+                dragScrollableDefaultOptions,
+                options
+            );
             this.isGrab = false;
             this.moveTimer = null;
             this.coordinates = null;
@@ -1060,7 +1047,7 @@
         /** @type {WZoomViewport} */
         this.viewport = {};
         /** @type {WZoomOptions} */
-        this.options = extendObject(wZoomDefaultOptions, options);
+        this.options = Object.assign({}, wZoomDefaultOptions, options);
         this.isTouch = false;
         this.direction = 1;
         this.dragScrollable = null;
@@ -1461,7 +1448,11 @@
      * @param {WZoomOptions} [options]
      * @returns {WZoom}
      */
-    WZoom.create = function (selectorOrHTMLElement, options) {
+    WZoom.create = function (selectorOrHTMLElement) {
+        var options =
+            arguments.length > 1 && arguments[1] !== undefined
+                ? arguments[1]
+                : {};
         options.smoothExtinction =
             Number(options.smoothExtinction) ||
             wZoomDefaultOptions.smoothExtinction;

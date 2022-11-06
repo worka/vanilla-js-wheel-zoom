@@ -2,7 +2,6 @@ import {
     getElementPosition,
     getPageScrollLeft,
     getPageScrollTop,
-    extendObject,
     on,
     off,
     eventClientX,
@@ -39,7 +38,7 @@ function WZoom(selectorOrHTMLElement, options = {}) {
     /** @type {WZoomViewport} */
     this.viewport = {};
     /** @type {WZoomOptions} */
-    this.options = extendObject(wZoomDefaultOptions, options);
+    this.options = Object.assign({}, wZoomDefaultOptions, options);
 
     this.isTouch = false;
     this.direction = 1;
@@ -354,7 +353,7 @@ WZoom.prototype = {
  * @param {WZoomOptions} [options]
  * @returns {WZoom}
  */
-WZoom.create = function (selectorOrHTMLElement, options) {
+WZoom.create = function (selectorOrHTMLElement, options = {}) {
     options.smoothExtinction = Number(options.smoothExtinction) || wZoomDefaultOptions.smoothExtinction;
 
     if (options.dragScrollableOptions) {

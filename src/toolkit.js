@@ -43,24 +43,6 @@ export function getPageScrollTop() {
 }
 
 /**
- * Universal alternative to Object.assign()
- * @param {Object} destination
- * @param {Object} source
- * @returns {Object}
- */
-export function extendObject(destination, source) {
-    if (destination && source) {
-        for (let key in source) {
-            if (source.hasOwnProperty(key)) {
-                destination[key] = source[key];
-            }
-        }
-    }
-
-    return destination;
-}
-
-/**
  * @param target
  * @param type
  * @param listener
