@@ -105,6 +105,7 @@ WZoom.prototype = {
                 this.dragScrollable.destroy();
             }
 
+            // @todo зачем тут setter
             this.setDragScrollable(new DragScrollable(this.viewport, this.content, this.options.dragScrollableOptions));
         }
 
