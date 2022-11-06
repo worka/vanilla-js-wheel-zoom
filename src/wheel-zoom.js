@@ -40,10 +40,6 @@ function WZoom(selectorOrHTMLElement, options = {}) {
     /** @type {WZoomOptions} */
     this.options = Object.assign({}, wZoomDefaultOptions, options);
 
-    this.isTouch = false;
-    this.direction = 1;
-    this.dragScrollable = null;
-
     if (typeof selectorOrHTMLElement === 'string') {
         this.content.$element = document.querySelector(selectorOrHTMLElement);
     } else if (selectorOrHTMLElement instanceof HTMLElement) {
@@ -54,6 +50,8 @@ function WZoom(selectorOrHTMLElement, options = {}) {
 
     // check if we're using a touch screen
     this.isTouch = isTouch();
+    this.direction = 1;
+    this.dragScrollable = null;
 
     if (this.content.$element) {
         if (this.options.minScale && this.options.minScale >= this.options.maxScale) {
