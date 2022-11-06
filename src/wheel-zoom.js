@@ -54,6 +54,7 @@ function WZoom(selectorOrHTMLElement, options = {}) {
     this.dragScrollable = null;
 
     if (this.content.$element) {
+        // @todo не нравится это место для этого действия
         if (this.options.minScale && this.options.minScale >= this.options.maxScale) {
             this.options.minScale = null;
         }
@@ -175,12 +176,14 @@ WZoom.prototype = {
 
         const [ alignPointX, alignPointY ] = calculateAlignPoint(this.viewport, this.content, this.options.alignContent);
 
+        // @todo можно избавиться от промежуточных переменных
         this.content.alignPointX = alignPointX;
         this.content.alignPointY = alignPointY;
 
         // calculate indent-left and indent-top to of content from viewport borders
         const [ correctX, correctY ] = calculateCorrectPoint(this.viewport, this.content, this.options.alignContent);
 
+        // @todo можно избавиться от промежуточных переменных
         this.content.correctX = correctX;
         this.content.correctY = correctY;
 
@@ -188,6 +191,7 @@ WZoom.prototype = {
         this.content.currentTop = this.content.alignPointY;
         this.content.currentScale = this.content.minScale;
 
+        // @todo this._transform
         this.content.$element.style.transform = `translate3d(${ this.content.alignPointX }px, ${ this.content.alignPointY }px, 0px) scale(${ this.content.minScale })`;
 
         if (typeof this.options.prepare === 'function') {
