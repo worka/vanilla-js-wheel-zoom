@@ -278,7 +278,7 @@ WZoom.prototype = {
             this.content.$element.style.removeProperty('transition');
         }
 
-        this.content.$element.style.transform = `translate3d(${ left }px, ${ top }px, 0px) scale(${ scale })`;
+        this.content.$element.style.transform = `translate(${ left }px, ${ top }px) scale(${ scale })`;
 
         if (typeof this.options.rescale === 'function') {
             this.options.rescale();
