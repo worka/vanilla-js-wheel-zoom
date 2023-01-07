@@ -30,6 +30,7 @@ function WZoom(selectorOrHTMLElement, options = {}) {
     this._prepare = this._prepare.bind(this);
     this._computeScale = this._computeScale.bind(this);
     this._computePosition = this._computePosition.bind(this);
+    this._transition = this._transition.bind(this);
     this._transform = this._transform.bind(this);
 
     /** @type {WZoomContent} */
@@ -54,7 +55,7 @@ function WZoom(selectorOrHTMLElement, options = {}) {
     this.dragScrollable = null;
 
     if (this.content.$element) {
-        // @todo не нравится это место для этого действия
+        // todo не нравится это место для этого действия
         if (this.options.minScale && this.options.minScale >= this.options.maxScale) {
             this.options.minScale = null;
         }
@@ -105,8 +106,7 @@ WZoom.prototype = {
                 this.dragScrollable.destroy();
             }
 
-            // @todo зачем тут setter
-            this.setDragScrollable(new DragScrollable(this.viewport, this.content, this.options.dragScrollableOptions));
+            this.dragScrollable = new DragScrollable(this.viewport, this.content, this.options.dragScrollableOptions);
         }
 
         if (!this.options.disableWheelZoom) {
@@ -118,6 +118,7 @@ WZoom.prototype = {
                     const scale = this._computeScale(direction);
                     const position = this._computePosition(scale, clientX, clientY);
 
+                    this._transition();
                     this._transform(position.left, position.top, scale);
                 });
             }
@@ -129,6 +130,7 @@ WZoom.prototype = {
                 const scale = this._computeScale(direction);
                 const position = this._computePosition(scale, eventClientX(event), eventClientY(event));
 
+                this._transition();
                 this._transform(position.left, position.top, scale);
             });
         }
@@ -140,6 +142,7 @@ WZoom.prototype = {
                 const scale = this.direction === 1 ? this.content.maxScale : this.content.minScale;
                 const position = this._computePosition(scale, eventClientX(event), eventClientY(event));
 
+                this._transition();
                 this._transform(position.left, position.top, scale);
 
                 this.direction *= -1;
@@ -175,25 +178,16 @@ WZoom.prototype = {
         this.content.currentWidth = this.content.originalWidth * this.content.minScale;
         this.content.currentHeight = this.content.originalHeight * this.content.minScale;
 
-        const [ alignPointX, alignPointY ] = calculateAlignPoint(this.viewport, this.content, this.options.alignContent);
-
-        // @todo можно избавиться от промежуточных переменных
-        this.content.alignPointX = alignPointX;
-        this.content.alignPointY = alignPointY;
+        [ this.content.alignPointX, this.content.alignPointY ] = calculateAlignPoint(this.viewport, this.content, this.options.alignContent);
 
         // calculate indent-left and indent-top to of content from viewport borders
-        const [ correctX, correctY ] = calculateCorrectPoint(this.viewport, this.content, this.options.alignContent);
-
-        // @todo можно избавиться от промежуточных переменных
-        this.content.correctX = correctX;
-        this.content.correctY = correctY;
+        [ this.content.correctX, this.content.correctY ] = calculateCorrectPoint(this.viewport, this.content, this.options.alignContent);
 
         this.content.currentLeft = this.content.alignPointX;
         this.content.currentTop = this.content.alignPointY;
         this.content.currentScale = this.content.minScale;
 
-        // @todo this._transform
-        this.content.$element.style.transform = `translate3d(${ this.content.alignPointX }px, ${ this.content.alignPointY }px, 0px) scale(${ this.content.minScale })`;
+        this._transform(this.content.alignPointX, this.content.alignPointY, this.content.minScale)
 
         if (typeof this.options.prepare === 'function') {
             this.options.prepare();
@@ -272,12 +266,6 @@ WZoom.prototype = {
      * @private
      */
     _transform(left, top, scale) {
-        if (this.options.smoothExtinction) {
-            this.content.$element.style.transition = `transform ${ this.options.smoothExtinction }s`;
-        } else {
-            this.content.$element.style.removeProperty('transition');
-        }
-
         this.content.$element.style.transform = `translate(${ left }px, ${ top }px) scale(${ scale })`;
 
         if (typeof this.options.rescale === 'function') {
@@ -285,7 +273,17 @@ WZoom.prototype = {
         }
     },
     /**
-     * @TODO добавить проверку на то что бы переданные координаты не выходили за пределы возможного
+     * @private
+     */
+    _transition() {
+        if (this.options.smoothExtinction) {
+            this.content.$element.style.transition = `transform ${ this.options.smoothExtinction }s`;
+        } else {
+            this.content.$element.style.removeProperty('transition');
+        }
+    },
+    /**
+     * todo добавить проверку на то что бы переданные координаты не выходили за пределы возможного
      * @param {number} scale
      * @param {Object} coordinates
      * @private
@@ -298,6 +296,7 @@ WZoom.prototype = {
 
         const position = this._computePosition(scale, coordinates.x, coordinates.y);
 
+        this._transition();
         this._transform(position.left, position.top, scale);
     },
     prepare() {
@@ -323,9 +322,6 @@ WZoom.prototype = {
     },
     maxZoomUpToPoint(coordinates) {
         this._zoom(this.content.maxScale, coordinates);
-    },
-    setDragScrollable(dragScrollable) {
-        this.dragScrollable = dragScrollable;
     },
     destroy() {
         this.content.$element.style.transform = '';
