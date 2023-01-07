@@ -154,7 +154,7 @@ function transform($element, left, top, scale, smoothExtinction) {
         $element.style.removeProperty('transition');
     }
 
-    $element.style.transform = `translate3d(${ left }px, ${ top }px, 0px) scale(${ scale })`;
+    $element.style.transform = `translate(${ left }px, ${ top }px) scale(${ scale })`;
 }
 
 export default DragScrollable;
