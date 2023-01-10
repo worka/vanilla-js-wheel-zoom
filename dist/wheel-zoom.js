@@ -1457,7 +1457,8 @@
             this._zoom(this.content.maxScale, coordinates);
         },
         destroy: function destroy() {
-            this.content.$element.style.transform = '';
+            this.content.$element.style.removeProperty('transition');
+            this.content.$element.style.removeProperty('transform');
             if (this.options.type === 'image') {
                 off(this.content.$element, 'load', this._init);
             }

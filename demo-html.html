@@ -16,19 +16,10 @@
             justify-content: center;
         }
 
-        #myContent {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-
         #myContent img {
-            display: block;
             width: auto;
             height: auto;
             margin: auto;
-            align-self: center;
-            flex-shrink: 0;
         }
 
         #myContent div {
@@ -60,9 +51,7 @@
             <div class="embed-responsive embed-responsive-4by3 rounded bg-secondary">
                 <div id="myViewport" class="embed-responsive-item">
                     <div id="myContent">
-                        <div class="border border-primary rounded-circle p-5 bg-primary"
-                             style="left:1200px;top:1200px">Badge
-                        </div>
+                        <div class="border border-primary rounded-circle p-5 bg-primary" style="left:1200px;top:1200px">Badge</div>
                         <img src="https://worka.github.io/files/wheel_zoom_example.jpg" alt="image"/>
                     </div>
                 </div>
@@ -101,7 +90,7 @@
                     }
                 },
                 prepare: function () {
-                    setTimeout(() => {
+                    setTimeout(function () {
                         rangeElement.min = wzoom.content.minScale;
                         rangeElement.defaultValue = wzoom.content.minScale;
                         rangeElement.max = wzoom.content.maxScale;
@@ -109,7 +98,9 @@
                     }, 0);
                 },
                 rescale: function () {
-                    rangeElement.value = wzoom.content.currentScale;
+                    setTimeout(function () {
+                        rangeElement.value = wzoom.content.currentScale;
+                    }, 0);
                 }
             });
 

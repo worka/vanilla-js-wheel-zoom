@@ -48,14 +48,6 @@ yarn add vanilla-js-wheel-zoom
     display: flex;
     align-items: center;
     justify-content: center;
-    overflow: hidden;
-    background: #999;
-}
-
-#myContent {
-    position: relative;
-    display: flex;
-    align-items: center;
 }
 ```
 
@@ -90,14 +82,6 @@ const wzoom = WZoom.create(selectorOrHTMLElement[, options]);
     display: flex;
     align-items: center;
     justify-content: center;
-    overflow: hidden;
-    background: aqua;
-}
-
-#myContent {
-    position: relative;
-    display: flex;
-    align-items: center;
 }
 
 #myBadge {
@@ -107,12 +91,9 @@ const wzoom = WZoom.create(selectorOrHTMLElement[, options]);
 }
 
 #myImage {
-    display: block;
     width: auto;
     height: auto;
     margin: auto;
-    align-self: center;
-    flex-shrink: 0;
 }
 ```
 
