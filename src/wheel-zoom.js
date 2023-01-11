@@ -187,11 +187,11 @@ WZoom.prototype = {
         this.content.currentTop = this.content.alignPointY;
         this.content.currentScale = this.content.minScale;
 
-        this._transform(this.content.alignPointX, this.content.alignPointY, this.content.minScale)
-
         if (typeof this.options.prepare === 'function') {
             this.options.prepare();
         }
+
+        this._transform(this.content.alignPointX, this.content.alignPointY, this.content.minScale)
     },
     /**
      * @private

@@ -54,7 +54,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="d-flex my-3">Move your mouse over the image and scroll/wheelzoom to zoom in and out.</div>
         </div>
     </div>
@@ -92,7 +92,7 @@
                         rangeElement.min = wzoom.content.minScale;
                         rangeElement.defaultValue = wzoom.content.minScale;
                         rangeElement.max = wzoom.content.maxScale;
-                        rangeElement.step = 1 / this.speed;
+                        rangeElement.step = 1 / wzoom.options.speed;
                     }, 0);
                 },
                 rescale: function () {
