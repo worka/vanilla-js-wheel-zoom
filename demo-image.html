@@ -49,7 +49,7 @@
 
             <div class="d-flex my-3">
                 <button data-destroy class="btn btn-info">Destroy</button>
-                <button data-change-image class="btn btn-info ml-auto">Loading...</button>
+                <button data-change-image class="btn btn-info ml-auto">Change image</button>
             </div>
 
             <div class="d-flex my-3">Move your mouse over the image and scroll/wheelzoom to zoom in and out.</div>
@@ -113,10 +113,6 @@
             changeImageButton.remove();
         });
 
-        image.addEventListener('load', function () {
-            changeImageButton.innerHTML = 'Change image';
-        });
-
         changeImageButton.addEventListener('click', function () {
             changeImageButton.innerHTML = 'Loading...';
 
@@ -124,6 +120,7 @@
             imagesStore.push(newImagePath);
 
             image.addEventListener('load', function () {
+                changeImageButton.innerHTML = 'Change image';
                 wzoom.prepare();
             }, { once: true });
 
