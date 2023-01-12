@@ -61,8 +61,6 @@ yarn add vanilla-js-wheel-zoom
 WZoom.create('#myContent');
 ```
 
-Supported "hotswap" src of image (when type = image). You can do `document.getElementById('myContent').src = "_new_path_"` after initializing the plugin.
-
 #### Syntax & Parameters
 
 ```javascript
@@ -159,7 +157,6 @@ window.addEventListener('resize', () => {
 | speed                                       | _Number_    | `10`        | Step with which the image will be scaled. Measured in relative units.<br>The larger the value, the smaller the step and vice versa.                                                                                                                                                                   |
 | zoomOnClick                                 | _Boolean_   | `true`      | Zoom to maximum (minimum) size on click.                                                                                                                                                                                                                                                              |
 | zoomOnDblClick                              | _Boolean_   | `false`     | Zoom to maximum (minimum) size on double click. If `true` then `zoomOnClick` = `false`                                                                                                                                                                                                                |
-| watchImageChange                            | _Boolean_   | `true`      | If is `true`, then when the source image changes, the plugin will automatically restart init function (used with `type = image`). Attention: if `false`, it will work correctly only if the images are of the same size.                                                                              |
 | prepare                                     | _Function_  | `undefined` | Called after the script is initialized when the image is scaled and fit into the container.                                                                                                                                                                                                           |
 | rescale                                     | _Function_  | `undefined` | Called on every change of scale.                                                                                                                                                                                                                                                                      |
 | alignContent                                | _String_    | `center`    | Align content `center`, `left`, `top`, `right`, `bottom`                                                                                                                                                                                                                                              |

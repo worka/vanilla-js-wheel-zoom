@@ -72,13 +72,8 @@ function WZoom(selectorOrHTMLElement, options = {}) {
                 initAlreadyDone = true;
             }
 
-            if (!initAlreadyDone || this.options.watchImageChange === true) {
-                // even if the `image` has already been loaded (for "hotswap" of src support)
-                on(
-                    this.content.$element, 'load', this._init,
-                    // if watchImageChange == false listen add only until the first call
-                    this.options.watchImageChange ? false : { once: true }
-                );
+            if (!initAlreadyDone) {
+                on(this.content.$element, 'load', this._init, { once: true });
             }
         } else {
             this._init();
@@ -191,7 +186,7 @@ WZoom.prototype = {
             this.options.prepare();
         }
 
-        this._transform(this.content.alignPointX, this.content.alignPointY, this.content.minScale)
+        this._transform(this.content.alignPointX, this.content.alignPointY, this.content.minScale);
     },
     /**
      * @private

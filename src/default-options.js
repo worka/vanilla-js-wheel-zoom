@@ -20,9 +20,6 @@ export const wZoomDefaultOptions = {
     zoomOnClick: true,
     // zoom to maximum (minimum) size on double click
     zoomOnDblClick: false,
-    // if is true, then when the source image changes, the plugin will automatically restart init function (used with type = image)
-    // attention: if false, it will work correctly only if the images are of the same size
-    watchImageChange: true,
     // smooth extinction
     smoothExtinction: .3,
     // align content `center`, `left`, `top`, `right`, `bottom`
@@ -58,7 +55,6 @@ export const dragScrollableDefaultOptions = {
  * @property {number} speed
  * @property {boolean} zoomOnClick
  * @property {boolean} zoomOnDblClick
- * @property {boolean} watchImageChange
  * @property {number} smoothExtinction
  * @property {string} alignContent
  * @property {boolean} disableWheelZoom
