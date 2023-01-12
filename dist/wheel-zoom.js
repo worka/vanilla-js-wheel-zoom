@@ -1270,7 +1270,7 @@
             this.content.currentTop = this.content.alignPointY;
             this.content.currentScale = this.content.minScale;
             if (typeof this.options.prepare === 'function') {
-                this.options.prepare();
+                this.options.prepare(this);
             }
             this._transform(
                 this.content.alignPointX,
@@ -1377,7 +1377,7 @@
                 .concat(top, 'px) scale(')
                 .concat(scale, ')');
             if (typeof this.options.rescale === 'function') {
-                this.options.rescale();
+                this.options.rescale(this);
             }
         },
         /**

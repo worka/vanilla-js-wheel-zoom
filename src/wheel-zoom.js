@@ -183,7 +183,7 @@ WZoom.prototype = {
         this.content.currentScale = this.content.minScale;
 
         if (typeof this.options.prepare === 'function') {
-            this.options.prepare();
+            this.options.prepare(this);
         }
 
         this._transform(this.content.alignPointX, this.content.alignPointY, this.content.minScale);
@@ -264,7 +264,7 @@ WZoom.prototype = {
         this.content.$element.style.transform = `translate(${ left }px, ${ top }px) scale(${ scale })`;
 
         if (typeof this.options.rescale === 'function') {
-            this.options.rescale();
+            this.options.rescale(this);
         }
     },
     /**

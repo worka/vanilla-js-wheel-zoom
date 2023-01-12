@@ -87,18 +87,14 @@
                         document.getElementById('myViewport').style.cursor = 'grab';
                     }
                 },
-                prepare: function () {
-                    setTimeout(function () {
-                        rangeElement.min = wzoom.content.minScale;
-                        rangeElement.defaultValue = wzoom.content.minScale;
-                        rangeElement.max = wzoom.content.maxScale;
-                        rangeElement.step = 1 / wzoom.options.speed;
-                    }, 0);
+                prepare: function (instance) {
+                    rangeElement.min = instance.content.minScale;
+                    rangeElement.defaultValue = instance.content.minScale;
+                    rangeElement.max = instance.content.maxScale;
+                    rangeElement.step = 1 / instance.options.speed;
                 },
-                rescale: function () {
-                    setTimeout(function () {
-                        rangeElement.value = wzoom.content.currentScale;
-                    }, 0);
+                rescale: function (instance) {
+                    rangeElement.value = instance.content.currentScale;
                 }
             });
 
