@@ -115,6 +115,11 @@
             rescale: function (instance) {
                 summary(instance);
             },
+            dragScrollableOptions: {
+                onMove: function (event, instance) {
+                    summary(instance);
+                }
+            }
         });
         WZoom.create('#myContent2');
         WZoom.create('#myContent3', { alignContent: 'bottom' });
@@ -123,6 +128,11 @@
             rescale: function (instance) {
                 summary(instance);
             },
+            dragScrollableOptions: {
+                onMove: function (event, instance) {
+                    summary(instance);
+                }
+            }
         });
         WZoom.create('#myContent5');
         WZoom.create('#myContent6', { alignContent: 'right' });

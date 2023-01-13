@@ -773,6 +773,7 @@
         } else {
             $element.style.removeProperty('transition');
         }
+        //todo
         $element.style.transform = 'translate('
             .concat(left, 'px, ')
             .concat(top, 'px) scale(')
@@ -1077,7 +1078,7 @@
         /** @type {WZoomViewport} */
         this.viewport = {};
         /** @type {WZoomOptions} */
-        this.options = Object.assign({}, wZoomDefaultOptions, options);
+        this.options = optionsConstructor(options, wZoomDefaultOptions, this);
         if (typeof selectorOrHTMLElement === 'string') {
             this.content.$element = document.querySelector(
                 selectorOrHTMLElement
@@ -1459,6 +1460,36 @@
             }
         },
     };
+
+    /**
+     * @param {?WZoomOptions} targetOptions
+     * @param {?WZoomOptions} defaultOptions
+     * @param {WZoom} instance
+     * @returns {?WZoomOptions}
+     */
+    function optionsConstructor(targetOptions, defaultOptions, instance) {
+        var options = Object.assign({}, defaultOptions, targetOptions);
+        var dragScrollableOptions = Object.assign(
+            {},
+            options.dragScrollableOptions
+        );
+        if (typeof dragScrollableOptions.onGrab === 'function') {
+            options.dragScrollableOptions.onGrab = function (event) {
+                return dragScrollableOptions.onGrab(event, instance);
+            };
+        }
+        if (typeof dragScrollableOptions.onMove === 'function') {
+            options.dragScrollableOptions.onMove = function (event) {
+                return dragScrollableOptions.onMove(event, instance);
+            };
+        }
+        if (typeof dragScrollableOptions.onDrop === 'function') {
+            options.dragScrollableOptions.onDrop = function (event) {
+                return dragScrollableOptions.onDrop(event, instance);
+            };
+        }
+        return options;
+    }
 
     /**
      * Create WZoom instance

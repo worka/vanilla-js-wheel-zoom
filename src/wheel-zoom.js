@@ -39,7 +39,7 @@ function WZoom(selectorOrHTMLElement, options = {}) {
     /** @type {WZoomViewport} */
     this.viewport = {};
     /** @type {WZoomOptions} */
-    this.options = Object.assign({}, wZoomDefaultOptions, options);
+    this.options = optionsConstructor(options, wZoomDefaultOptions, this);
 
     if (typeof selectorOrHTMLElement === 'string') {
         this.content.$element = document.querySelector(selectorOrHTMLElement);
@@ -341,6 +341,31 @@ WZoom.prototype = {
         }
     }
 };
+
+/**
+ * @param {?WZoomOptions} targetOptions
+ * @param {?WZoomOptions} defaultOptions
+ * @param {WZoom} instance
+ * @returns {?WZoomOptions}
+ */
+function optionsConstructor(targetOptions, defaultOptions, instance) {
+    const options = Object.assign({}, defaultOptions, targetOptions);
+    const dragScrollableOptions = Object.assign({}, options.dragScrollableOptions);
+
+    if (typeof dragScrollableOptions.onGrab === 'function') {
+        options.dragScrollableOptions.onGrab = (event) => dragScrollableOptions.onGrab(event, instance);
+    }
+
+    if (typeof dragScrollableOptions.onMove === 'function') {
+        options.dragScrollableOptions.onMove = (event) => dragScrollableOptions.onMove(event, instance);
+    }
+
+    if (typeof dragScrollableOptions.onDrop === 'function') {
+        options.dragScrollableOptions.onDrop = (event) => dragScrollableOptions.onDrop(event, instance);
+    }
+
+    return options;
+}
 
 /**
  * Create WZoom instance
