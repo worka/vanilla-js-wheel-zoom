@@ -358,6 +358,31 @@
     }
 
     /**
+     * @param {HTMLElement} $element
+     * @param {number} left
+     * @param {number} top
+     * @param {number} scale
+     */
+    function transform($element, left, top, scale) {
+        $element.style.transform = 'translate('
+            .concat(left, 'px, ')
+            .concat(top, 'px) scale(')
+            .concat(scale, ')');
+    }
+
+    /**
+     * @param {HTMLElement} $element
+     * @param {number} time
+     */
+    function transition($element, time) {
+        if (time) {
+            $element.style.transition = 'transform '.concat(time, 's');
+        } else {
+            $element.style.removeProperty('transition');
+        }
+    }
+
+    /**
      * @param {WZoomViewport} viewport
      * @param {WZoomContent} content
      * @param {string} align
@@ -742,12 +767,12 @@
                     // if we do not go beyond the permissible boundaries of the viewport
                     if (Math.abs(contentNewTop) <= maxAvailableTop)
                         content.currentTop = contentNewTop;
+                    transition(content.$element, this.options.smoothExtinction);
                     transform(
                         content.$element,
                         content.currentLeft,
                         content.currentTop,
-                        content.currentScale,
-                        this.options.smoothExtinction
+                        content.currentScale
                     );
                     if (typeof options.onMove === 'function') {
                         options.onMove(event);
@@ -757,28 +782,6 @@
         ]);
         return DragScrollable;
     })();
-    /**
-     * @param {HTMLElement} $element
-     * @param {number} left
-     * @param {number} top
-     * @param {number} scale
-     * @param {number} smoothExtinction
-     */
-    function transform($element, left, top, scale, smoothExtinction) {
-        if (smoothExtinction) {
-            $element.style.transition = 'transform '.concat(
-                smoothExtinction,
-                's'
-            );
-        } else {
-            $element.style.removeProperty('transition');
-        }
-        //todo
-        $element.style.transform = 'translate('
-            .concat(left, 'px, ')
-            .concat(top, 'px) scale(')
-            .concat(scale, ')');
-    }
 
     var EVENT_CLICK = 'click';
     var EVENT_DBLCLICK = 'dblclick';
@@ -1069,7 +1072,6 @@
         this._prepare = this._prepare.bind(this);
         this._computeScale = this._computeScale.bind(this);
         this._computePosition = this._computePosition.bind(this);
-        this._transition = this._transition.bind(this);
         this._transform = this._transform.bind(this);
 
         /** @type {WZoomContent} */
@@ -1165,7 +1167,6 @@
                                 clientX,
                                 clientY
                             );
-                            _this._transition();
                             _this._transform(
                                 position.left,
                                 position.top,
@@ -1185,7 +1186,6 @@
                         eventClientX(event),
                         eventClientY(event)
                     );
-                    _this._transition();
                     _this._transform(position.left, position.top, scale);
                 });
             }
@@ -1203,7 +1203,6 @@
                         eventClientX(event),
                         eventClientY(event)
                     );
-                    _this._transition();
                     _this._transform(position.left, position.top, scale);
                     _this.direction *= -1;
                 });
@@ -1373,25 +1372,10 @@
          * @private
          */
         _transform: function _transform(left, top, scale) {
-            this.content.$element.style.transform = 'translate('
-                .concat(left, 'px, ')
-                .concat(top, 'px) scale(')
-                .concat(scale, ')');
+            transition(this.content.$element, this.options.smoothExtinction);
+            transform(this.content.$element, left, top, scale);
             if (typeof this.options.rescale === 'function') {
                 this.options.rescale(this);
-            }
-        },
-        /**
-         * @private
-         */
-        _transition: function _transition() {
-            if (this.options.smoothExtinction) {
-                this.content.$element.style.transition = 'transform '.concat(
-                    this.options.smoothExtinction,
-                    's'
-                );
-            } else {
-                this.content.$element.style.removeProperty('transition');
             }
         },
         /**
@@ -1414,7 +1398,6 @@
                 coordinates.x,
                 coordinates.y
             );
-            this._transition();
             this._transform(position.left, position.top, scale);
         },
         prepare: function prepare() {

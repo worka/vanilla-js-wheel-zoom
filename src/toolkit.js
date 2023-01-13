@@ -96,3 +96,25 @@ export function eventClientY(event) {
     event.type === 'mousemove' ||
     event.type === 'mouseup' ? event.clientY : event.changedTouches[0].clientY;
 }
+
+/**
+ * @param {HTMLElement} $element
+ * @param {number} left
+ * @param {number} top
+ * @param {number} scale
+ */
+export function transform($element, left, top, scale) {
+    $element.style.transform = `translate(${ left }px, ${ top }px) scale(${ scale })`;
+}
+
+/**
+ * @param {HTMLElement} $element
+ * @param {number} time
+ */
+export function transition($element, time) {
+    if (time) {
+        $element.style.transition = `transform ${ time }s`;
+    } else {
+        $element.style.removeProperty('transition');
+    }
+}

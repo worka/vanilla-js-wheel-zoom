@@ -1,4 +1,4 @@
-import { on, off, eventClientX, eventClientY, isTouch } from './toolkit';
+import { on, off, eventClientX, eventClientY, isTouch, transform, transition } from './toolkit';
 import { dragScrollableDefaultOptions } from './default-options';
 
 class DragScrollable {
@@ -126,35 +126,13 @@ class DragScrollable {
         // if we do not go beyond the permissible boundaries of the viewport
         if (Math.abs(contentNewTop) <= maxAvailableTop) content.currentTop = contentNewTop;
 
-        transform(
-            content.$element,
-            content.currentLeft,
-            content.currentTop,
-            content.currentScale,
-            this.options.smoothExtinction,
-        );
+        transition(content.$element, this.options.smoothExtinction);
+        transform(content.$element, content.currentLeft, content.currentTop, content.currentScale);
 
         if (typeof options.onMove === 'function') {
             options.onMove(event);
         }
     }
-}
-
-/**
- * @param {HTMLElement} $element
- * @param {number} left
- * @param {number} top
- * @param {number} scale
- * @param {number} smoothExtinction
- */
-function transform($element, left, top, scale, smoothExtinction) {
-    if (smoothExtinction) {
-        $element.style.transition = `transform ${ smoothExtinction }s`;
-    } else {
-        $element.style.removeProperty('transition');
-    }
-
-    $element.style.transform = `translate(${ left }px, ${ top }px) scale(${ scale })`;
 }
 
 export default DragScrollable;

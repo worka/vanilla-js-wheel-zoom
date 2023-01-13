@@ -7,6 +7,8 @@ import {
     eventClientX,
     eventClientY,
     isTouch,
+    transition,
+    transform,
 } from './toolkit';
 import {
     calculateAlignPoint,
@@ -30,7 +32,6 @@ function WZoom(selectorOrHTMLElement, options = {}) {
     this._prepare = this._prepare.bind(this);
     this._computeScale = this._computeScale.bind(this);
     this._computePosition = this._computePosition.bind(this);
-    this._transition = this._transition.bind(this);
     this._transform = this._transform.bind(this);
 
     /** @type {WZoomContent} */
@@ -113,7 +114,6 @@ WZoom.prototype = {
                     const scale = this._computeScale(direction);
                     const position = this._computePosition(scale, clientX, clientY);
 
-                    this._transition();
                     this._transform(position.left, position.top, scale);
                 });
             }
@@ -125,7 +125,6 @@ WZoom.prototype = {
                 const scale = this._computeScale(direction);
                 const position = this._computePosition(scale, eventClientX(event), eventClientY(event));
 
-                this._transition();
                 this._transform(position.left, position.top, scale);
             });
         }
@@ -137,7 +136,6 @@ WZoom.prototype = {
                 const scale = this.direction === 1 ? this.content.maxScale : this.content.minScale;
                 const position = this._computePosition(scale, eventClientX(event), eventClientY(event));
 
-                this._transition();
                 this._transform(position.left, position.top, scale);
 
                 this.direction *= -1;
@@ -261,20 +259,11 @@ WZoom.prototype = {
      * @private
      */
     _transform(left, top, scale) {
-        this.content.$element.style.transform = `translate(${ left }px, ${ top }px) scale(${ scale })`;
+        transition(this.content.$element, this.options.smoothExtinction);
+        transform(this.content.$element, left, top, scale);
 
         if (typeof this.options.rescale === 'function') {
             this.options.rescale(this);
-        }
-    },
-    /**
-     * @private
-     */
-    _transition() {
-        if (this.options.smoothExtinction) {
-            this.content.$element.style.transition = `transform ${ this.options.smoothExtinction }s`;
-        } else {
-            this.content.$element.style.removeProperty('transition');
         }
     },
     /**
@@ -291,7 +280,6 @@ WZoom.prototype = {
 
         const position = this._computePosition(scale, coordinates.x, coordinates.y);
 
-        this._transition();
         this._transform(position.left, position.top, scale);
     },
     prepare() {
