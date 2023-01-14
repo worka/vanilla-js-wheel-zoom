@@ -71,7 +71,12 @@
         var destroyButton = document.querySelector('[data-destroy]');
         var changeImageButton = document.querySelector('[data-change-image]');
 
-        var imagesStore = [ 'https://worka.github.io/files/wheel_zoom_example_2.jpg', image.src ];
+        var imagesStore = [
+            'https://worka.github.io/files/wheel_zoom_example_2.jpg',
+            'https://worka.github.io/files/wheel_zoom_example_3.jpg',
+            'https://worka.github.io/files/wheel_zoom_example_4.jpg',
+            image.src,
+        ];
 
         var wzoom = WZoom.create('#myContent', {
             dragScrollableOptions: {

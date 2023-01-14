@@ -17,12 +17,16 @@
         }
 
         .summary {
+            border-radius: 5px;
+            background: #17a2b8;
+            opacity: 70%;
             position: absolute;
             top: 0;
             left: 0;
             z-index: 100;
             font-weight: bold;
-            padding: 5px;
+            margin: 5px;
+            padding: 3px 6px;
         }
     </style>
 </head>
@@ -37,58 +41,38 @@
     </p>
 
     <div class="row justify-content-center">
-        <div class="col-md-4 col-sm-12 mt-3">
+        <div class="col-md-6 col-sm-12 mt-3">
             <div class="embed-responsive embed-responsive-4by3 rounded bg-secondary">
                 <div id="myViewport" class="embed-responsive-item myViewport">
-                    <div class="summary"></div>
-                    <img id="myContent" class="myContent" src="https://worka.github.io/files/wheel_zoom_example.jpg"
-                         alt="image"/>
+                    <div class="summary">Loading...</div>
+                    <img id="myContent" class="myContent" src="https://worka.github.io/files/wheel_zoom_example.jpg" alt="image"/>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-4 col-sm-12 mt-3">
+        <div class="col-md-6 col-sm-12 mt-3">
             <div class="embed-responsive embed-responsive-4by3 rounded bg-secondary">
                 <div id="myViewport2" class="embed-responsive-item myViewport">
-                    <img id="myContent2" class="myContent" src="https://worka.github.io/files/wheel_zoom_example.jpg"
-                         alt="image"/>
+                    <div class="summary">Loading...</div>
+                    <img id="myContent2" class="myContent" src="https://worka.github.io/files/wheel_zoom_example_2.jpg" alt="image"/>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-4 col-sm-12 mt-3">
+        <div class="col-md-6 col-sm-12 mt-3">
             <div class="embed-responsive embed-responsive-4by3 rounded bg-secondary">
                 <div id="myViewport3" class="embed-responsive-item myViewport">
-                    <img id="myContent3" class="myContent" src="https://worka.github.io/files/wheel_zoom_example.jpg"
-                         alt="image"/>
+                    <div class="summary">Loading...</div>
+                    <img id="myContent3" class="myContent" src="https://worka.github.io/files/wheel_zoom_example_3.jpg" alt="image"/>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-4 col-sm-12 mt-3">
+        <div class="col-md-6 col-sm-12 mt-3">
             <div class="embed-responsive embed-responsive-4by3 rounded bg-secondary">
                 <div id="myViewport4" class="embed-responsive-item myViewport">
-                    <div class="summary"></div>
-                    <img id="myContent4" class="myContent" src="https://worka.github.io/files/wheel_zoom_example_2.jpg"
-                         alt="image"/>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4 col-sm-12 mt-3">
-            <div class="embed-responsive embed-responsive-4by3 rounded bg-secondary">
-                <div id="myViewport5" class="embed-responsive-item myViewport">
-                    <img id="myContent5" class="myContent" src="https://worka.github.io/files/wheel_zoom_example_2.jpg"
-                         alt="image"/>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4 col-sm-12 mt-3">
-            <div class="embed-responsive embed-responsive-4by3 rounded bg-secondary">
-                <div id="myViewport6" class="embed-responsive-item myViewport">
-                    <img id="myContent6" class="myContent" src="https://worka.github.io/files/wheel_zoom_example_2.jpg"
-                         alt="image"/>
+                    <div class="summary">Loading...</div>
+                    <img id="myContent4" class="myContent" src="https://worka.github.io/files/wheel_zoom_example_4.jpg" alt="image"/>
                 </div>
             </div>
         </div>
@@ -111,7 +95,6 @@
         }
 
         WZoom.create('#myContent', {
-            alignContent: 'top',
             rescale: function (instance) {
                 summary(instance);
             },
@@ -121,10 +104,27 @@
                 }
             }
         });
-        WZoom.create('#myContent2');
-        WZoom.create('#myContent3', { alignContent: 'bottom' });
+        WZoom.create('#myContent2', {
+            rescale: function (instance) {
+                summary(instance);
+            },
+            dragScrollableOptions: {
+                onMove: function (event, instance) {
+                    summary(instance);
+                }
+            }
+        });
+        WZoom.create('#myContent3', {
+            rescale: function (instance) {
+                summary(instance);
+            },
+            dragScrollableOptions: {
+                onMove: function (event, instance) {
+                    summary(instance);
+                }
+            }
+        });
         WZoom.create('#myContent4', {
-            alignContent: 'left',
             rescale: function (instance) {
                 summary(instance);
             },
@@ -134,8 +134,6 @@
                 }
             }
         });
-        WZoom.create('#myContent5');
-        WZoom.create('#myContent6', { alignContent: 'right' });
     });
 </script>
 </body>
