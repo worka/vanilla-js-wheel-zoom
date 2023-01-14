@@ -1076,11 +1076,6 @@
 
         /** @type {WZoomContent} */
         this.content = {};
-        this.content.elementInteractor = null;
-        /** @type {WZoomViewport} */
-        this.viewport = {};
-        /** @type {WZoomOptions} */
-        this.options = optionsConstructor(options, wZoomDefaultOptions, this);
         if (typeof selectorOrHTMLElement === 'string') {
             this.content.$element = document.querySelector(
                 selectorOrHTMLElement
@@ -1092,31 +1087,29 @@
                 {}.toString.call(selectorOrHTMLElement)
             );
         }
-
-        // check if we're using a touch screen
-        this.isTouch = isTouch();
-        this.direction = 1;
-        this.dragScrollable = null;
         if (this.content.$element) {
-            // todo не нравится это место для этого действия
-            if (
-                this.options.minScale &&
-                this.options.minScale >= this.options.maxScale
-            ) {
-                this.options.minScale = null;
-            }
-
+            /** @type {WZoomViewport} */
+            this.viewport = {};
             // for viewport take just the parent
-            this.viewport.$element = this.content.$element.parentNode;
-            if (this.options.type === 'image') {
-                var initAlreadyDone = false;
+            this.viewport.$element = this.content.$element.parentElement;
 
+            /** @type {WZoomOptions} */
+            this.options = optionsConstructor(
+                options,
+                wZoomDefaultOptions,
+                this
+            );
+
+            // check if we're using a touch screen
+            this.isTouch = isTouch();
+            this.direction = 1;
+            this.content.dragScrollable = null;
+            this.content.elementInteractor = null;
+            if (this.options.type === 'image') {
                 // if the `image` has already been loaded
                 if (this.content.$element.complete) {
                     this._init();
-                    initAlreadyDone = true;
-                }
-                if (!initAlreadyDone) {
+                } else {
                     on(this.content.$element, 'load', this._init, {
                         once: true,
                     });
@@ -1142,10 +1135,10 @@
             );
             if (this.options.dragScrollable === true) {
                 // this can happen if the src of this.content.$element (when type = image) is changed and repeat event load at image
-                if (this.dragScrollable) {
-                    this.dragScrollable.destroy();
+                if (this.content.dragScrollable) {
+                    this.content.dragScrollable.destroy();
                 }
-                this.dragScrollable = new DragScrollable(
+                this.content.dragScrollable = new DragScrollable(
                     this.viewport,
                     this.content,
                     this.options.dragScrollableOptions
@@ -1162,16 +1155,8 @@
                                 clientY = _event$data.clientY,
                                 direction = _event$data.direction;
                             var scale = _this._computeScale(direction);
-                            var position = _this._computePosition(
-                                scale,
-                                clientX,
-                                clientY
-                            );
-                            _this._transform(
-                                position.left,
-                                position.top,
-                                scale
-                            );
+                            _this._computePosition(scale, clientX, clientY);
+                            _this._transform();
                         }
                     );
                 }
@@ -1181,12 +1166,12 @@
                         ? -event.deltaY
                         : event.deltaY;
                     var scale = _this._computeScale(direction);
-                    var position = _this._computePosition(
+                    _this._computePosition(
                         scale,
                         eventClientX(event),
                         eventClientY(event)
                     );
-                    _this._transform(position.left, position.top, scale);
+                    _this._transform();
                 });
             }
             if (this.options.zoomOnClick || this.options.zoomOnDblClick) {
@@ -1198,12 +1183,12 @@
                         _this.direction === 1
                             ? _this.content.maxScale
                             : _this.content.minScale;
-                    var position = _this._computePosition(
+                    _this._computePosition(
                         scale,
                         eventClientX(event),
                         eventClientY(event)
                     );
-                    _this._transform(position.left, position.top, scale);
+                    _this._transform();
                     _this.direction *= -1;
                 });
             }
@@ -1212,71 +1197,65 @@
          * @private
          */
         _prepare: function _prepare() {
-            var viewportPosition = getElementPosition(this.viewport.$element);
-
-            // original viewport sizes and position
-            this.viewport.originalWidth = this.viewport.$element.offsetWidth;
-            this.viewport.originalHeight = this.viewport.$element.offsetHeight;
-            this.viewport.positionLeft = viewportPosition.left;
-            this.viewport.positionTop = viewportPosition.top;
-
-            // original content sizes
-            if (this.options.type === 'image') {
-                this.content.originalWidth =
-                    this.options.width || this.content.$element.naturalWidth;
-                this.content.originalHeight =
-                    this.options.height || this.content.$element.naturalHeight;
+            var viewport = this.viewport,
+                content = this.content,
+                options = this.options;
+            var _getElementPosition = getElementPosition(viewport.$element),
+                left = _getElementPosition.left,
+                top = _getElementPosition.top;
+            viewport.originalWidth = viewport.$element.offsetWidth;
+            viewport.originalHeight = viewport.$element.offsetHeight;
+            viewport.originalLeft = left;
+            viewport.originalTop = top;
+            if (options.type === 'image') {
+                content.originalWidth =
+                    options.width || content.$element.naturalWidth;
+                content.originalHeight =
+                    options.height || content.$element.naturalHeight;
             } else {
-                this.content.originalWidth =
-                    this.options.width || this.content.$element.offsetWidth;
-                this.content.originalHeight =
-                    this.options.height || this.content.$element.offsetHeight;
+                content.originalWidth =
+                    options.width || content.$element.offsetWidth;
+                content.originalHeight =
+                    options.height || content.$element.offsetHeight;
             }
-
-            // minScale && maxScale
-            this.content.minScale =
-                this.options.minScale ||
+            content.minScale =
+                options.minScale ||
                 Math.min(
-                    this.viewport.originalWidth / this.content.originalWidth,
-                    this.viewport.originalHeight / this.content.originalHeight
+                    viewport.originalWidth / content.originalWidth,
+                    viewport.originalHeight / content.originalHeight
                 );
-            this.content.maxScale = this.options.maxScale;
-
-            // current content sizes and transform data
-            this.content.currentWidth =
-                this.content.originalWidth * this.content.minScale;
-            this.content.currentHeight =
-                this.content.originalHeight * this.content.minScale;
+            content.maxScale = options.maxScale;
+            content.currentScale = content.minScale;
+            content.currentWidth = content.originalWidth * content.currentScale;
+            content.currentHeight =
+                content.originalHeight * content.currentScale;
             var _calculateAlignPoint = calculateAlignPoint(
-                this.viewport,
-                this.content,
-                this.options.alignContent
+                viewport,
+                content,
+                options.alignContent
             );
             var _calculateAlignPoint2 = _slicedToArray(_calculateAlignPoint, 2);
-            this.content.alignPointX = _calculateAlignPoint2[0];
-            this.content.alignPointY = _calculateAlignPoint2[1];
+            content.alignPointX = _calculateAlignPoint2[0];
+            content.alignPointY = _calculateAlignPoint2[1];
+            content.currentLeft = content.alignPointX;
+            content.currentTop = content.alignPointY;
+
+            // calculate indent-left and indent-top to of content from viewport borders
             var _calculateCorrectPoin = calculateCorrectPoint(
-                this.viewport,
-                this.content,
-                this.options.alignContent
+                viewport,
+                content,
+                options.alignContent
             );
             var _calculateCorrectPoin2 = _slicedToArray(
                 _calculateCorrectPoin,
                 2
             );
-            this.content.correctX = _calculateCorrectPoin2[0];
-            this.content.correctY = _calculateCorrectPoin2[1];
-            this.content.currentLeft = this.content.alignPointX;
-            this.content.currentTop = this.content.alignPointY;
-            this.content.currentScale = this.content.minScale;
-            if (typeof this.options.prepare === 'function') {
-                this.options.prepare(this);
+            content.correctX = _calculateCorrectPoin2[0];
+            content.correctY = _calculateCorrectPoin2[1];
+            if (typeof options.prepare === 'function') {
+                options.prepare(this);
             }
-            this._transform(
-                this.content.alignPointX,
-                this.content.alignPointY,
-                this.content.minScale
-            );
+            this._transform();
         },
         /**
          * @private
@@ -1302,7 +1281,6 @@
          * @param {number} scale
          * @param {number} x
          * @param {number} y
-         * @returns {{top: number, left: number}}
          * @private
          */
         _computePosition: function _computePosition(scale, x, y) {
@@ -1319,7 +1297,7 @@
             var contentNewLeft = calculateContentShift(
                 x,
                 scrollLeft,
-                viewport.positionLeft,
+                viewport.originalLeft,
                 content.currentLeft,
                 viewport.originalWidth,
                 contentNewWidth / content.currentWidth
@@ -1328,7 +1306,7 @@
             var contentNewTop = calculateContentShift(
                 y,
                 scrollTop,
-                viewport.positionTop,
+                viewport.originalTop,
                 content.currentTop,
                 viewport.originalHeight,
                 contentNewHeight / content.currentHeight
@@ -1360,20 +1338,18 @@
             content.currentLeft = contentNewLeft;
             content.currentTop = contentNewTop;
             content.currentScale = scale;
-            return {
-                left: contentNewLeft,
-                top: contentNewTop,
-            };
         },
         /**
-         * @param {number} left
-         * @param {number} top
-         * @param {number} scale
          * @private
          */
-        _transform: function _transform(left, top, scale) {
+        _transform: function _transform() {
             transition(this.content.$element, this.options.smoothExtinction);
-            transform(this.content.$element, left, top, scale);
+            transform(
+                this.content.$element,
+                this.content.currentLeft,
+                this.content.currentTop,
+                this.content.currentScale
+            );
             if (typeof this.options.rescale === 'function') {
                 this.options.rescale(this);
             }
@@ -1393,12 +1369,8 @@
             if (coordinates.x === undefined || coordinates.y === undefined) {
                 coordinates = calculateViewportCenter(this.viewport);
             }
-            var position = this._computePosition(
-                scale,
-                coordinates.x,
-                coordinates.y
-            );
-            this._transform(position.left, position.top, scale);
+            this._computePosition(scale, coordinates.x, coordinates.y);
+            this._transform();
         },
         prepare: function prepare() {
             this._prepare();
@@ -1425,17 +1397,20 @@
             this._zoom(this.content.maxScale, coordinates);
         },
         destroy: function destroy() {
+            var _this$content$element, _this$content$dragScr;
             this.content.$element.style.removeProperty('transition');
             this.content.$element.style.removeProperty('transform');
             if (this.options.type === 'image') {
                 off(this.content.$element, 'load', this._init);
             }
-            if (this.content.elementInteractor) {
-                this.content.elementInteractor.destroy();
-            }
-            if (this.dragScrollable) {
-                this.dragScrollable.destroy();
-            }
+            (_this$content$element = this.content.elementInteractor) === null ||
+            _this$content$element === void 0
+                ? void 0
+                : _this$content$element.destroy();
+            (_this$content$dragScr = this.content.dragScrollable) === null ||
+            _this$content$dragScr === void 0
+                ? void 0
+                : _this$content$dragScr.destroy();
             for (var key in this) {
                 if (this.hasOwnProperty(key)) {
                     this[key] = null;
@@ -1471,6 +1446,17 @@
                 return dragScrollableOptions.onDrop(event, instance);
             };
         }
+        options.smoothExtinction =
+            Number(options.smoothExtinction) ||
+            wZoomDefaultOptions.smoothExtinction;
+        if (options.dragScrollableOptions) {
+            options.dragScrollableOptions.smoothExtinction =
+                Number(options.dragScrollableOptions.smoothExtinction) ||
+                dragScrollableDefaultOptions.smoothExtinction;
+        }
+        if (options.minScale && options.minScale >= options.maxScale) {
+            options.minScale = null;
+        }
         return options;
     }
 
@@ -1485,14 +1471,6 @@
             arguments.length > 1 && arguments[1] !== undefined
                 ? arguments[1]
                 : {};
-        options.smoothExtinction =
-            Number(options.smoothExtinction) ||
-            wZoomDefaultOptions.smoothExtinction;
-        if (options.dragScrollableOptions) {
-            options.dragScrollableOptions.smoothExtinction =
-                Number(options.dragScrollableOptions.smoothExtinction) ||
-                dragScrollableDefaultOptions.smoothExtinction;
-        }
         return new WZoom(selectorOrHTMLElement, options);
     };
 
@@ -1500,6 +1478,7 @@
      * @typedef WZoomContent
      * @type {Object}
      * @property {?Interactor} elementInteractor
+     * @property {?DragScrollable} dragScrollable
      * @property {HTMLElement} [$element]
      * @property {number} [originalWidth]
      * @property {number} [originalHeight]
@@ -1522,8 +1501,8 @@
      * @property {HTMLElement} [$element]
      * @property {number} [originalWidth]
      * @property {number} [originalHeight]
-     * @property {number} [positionLeft]
-     * @property {number} [positionTop]
+     * @property {number} [originalLeft]
+     * @property {number} [originalTop]
      */
 
     return WZoom;
