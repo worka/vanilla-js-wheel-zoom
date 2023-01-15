@@ -1126,28 +1126,29 @@
          */
         _init: function _init() {
             var _this = this;
+            var viewport = this.viewport,
+                content = this.content,
+                options = this.options;
             this._prepare();
-            if (this.content.elementInteractor) {
-                this.content.elementInteractor.destroy();
+            if (content.elementInteractor) {
+                content.elementInteractor.destroy();
             }
-            this.content.elementInteractor = new Interactor(
-                this.content.$element
-            );
-            if (this.options.dragScrollable === true) {
+            content.elementInteractor = new Interactor(content.$element);
+            if (options.dragScrollable === true) {
                 // this can happen if the src of this.content.$element (when type = image) is changed and repeat event load at image
-                if (this.content.dragScrollable) {
-                    this.content.dragScrollable.destroy();
+                if (content.dragScrollable) {
+                    content.dragScrollable.destroy();
                 }
-                this.content.dragScrollable = new DragScrollable(
-                    this.viewport,
-                    this.content,
-                    this.options.dragScrollableOptions
+                content.dragScrollable = new DragScrollable(
+                    viewport,
+                    content,
+                    options.dragScrollableOptions
                 );
             }
-            if (!this.options.disableWheelZoom) {
+            if (!options.disableWheelZoom) {
                 // support for zoom and pinch on touch screen devices
                 if (this.isTouch) {
-                    this.content.elementInteractor.on(
+                    content.elementInteractor.on(
                         'pinchtozoom',
                         function (event) {
                             var _event$data = event.data,
@@ -1160,9 +1161,9 @@
                         }
                     );
                 }
-                this.content.elementInteractor.on('wheel', function (event) {
+                content.elementInteractor.on('wheel', function (event) {
                     event.preventDefault();
-                    var direction = _this.options.reverseWheelDirection
+                    var direction = options.reverseWheelDirection
                         ? -event.deltaY
                         : event.deltaY;
                     var scale = _this._computeScale(direction);
@@ -1174,15 +1175,13 @@
                     _this._transform();
                 });
             }
-            if (this.options.zoomOnClick || this.options.zoomOnDblClick) {
-                var eventType = this.options.zoomOnDblClick
-                    ? 'dblclick'
-                    : 'click';
-                this.content.elementInteractor.on(eventType, function (event) {
+            if (options.zoomOnClick || options.zoomOnDblClick) {
+                var eventType = options.zoomOnDblClick ? 'dblclick' : 'click';
+                content.elementInteractor.on(eventType, function (event) {
                     var scale =
                         _this.direction === 1
-                            ? _this.content.maxScale
-                            : _this.content.minScale;
+                            ? content.maxScale
+                            : content.minScale;
                     _this._computePosition(
                         scale,
                         eventClientX(event),
@@ -1374,6 +1373,21 @@
         },
         prepare: function prepare() {
             this._prepare();
+        },
+        /**
+         * todo добавить проверку на то что бы переданный state вообще возможен для данного instance
+         * @param {number} top
+         * @param {number} left
+         * @param {number} scale
+         */
+        transform: function transform(top, left, scale) {
+            var content = this.content;
+            content.currentWidth = content.originalWidth * scale;
+            content.currentHeight = content.originalHeight * scale;
+            content.currentLeft = left;
+            content.currentTop = top;
+            content.currentScale = scale;
+            this._transform();
         },
         zoomUp: function zoomUp() {
             this._zoom(this._computeScale(-1));

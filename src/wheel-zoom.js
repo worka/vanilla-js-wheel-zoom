@@ -79,27 +79,29 @@ WZoom.prototype = {
      * @private
      */
     _init() {
+        const { viewport, content, options } = this;
+
         this._prepare();
 
-        if (this.content.elementInteractor) {
-            this.content.elementInteractor.destroy();
+        if (content.elementInteractor) {
+            content.elementInteractor.destroy();
         }
 
-        this.content.elementInteractor = new Interactor(this.content.$element);
+        content.elementInteractor = new Interactor(content.$element);
 
-        if (this.options.dragScrollable === true) {
+        if (options.dragScrollable === true) {
             // this can happen if the src of this.content.$element (when type = image) is changed and repeat event load at image
-            if (this.content.dragScrollable) {
-                this.content.dragScrollable.destroy();
+            if (content.dragScrollable) {
+                content.dragScrollable.destroy();
             }
 
-            this.content.dragScrollable = new DragScrollable(this.viewport, this.content, this.options.dragScrollableOptions);
+            content.dragScrollable = new DragScrollable(viewport, content, options.dragScrollableOptions);
         }
 
-        if (!this.options.disableWheelZoom) {
+        if (!options.disableWheelZoom) {
             // support for zoom and pinch on touch screen devices
             if (this.isTouch) {
-                this.content.elementInteractor.on('pinchtozoom', (event) => {
+                content.elementInteractor.on('pinchtozoom', (event) => {
                     const { clientX, clientY, direction } = event.data;
 
                     const scale = this._computeScale(direction);
@@ -108,21 +110,21 @@ WZoom.prototype = {
                 });
             }
 
-            this.content.elementInteractor.on('wheel', (event) => {
+            content.elementInteractor.on('wheel', (event) => {
                 event.preventDefault();
 
-                const direction = this.options.reverseWheelDirection ? -event.deltaY : event.deltaY;
+                const direction = options.reverseWheelDirection ? -event.deltaY : event.deltaY;
                 const scale = this._computeScale(direction);
                 this._computePosition(scale, eventClientX(event), eventClientY(event));
                 this._transform();
             });
         }
 
-        if (this.options.zoomOnClick || this.options.zoomOnDblClick) {
-            const eventType = this.options.zoomOnDblClick ? 'dblclick' : 'click';
+        if (options.zoomOnClick || options.zoomOnDblClick) {
+            const eventType = options.zoomOnDblClick ? 'dblclick' : 'click';
 
-            this.content.elementInteractor.on(eventType, (event) => {
-                const scale = this.direction === 1 ? this.content.maxScale : this.content.minScale;
+            content.elementInteractor.on(eventType, (event) => {
+                const scale = this.direction === 1 ? content.maxScale : content.minScale;
                 this._computePosition(scale, eventClientX(event), eventClientY(event));
                 this._transform();
 
@@ -259,6 +261,23 @@ WZoom.prototype = {
     },
     prepare() {
         this._prepare();
+    },
+    /**
+     * todo добавить проверку на то что бы переданный state вообще возможен для данного instance
+     * @param {number} top
+     * @param {number} left
+     * @param {number} scale
+     */
+    transform(top, left, scale) {
+        const { content } = this;
+
+        content.currentWidth = content.originalWidth * scale;
+        content.currentHeight = content.originalHeight * scale;
+        content.currentLeft = left;
+        content.currentTop = top;
+        content.currentScale = scale;
+
+        this._transform();
     },
     zoomUp() {
         this._zoom(this._computeScale(-1));
