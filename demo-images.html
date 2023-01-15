@@ -83,56 +83,57 @@
 
 <script type="text/javascript">
     document.addEventListener('DOMContentLoaded', function () {
-        function summary(wzoom) {
-            var $summary = wzoom.viewport.$element.querySelector('div');
-            var content = wzoom.content;
-
-            var x = content.currentLeft;
-            var y = content.currentTop;
-            var scale = content.currentScale;
-
-            $summary.innerHTML = 'x: ' + x.toFixed(2) + ', y: ' + y.toFixed(2) + ', scale: ' + scale.toFixed(2);
+        function getState(wzoom) {
+            return {
+                top: wzoom.content.currentTop,
+                left: wzoom.content.currentLeft,
+                scale: wzoom.content.currentScale,
+            };
         }
 
-        WZoom.create('#myContent', {
-            rescale: function (instance) {
-                summary(instance);
-            },
-            dragScrollableOptions: {
-                onMove: function (event, instance) {
-                    summary(instance);
-                }
+        function getStore(index) {
+            if (window.sessionStorage) {
+                return JSON.parse(sessionStorage.getItem('image_' + index));
             }
-        });
-        WZoom.create('#myContent2', {
-            rescale: function (instance) {
-                summary(instance);
-            },
-            dragScrollableOptions: {
-                onMove: function (event, instance) {
-                    summary(instance);
-                }
+        }
+
+        function setStore(index, state) {
+            if (window.sessionStorage) {
+                sessionStorage.setItem('image_' + index, JSON.stringify({
+                    top: state.top,
+                    left: state.left,
+                    scale: state.scale,
+                }));
             }
-        });
-        WZoom.create('#myContent3', {
-            rescale: function (instance) {
-                summary(instance);
-            },
-            dragScrollableOptions: {
-                onMove: function (event, instance) {
-                    summary(instance);
+        }
+
+        function summary(wzoom, state) {
+            wzoom.viewport.$element.querySelector('div').innerHTML =
+                'left: ' + state.left.toFixed(2) +
+                ', top: ' + state.top.toFixed(2) +
+                ', scale: ' + state.scale.toFixed(2);
+        }
+
+        document.querySelectorAll('.myContent').forEach(function (element, index) {
+            var state = getStore(index);
+
+            WZoom.create(element, {
+                prepare: function (instance) {
+                    if (state) {
+                        instance.transform(state.top, state.left, state.scale);
+                    }
+                },
+                rescale: function (instance) {
+                    setStore(index, getState(instance));
+                    summary(instance, getState(instance));
+                },
+                dragScrollableOptions: {
+                    onMove: function (event, instance) {
+                        setStore(index, getState(instance));
+                        summary(instance, getState(instance));
+                    }
                 }
-            }
-        });
-        WZoom.create('#myContent4', {
-            rescale: function (instance) {
-                summary(instance);
-            },
-            dragScrollableOptions: {
-                onMove: function (event, instance) {
-                    summary(instance);
-                }
-            }
+            });
         });
     });
 </script>

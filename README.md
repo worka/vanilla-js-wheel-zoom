@@ -108,7 +108,7 @@ const wzoom = WZoom.create(selectorOrHTMLElement[, options]);
 WZoom.create('#myContent', {
     type: 'html',
     width: 2500,
-    height: 1500
+    height: 1500,
 });
 ```
 
