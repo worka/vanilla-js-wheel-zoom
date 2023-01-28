@@ -664,7 +664,7 @@
                 },
 
                 /**
-                 * @param {Event} event
+                 * @param {Event|TouchEvent|MouseEvent} event
                  * @private
                  */
             },
@@ -722,7 +722,7 @@
                 },
 
                 /**
-                 * @param {Event} event
+                 * @param {Event|TouchEvent} event
                  * @private
                  */
             },
@@ -787,6 +787,7 @@
     var EVENT_DBLCLICK = 'dblclick';
     var EVENT_WHEEL = 'wheel';
     var EVENT_PINCH_TO_ZOOM = 'pinchtozoom';
+    var SHIFT_DECIDE_THAT_MOVE_STARTED = 5;
     var Interactor = /*#__PURE__*/ (function () {
         /**
          * @param {HTMLElement} target
@@ -1010,9 +1011,15 @@
                             )
                         );
                         var direction = 0;
-                        if (fingersHypotNew > this.fingersHypot + 5)
+                        if (
+                            fingersHypotNew >
+                            this.fingersHypot + SHIFT_DECIDE_THAT_MOVE_STARTED
+                        )
                             direction = -1;
-                        if (fingersHypotNew < this.fingersHypot - 5)
+                        if (
+                            fingersHypotNew <
+                            this.fingersHypot - SHIFT_DECIDE_THAT_MOVE_STARTED
+                        )
                             direction = 1;
                         if (direction !== 0) {
                             if (this.fingersHypot !== null || direction === 1) {

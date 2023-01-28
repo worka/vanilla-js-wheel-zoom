@@ -49,7 +49,7 @@ class DragScrollable {
     }
 
     /**
-     * @param {Event} event
+     * @param {Event|TouchEvent|MouseEvent} event
      * @private
      */
     _grabHandler(event) {
@@ -88,7 +88,7 @@ class DragScrollable {
     }
 
     /**
-     * @param {Event} event
+     * @param {Event|TouchEvent} event
      * @private
      */
     _moveHandler(event) {

@@ -5,6 +5,8 @@ const EVENT_DBLCLICK = 'dblclick';
 const EVENT_WHEEL = 'wheel';
 const EVENT_PINCH_TO_ZOOM = 'pinchtozoom';
 
+const SHIFT_DECIDE_THAT_MOVE_STARTED = 5;
+
 class Interactor {
     /**
      * @param {HTMLElement} target
@@ -165,8 +167,8 @@ class Interactor {
             ));
 
             let direction = 0;
-            if (fingersHypotNew > this.fingersHypot + 5) direction = -1;
-            if (fingersHypotNew < this.fingersHypot - 5) direction = 1;
+            if (fingersHypotNew > this.fingersHypot + SHIFT_DECIDE_THAT_MOVE_STARTED) direction = -1;
+            if (fingersHypotNew < this.fingersHypot - SHIFT_DECIDE_THAT_MOVE_STARTED) direction = 1;
 
             if (direction !== 0) {
                 if (this.fingersHypot !== null || direction === 1) {
