@@ -145,7 +145,9 @@ window.addEventListener('resize', () => {
 
 [Try this 😉](https://github.com/worka/vanilla-js-wheel-zoom/issues/21) (and see <a href="https://worka.github.io/vanilla-js-wheel-zoom/demo-image-rotate.html">demo</a>)
 
-[Idea](https://github.com/worka/vanilla-js-wheel-zoom/issues/34) for _onMaxScaleReached()/onMinScaleReached()_ methods
+#### Methods onMaxScaleReached() / onMinScaleReached()
+
+There are no such, but [you can get](https://github.com/worka/vanilla-js-wheel-zoom/issues/34) the desired behavior
 
 ### Options
 
