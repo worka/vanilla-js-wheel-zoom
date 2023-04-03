@@ -35,6 +35,11 @@ class DragScrollable {
         // for the touch screen we set the parameter forcibly
         this.events.options = this.isTouch ? { passive: false } : false;
 
+        if (this.isTouch) {
+            // @todo rename option
+            this.options.smoothExtinction = 0;
+        }
+
         on(this.content.$element, this.events.grab, this._grabHandler, this.events.options);
     }
 

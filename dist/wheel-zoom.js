@@ -639,6 +639,10 @@
                       passive: false,
                   }
                 : false;
+            if (this.isTouch) {
+                // @todo rename option
+                this.options.smoothExtinction = 0;
+            }
             on(
                 this.content.$element,
                 this.events.grab,
@@ -1112,6 +1116,10 @@
             this.direction = 1;
             this.content.dragScrollable = null;
             this.content.elementInteractor = null;
+            if (this.isTouch) {
+                // @todo rename option
+                this.options.smoothExtinction = 0;
+            }
             if (this.options.type === 'image') {
                 // if the `image` has already been loaded
                 if (this.content.$element.complete) {

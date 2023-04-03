@@ -60,6 +60,11 @@ function WZoom(selectorOrHTMLElement, options = {}) {
         this.content.dragScrollable = null;
         this.content.elementInteractor = null;
 
+        if (this.isTouch) {
+            // @todo rename option
+            this.options.smoothExtinction = 0;
+        }
+
         if (this.options.type === 'image') {
             // if the `image` has already been loaded
             if (this.content.$element.complete) {
