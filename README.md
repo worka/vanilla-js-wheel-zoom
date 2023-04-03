@@ -23,9 +23,9 @@ Advantages:
 
 <a href="https://worka.github.io/vanilla-js-wheel-zoom/demo-image.html">Demo (only one image)</a>
 
-<a href="https://worka.github.io/vanilla-js-wheel-zoom/demo-html.html">Demo (html)</a>
+<a href="https://worka.github.io/vanilla-js-wheel-zoom/demo-images.html">Demo (multi images)</a>
 
-<a href="https://worka.github.io/vanilla-js-wheel-zoom/demo-images.html">Demo (multi images with saving image state on page reload)</a>
+<a href="https://worka.github.io/vanilla-js-wheel-zoom/demo-html.html">Demo (html)</a>
 
 <a href="https://codesandbox.io/s/worka-vanilla-js-wheel-zoom-forked-sbndwy">Playground... Have some fun 🤸‍♂️</a>
 
@@ -145,9 +145,13 @@ window.addEventListener('resize', () => {
 
 [Try this 😉](https://github.com/worka/vanilla-js-wheel-zoom/issues/21) (and see <a href="https://worka.github.io/vanilla-js-wheel-zoom/demo-image-rotate.html">demo</a>)
 
-#### Methods onMaxScaleReached() / onMinScaleReached()
+#### Callbacks onMaxScaleReached() / onMinScaleReached()
 
 There are no such, but [you can get](https://github.com/worka/vanilla-js-wheel-zoom/issues/34) the desired behavior (and see <a href="https://worka.github.io/vanilla-js-wheel-zoom/demo-scale-reached.html">demo</a>)
+
+#### Saving image state on page reload
+
+See <a href="https://worka.github.io/vanilla-js-wheel-zoom/demo-images.html">demo</a>
 
 ### Options
 
