@@ -147,7 +147,7 @@ window.addEventListener('resize', () => {
 
 #### Methods onMaxScaleReached() / onMinScaleReached()
 
-There are no such, but [you can get](https://github.com/worka/vanilla-js-wheel-zoom/issues/34) the desired behavior
+There are no such, but [you can get](https://github.com/worka/vanilla-js-wheel-zoom/issues/34) the desired behavior (and see <a href="https://worka.github.io/vanilla-js-wheel-zoom/demo-scale-reached.html">demo</a>)
 
 ### Options
 
