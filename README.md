@@ -27,8 +27,6 @@ Advantages:
 
 <a href="https://worka.github.io/vanilla-js-wheel-zoom/examples/html.html">Demo (html)</a>
 
-<a href="https://codesandbox.io/s/worka-vanilla-js-wheel-zoom-forked-sbndwy">Playground... Have some fun 🤸‍♂️</a>
-
 ### Install
 
 ```cmd
@@ -152,6 +150,10 @@ There are no such, but [you can get](https://github.com/worka/vanilla-js-wheel-z
 #### Saving image state on page reload
 
 See <a href="https://worka.github.io/vanilla-js-wheel-zoom/examples/images.html">demo</a>
+
+#### Playground...
+
+<a href="https://codesandbox.io/s/worka-vanilla-js-wheel-zoom-forked-sbndwy">Have some fun 🤸‍♂️</a>
 
 ### Options
 
