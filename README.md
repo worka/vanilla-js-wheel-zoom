@@ -21,11 +21,11 @@ Advantages:
 
 🖐 If you find my plugin helpful, please <a href="https://paypal.me/bworka">donate me</a> 🤝
 
-<a href="https://worka.github.io/vanilla-js-wheel-zoom/demo-image.html">Demo (only one image)</a>
+<a href="https://worka.github.io/vanilla-js-wheel-zoom/examples/image.html">Demo (only one image)</a>
 
-<a href="https://worka.github.io/vanilla-js-wheel-zoom/demo-images.html">Demo (multi images)</a>
+<a href="https://worka.github.io/vanilla-js-wheel-zoom/examples/images.html">Demo (multi images)</a>
 
-<a href="https://worka.github.io/vanilla-js-wheel-zoom/demo-html.html">Demo (html)</a>
+<a href="https://worka.github.io/vanilla-js-wheel-zoom/examples/html.html">Demo (html)</a>
 
 <a href="https://codesandbox.io/s/worka-vanilla-js-wheel-zoom-forked-sbndwy">Playground... Have some fun 🤸‍♂️</a>
 
@@ -143,15 +143,15 @@ window.addEventListener('resize', () => {
 
 #### How to rotate the image?
 
-[Try this 😉](https://github.com/worka/vanilla-js-wheel-zoom/issues/21) (and see <a href="https://worka.github.io/vanilla-js-wheel-zoom/demo-image-rotate.html">demo</a>)
+[Try this 😉](https://github.com/worka/vanilla-js-wheel-zoom/issues/21) (and see <a href="https://worka.github.io/vanilla-js-wheel-zoom/examples/image-rotate.html">demo</a>)
 
 #### Callbacks onMaxScaleReached() / onMinScaleReached()
 
-There are no such, but [you can get](https://github.com/worka/vanilla-js-wheel-zoom/issues/34) the desired behavior (and see <a href="https://worka.github.io/vanilla-js-wheel-zoom/demo-scale-reached.html">demo</a>)
+There are no such, but [you can get](https://github.com/worka/vanilla-js-wheel-zoom/issues/34) the desired behavior (and see <a href="https://worka.github.io/vanilla-js-wheel-zoom/examples/scale-reached.html">demo</a>)
 
 #### Saving image state on page reload
 
-See <a href="https://worka.github.io/vanilla-js-wheel-zoom/demo-images.html">demo</a>
+See <a href="https://worka.github.io/vanilla-js-wheel-zoom/examples/images.html">demo</a>
 
 ### Options
 
