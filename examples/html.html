@@ -5,8 +5,8 @@
     <meta http-equiv="Content-type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0">
 
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
-          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
+          integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
 
     <style>
         #myViewport {
@@ -26,6 +26,10 @@
             position: absolute;
             font-size: 80px;
         }
+
+        button {
+            width: 140px;
+        }
     </style>
 </head>
 <body>
@@ -40,14 +44,14 @@
                 </a>
             </p>
 
-            <div class="d-flex my-3">
+            <div class="d-flex justify-content-between my-3">
                 <button data-zoom-down class="btn btn-info">Zoom Down</button>
-                <input data-zoom-range type="range" class="form-control-range mx-3"/>
+                <input data-zoom-range type="range" class="flex-fill mx-3"/>
                 <button data-zoom-up class="btn btn-info ml-auto">Zoom Up</button>
             </div>
 
-            <div class="embed-responsive embed-responsive-4by3 rounded bg-secondary">
-                <div id="myViewport" class="embed-responsive-item">
+            <div class="ratio ratio-4x3 rounded bg-secondary overflow-hidden">
+                <div id="myViewport">
                     <div id="myContent">
                         <div class="border border-primary rounded-circle p-5 bg-primary" style="left:1500px;top:700px">Bridge</div>
                         <img src="https://worka.github.io/files/wheel_zoom_example_3.jpg" alt="image"/>

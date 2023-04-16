@@ -5,8 +5,8 @@
     <meta http-equiv="Content-type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0">
 
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
-          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
+          integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
 
     <style>
         #myViewport {
@@ -14,6 +14,10 @@
             display: flex;
             align-items: center;
             justify-content: center;
+        }
+
+        button {
+            width: 140px;
         }
     </style>
 </head>
@@ -29,30 +33,30 @@
                 </a>
             </p>
 
-            <div class="d-flex my-3">
+            <div class="d-flex justify-content-between mt-3">
                 <div>
-                    <button data-max-zoom-down class="btn btn-info">Max Down</button>
-                    <button data-zoom-down class="btn btn-info">Zoom Down</button>
+                    <button data-max-zoom-down class="btn btn-info mb-3">Max Down</button>
+                    <button data-zoom-down class="btn btn-info mb-3">Zoom Down</button>
                 </div>
 
-                <div class="ml-auto">
-                    <button data-zoom-up class="btn btn-info">Zoom Up</button>
-                    <button data-max-zoom-up class="btn btn-info">Max Up</button>
+                <div style="text-align: right;">
+                    <button data-zoom-up class="btn btn-info mb-3">Zoom Up</button>
+                    <button data-max-zoom-up class="btn btn-info mb-3">Max Up</button>
                 </div>
             </div>
 
-            <div class="embed-responsive embed-responsive-4by3 rounded bg-secondary">
-                <div id="myViewport" class="embed-responsive-item">
+            <div class="ratio ratio-4x3 rounded bg-secondary overflow-hidden">
+                <div id="myViewport">
                     <img id="myContent" src="https://worka.github.io/files/wheel_zoom_example.jpg" alt="image"/>
                 </div>
             </div>
 
-            <div class="d-flex my-3">
+            <div class="d-flex justify-content-between my-3">
                 <button data-destroy class="btn btn-info">Destroy</button>
                 <button data-change-image class="btn btn-info ml-auto">Change image</button>
             </div>
 
-            <div class="d-flex my-3">Move your mouse over the image and scroll/wheelzoom to zoom in and out.</div>
+            <div class="my-3">Move your mouse over the image and scroll/wheelzoom to zoom in and out.</div>
         </div>
     </div>
 </div>

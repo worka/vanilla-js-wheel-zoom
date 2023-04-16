@@ -7,7 +7,7 @@
         "@babel/preset-env": "^7.21.4",
         "@rollup/plugin-babel": "^6.0.3",
         "prettier": "2.8.7",
-        "rollup": "^3.20.2",
+        "rollup": "^3.20.4",
         "terser": "^5.16.9"
     },
     "scripts": {
