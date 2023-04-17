@@ -7,7 +7,7 @@ const EVENT_PINCH_TO_ZOOM = 'pinchtozoom';
 
 const SHIFT_DECIDE_THAT_MOVE_STARTED = 5;
 
-class Interactor {
+class InteractionObserver {
     /**
      * @param {HTMLElement} target
      * @constructor
@@ -54,7 +54,7 @@ class Interactor {
     /**
      * @param {string} eventType
      * @param {(event: Event) => void} eventHandler
-     * @returns {Interactor}
+     * @returns {InteractionObserver}
      */
     on(eventType, eventHandler) {
         if (!(eventType in this.subscribes)) {
@@ -198,4 +198,4 @@ class Interactor {
     }
 }
 
-export default Interactor;
+export default InteractionObserver;

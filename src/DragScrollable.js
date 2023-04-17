@@ -36,8 +36,7 @@ class DragScrollable {
         this.events.options = this.isTouch ? { passive: false } : false;
 
         if (this.isTouch) {
-            // @todo rename option
-            this.options.smoothExtinction = 0;
+            this.options.smoothTime = 0;
         }
 
         on(this.content.$element, this.events.grab, this._grabHandler, this.events.options);
@@ -131,7 +130,7 @@ class DragScrollable {
         // if we do not go beyond the permissible boundaries of the viewport
         if (Math.abs(contentNewTop) <= maxAvailableTop) content.currentTop = contentNewTop;
 
-        transition(content.$element, this.options.smoothExtinction);
+        transition(content.$element, this.options.smoothTime);
         transform(content.$element, content.currentLeft, content.currentTop, content.currentScale);
 
         if (typeof options.onMove === 'function') {

@@ -18,8 +18,8 @@ import {
     calculateViewportCenter,
 } from './calculator';
 import { dragScrollableDefaultOptions, wZoomDefaultOptions } from './default-options.js';
-import DragScrollable from './drag-scrollable';
-import Interactor from './interactor';
+import DragScrollable from './DragScrollable';
+import InteractionObserver from './InteractionObserver';
 
 /**
  * @class WZoom
@@ -58,11 +58,10 @@ function WZoom(selectorOrHTMLElement, options = {}) {
         this.isTouch = isTouch();
         this.direction = 1;
         this.content.dragScrollable = null;
-        this.content.elementInteractor = null;
+        this.content.interactionObserver = null;
 
         if (this.isTouch) {
-            // @todo rename option
-            this.options.smoothExtinction = 0;
+            this.options.smoothTime = 0;
         }
 
         if (this.options.type === 'image') {
@@ -88,11 +87,11 @@ WZoom.prototype = {
 
         this._prepare();
 
-        if (content.elementInteractor) {
-            content.elementInteractor.destroy();
+        if (content.interactionObserver) {
+            content.interactionObserver.destroy();
         }
 
-        content.elementInteractor = new Interactor(content.$element);
+        content.interactionObserver = new InteractionObserver(content.$element);
 
         if (options.dragScrollable === true) {
             // this can happen if the src of this.content.$element (when type = image) is changed and repeat event load at image
@@ -106,7 +105,7 @@ WZoom.prototype = {
         if (!options.disableWheelZoom) {
             // support for zoom and pinch on touch screen devices
             if (this.isTouch) {
-                content.elementInteractor.on('pinchtozoom', (event) => {
+                content.interactionObserver.on('pinchtozoom', (event) => {
                     const { clientX, clientY, direction } = event.data;
 
                     const scale = this._computeScale(direction);
@@ -115,7 +114,7 @@ WZoom.prototype = {
                 });
             }
 
-            content.elementInteractor.on('wheel', (event) => {
+            content.interactionObserver.on('wheel', (event) => {
                 event.preventDefault();
 
                 const direction = options.reverseWheelDirection ? -event.deltaY : event.deltaY;
@@ -128,7 +127,7 @@ WZoom.prototype = {
         if (options.zoomOnClick || options.zoomOnDblClick) {
             const eventType = options.zoomOnDblClick ? 'dblclick' : 'click';
 
-            content.elementInteractor.on(eventType, (event) => {
+            content.interactionObserver.on(eventType, (event) => {
                 const scale = this.direction === 1 ? content.maxScale : content.minScale;
                 this._computePosition(scale, eventClientX(event), eventClientY(event));
                 this._transform();
@@ -242,7 +241,7 @@ WZoom.prototype = {
      * @private
      */
     _transform() {
-        transition(this.content.$element, this.options.smoothExtinction);
+        transition(this.content.$element, this.options.smoothTime);
         transform(this.content.$element, this.content.currentLeft, this.content.currentTop, this.content.currentScale);
 
         if (typeof this.options.rescale === 'function') {
@@ -313,7 +312,7 @@ WZoom.prototype = {
             off(this.content.$element, 'load', this._init);
         }
 
-        this.content.elementInteractor?.destroy();
+        this.content.interactionObserver?.destroy();
         this.content.dragScrollable?.destroy();
 
         for (let key in this) {
@@ -346,11 +345,11 @@ function optionsConstructor(targetOptions, defaultOptions, instance) {
         options.dragScrollableOptions.onDrop = (event) => dragScrollableOptions.onDrop(event, instance);
     }
 
-    options.smoothExtinction = Number(options.smoothExtinction) || wZoomDefaultOptions.smoothExtinction;
+    options.smoothTime = Number(options.smoothTime) || wZoomDefaultOptions.smoothTime;
 
     if (options.dragScrollableOptions) {
-        options.dragScrollableOptions.smoothExtinction =
-            Number(options.dragScrollableOptions.smoothExtinction) || dragScrollableDefaultOptions.smoothExtinction;
+        options.dragScrollableOptions.smoothTime =
+            Number(options.dragScrollableOptions.smoothTime) || dragScrollableDefaultOptions.smoothTime;
     }
 
     if (options.minScale && options.minScale >= options.maxScale) {
@@ -375,7 +374,7 @@ export default WZoom;
 /**
  * @typedef WZoomContent
  * @type {Object}
- * @property {?Interactor} elementInteractor
+ * @property {?InteractionObserver} interactionObserver
  * @property {?DragScrollable} dragScrollable
  * @property {HTMLElement} [$element]
  * @property {number} [originalWidth]
