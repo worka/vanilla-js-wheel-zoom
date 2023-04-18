@@ -17,9 +17,10 @@ import {
     calculateCorrectPoint,
     calculateViewportCenter,
 } from './calculator';
-import { dragScrollableDefaultOptions, wZoomDefaultOptions } from './default-options.js';
-import DragScrollable from './DragScrollable';
-import InteractionObserver from './InteractionObserver';
+import { wZoomDefaultOptions } from './default-options.js';
+import DragScrollableObserver, { EVENT_DROP, EVENT_GRAB, EVENT_MOVE } from './observers/DragScrollableObserver';
+import InteractionObserver, { EVENT_CLICK, EVENT_DBLCLICK, EVENT_WHEEL } from './observers/InteractionObserver';
+import PinchToZoomObserver, { EVENT_PINCH_TO_ZOOM } from './observers/PinchToZoomObserver';
 
 /**
  * @class WZoom
@@ -52,13 +53,13 @@ function WZoom(selectorOrHTMLElement, options = {}) {
         this.viewport.$element = this.content.$element.parentElement;
 
         /** @type {WZoomOptions} */
-        this.options = optionsConstructor(options, wZoomDefaultOptions, this);
+        this.options = optionsConstructor(options, wZoomDefaultOptions);
 
         // check if we're using a touch screen
         this.isTouch = isTouch();
         this.direction = 1;
-        this.content.dragScrollable = null;
-        this.content.interactionObserver = null;
+        /** @type {AbstractObserver[]} */
+        this.observers = [];
 
         if (this.isTouch) {
             this.options.smoothTime = 0;
@@ -83,51 +84,88 @@ WZoom.prototype = {
      * @private
      */
     _init() {
-        const { viewport, content, options } = this;
+        const { viewport, content, options, observers } = this;
 
         this._prepare();
-
-        if (content.interactionObserver) {
-            content.interactionObserver.destroy();
-        }
-
-        content.interactionObserver = new InteractionObserver(content.$element);
+        // this can happen if the src of this.content.$element (when type = image) is changed
+        // and repeat event load at image
+        this._destroyObservers();
 
         if (options.dragScrollable === true) {
-            // this can happen if the src of this.content.$element (when type = image) is changed and repeat event load at image
-            if (content.dragScrollable) {
-                content.dragScrollable.destroy();
+            const dragScrollableObserver = new DragScrollableObserver(content.$element);
+            observers.push(dragScrollableObserver);
+
+            if (typeof options.dragScrollableOptions.onGrab === 'function') {
+                dragScrollableObserver.on(EVENT_GRAB, (event) => {
+                    event.preventDefault();
+
+                    options.dragScrollableOptions.onGrab(event, this);
+                });
             }
 
-            content.dragScrollable = new DragScrollable(viewport, content, options.dragScrollableOptions);
+            if (typeof options.dragScrollableOptions.onDrop === 'function') {
+                dragScrollableObserver.on(EVENT_DROP, (event) => {
+                    event.preventDefault();
+
+                    options.dragScrollableOptions.onDrop(event, this);
+                });
+            }
+
+            dragScrollableObserver.on(EVENT_MOVE, (event) => {
+                event.preventDefault();
+
+                const { x, y } = event.data;
+
+                const contentNewLeft = content.currentLeft + x;
+                const contentNewTop = content.currentTop + y;
+
+                let maxAvailableLeft = (content.currentWidth - viewport.originalWidth) / 2 + content.correctX;
+                let maxAvailableTop = (content.currentHeight - viewport.originalHeight) / 2 + content.correctY;
+
+                // if we do not go beyond the permissible boundaries of the viewport
+                if (Math.abs(contentNewLeft) <= maxAvailableLeft) content.currentLeft = contentNewLeft;
+                // if we do not go beyond the permissible boundaries of the viewport
+                if (Math.abs(contentNewTop) <= maxAvailableTop) content.currentTop = contentNewTop;
+
+                this._transform();
+
+                if (typeof options.dragScrollableOptions.onMove === 'function') {
+                    options.dragScrollableOptions.onMove(event, this);
+                }
+            });
         }
 
+        const interactionObserver = new InteractionObserver(content.$element);
+        observers.push(interactionObserver);
+
         if (!options.disableWheelZoom) {
-            // support for zoom and pinch on touch screen devices
             if (this.isTouch) {
-                content.interactionObserver.on('pinchtozoom', (event) => {
+                const pinchToZoomObserver = new PinchToZoomObserver(content.$element);
+                observers.push(pinchToZoomObserver);
+
+                pinchToZoomObserver.on(EVENT_PINCH_TO_ZOOM, (event) => {
                     const { clientX, clientY, direction } = event.data;
 
                     const scale = this._computeScale(direction);
                     this._computePosition(scale, clientX, clientY);
                     this._transform();
                 });
+            } else {
+                interactionObserver.on(EVENT_WHEEL, (event) => {
+                    event.preventDefault();
+
+                    const direction = options.reverseWheelDirection ? -event.deltaY : event.deltaY;
+                    const scale = this._computeScale(direction);
+                    this._computePosition(scale, eventClientX(event), eventClientY(event));
+                    this._transform();
+                });
             }
-
-            content.interactionObserver.on('wheel', (event) => {
-                event.preventDefault();
-
-                const direction = options.reverseWheelDirection ? -event.deltaY : event.deltaY;
-                const scale = this._computeScale(direction);
-                this._computePosition(scale, eventClientX(event), eventClientY(event));
-                this._transform();
-            });
         }
 
         if (options.zoomOnClick || options.zoomOnDblClick) {
-            const eventType = options.zoomOnDblClick ? 'dblclick' : 'click';
+            const eventType = options.zoomOnDblClick ? EVENT_DBLCLICK : EVENT_CLICK;
 
-            content.interactionObserver.on(eventType, (event) => {
+            interactionObserver.on(eventType, (event) => {
                 const scale = this.direction === 1 ? content.maxScale : content.minScale;
                 this._computePosition(scale, eventClientX(event), eventClientY(event));
                 this._transform();
@@ -312,13 +350,17 @@ WZoom.prototype = {
             off(this.content.$element, 'load', this._init);
         }
 
-        this.content.interactionObserver?.destroy();
-        this.content.dragScrollable?.destroy();
+        this._destroyObservers();
 
         for (let key in this) {
             if (this.hasOwnProperty(key)) {
                 this[key] = null;
             }
+        }
+    },
+    _destroyObservers() {
+        for (const observer of this.observers) {
+            observer.destroy();
         }
     }
 };
@@ -326,35 +368,18 @@ WZoom.prototype = {
 /**
  * @param {?WZoomOptions} targetOptions
  * @param {?WZoomOptions} defaultOptions
- * @param {WZoom} instance
  * @returns {?WZoomOptions}
  */
-function optionsConstructor(targetOptions, defaultOptions, instance) {
+function optionsConstructor(targetOptions, defaultOptions) {
     const options = Object.assign({}, defaultOptions, targetOptions);
-    const dragScrollableOptions = Object.assign({}, options.dragScrollableOptions);
-
-    if (typeof dragScrollableOptions.onGrab === 'function') {
-        options.dragScrollableOptions.onGrab = (event) => dragScrollableOptions.onGrab(event, instance);
-    }
-
-    if (typeof dragScrollableOptions.onMove === 'function') {
-        options.dragScrollableOptions.onMove = (event) => dragScrollableOptions.onMove(event, instance);
-    }
-
-    if (typeof dragScrollableOptions.onDrop === 'function') {
-        options.dragScrollableOptions.onDrop = (event) => dragScrollableOptions.onDrop(event, instance);
-    }
 
     options.smoothTime = Number(options.smoothTime) || wZoomDefaultOptions.smoothTime;
-
-    if (options.dragScrollableOptions) {
-        options.dragScrollableOptions.smoothTime =
-            Number(options.dragScrollableOptions.smoothTime) || dragScrollableDefaultOptions.smoothTime;
-    }
 
     if (options.minScale && options.minScale >= options.maxScale) {
         options.minScale = null;
     }
+
+    options.dragScrollableOptions = Object.assign({}, options.dragScrollableOptions);
 
     return options;
 }
@@ -374,8 +399,6 @@ export default WZoom;
 /**
  * @typedef WZoomContent
  * @type {Object}
- * @property {?InteractionObserver} interactionObserver
- * @property {?DragScrollable} dragScrollable
  * @property {HTMLElement} [$element]
  * @property {number} [originalWidth]
  * @property {number} [originalHeight]

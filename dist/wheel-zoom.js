@@ -128,6 +128,111 @@
         }
         return obj;
     }
+    function _inherits(subClass, superClass) {
+        if (typeof superClass !== 'function' && superClass !== null) {
+            throw new TypeError(
+                'Super expression must either be null or a function'
+            );
+        }
+        subClass.prototype = Object.create(superClass && superClass.prototype, {
+            constructor: {
+                value: subClass,
+                writable: true,
+                configurable: true,
+            },
+        });
+        Object.defineProperty(subClass, 'prototype', {
+            writable: false,
+        });
+        if (superClass) _setPrototypeOf(subClass, superClass);
+    }
+    function _getPrototypeOf(o) {
+        _getPrototypeOf = Object.setPrototypeOf
+            ? Object.getPrototypeOf.bind()
+            : function _getPrototypeOf(o) {
+                  return o.__proto__ || Object.getPrototypeOf(o);
+              };
+        return _getPrototypeOf(o);
+    }
+    function _setPrototypeOf(o, p) {
+        _setPrototypeOf = Object.setPrototypeOf
+            ? Object.setPrototypeOf.bind()
+            : function _setPrototypeOf(o, p) {
+                  o.__proto__ = p;
+                  return o;
+              };
+        return _setPrototypeOf(o, p);
+    }
+    function _isNativeReflectConstruct() {
+        if (typeof Reflect === 'undefined' || !Reflect.construct) return false;
+        if (Reflect.construct.sham) return false;
+        if (typeof Proxy === 'function') return true;
+        try {
+            Boolean.prototype.valueOf.call(
+                Reflect.construct(Boolean, [], function () {})
+            );
+            return true;
+        } catch (e) {
+            return false;
+        }
+    }
+    function _assertThisInitialized(self) {
+        if (self === void 0) {
+            throw new ReferenceError(
+                "this hasn't been initialised - super() hasn't been called"
+            );
+        }
+        return self;
+    }
+    function _possibleConstructorReturn(self, call) {
+        if (call && (typeof call === 'object' || typeof call === 'function')) {
+            return call;
+        } else if (call !== void 0) {
+            throw new TypeError(
+                'Derived constructors may only return object or undefined'
+            );
+        }
+        return _assertThisInitialized(self);
+    }
+    function _createSuper(Derived) {
+        var hasNativeReflectConstruct = _isNativeReflectConstruct();
+        return function _createSuperInternal() {
+            var Super = _getPrototypeOf(Derived),
+                result;
+            if (hasNativeReflectConstruct) {
+                var NewTarget = _getPrototypeOf(this).constructor;
+                result = Reflect.construct(Super, arguments, NewTarget);
+            } else {
+                result = Super.apply(this, arguments);
+            }
+            return _possibleConstructorReturn(this, result);
+        };
+    }
+    function _superPropBase(object, property) {
+        while (!Object.prototype.hasOwnProperty.call(object, property)) {
+            object = _getPrototypeOf(object);
+            if (object === null) break;
+        }
+        return object;
+    }
+    function _get() {
+        if (typeof Reflect !== 'undefined' && Reflect.get) {
+            _get = Reflect.get.bind();
+        } else {
+            _get = function _get(target, property, receiver) {
+                var base = _superPropBase(target, property);
+                if (!base) return;
+                var desc = Object.getOwnPropertyDescriptor(base, property);
+                if (desc.get) {
+                    return desc.get.call(
+                        arguments.length < 3 ? target : receiver
+                    );
+                }
+                return desc.value;
+            };
+        }
+        return _get.apply(this, arguments);
+    }
     function _slicedToArray(arr, i) {
         return (
             _arrayWithHoles(arr) ||
@@ -537,25 +642,13 @@
         // zoom to maximum (minimum) size on double click
         zoomOnDblClick: false,
         // smooth extinction
-        smoothTime: 0.3,
+        smoothTime: 0.25,
         // align content `center`, `left`, `top`, `right`, `bottom`
         alignContent: 'center',
         /********************/
         disableWheelZoom: false,
         // option to reverse wheel direction
         reverseWheelDirection: false,
-    };
-
-    /** @type {DragScrollableOptions} */
-    var dragScrollableDefaultOptions = {
-        // smooth extinction
-        smoothTime: 0.25,
-        // callback triggered when grabbing an element
-        onGrab: null,
-        // callback triggered when moving an element
-        onMove: null,
-        // callback triggered when dropping an element
-        onDrop: null,
     };
 
     /**
@@ -580,282 +673,27 @@
     /**
      * @typedef DragScrollableOptions
      * @type {Object}
-     * @property {number} smoothTime
      * @property {?Function} onGrab
      * @property {?Function} onMove
      * @property {?Function} onDrop
      */
 
-    var DragScrollable = /*#__PURE__*/ (function () {
+    var AbstractObserver = /*#__PURE__*/ (function () {
         /**
-         * @param {WZoomViewport} viewport
-         * @param {WZoomContent} content
-         * @param {DragScrollableOptions} options
          * @constructor
          */
-        function DragScrollable(viewport, content) {
-            var options =
-                arguments.length > 2 && arguments[2] !== undefined
-                    ? arguments[2]
-                    : {};
-            _classCallCheck(this, DragScrollable);
-            this._dropHandler = this._dropHandler.bind(this);
-            this._grabHandler = this._grabHandler.bind(this);
-            this._moveHandler = this._moveHandler.bind(this);
-
-            /** @type {WZoomViewport} */
-            this.viewport = viewport;
-            /** @type {WZoomContent} */
-            this.content = content;
-
-            /** @type {DragScrollableOptions} */
-            this.options = Object.assign(
-                {},
-                dragScrollableDefaultOptions,
-                options
-            );
-            this.isGrab = false;
-            this.moveTimer = null;
-            this.coordinates = null;
-            this.coordinatesShift = null;
-
-            // check if we're using a touch screen
-            this.isTouch = isTouch();
-            // switch to touch events if using a touch screen
-            this.events = this.isTouch
-                ? {
-                      grab: 'touchstart',
-                      move: 'touchmove',
-                      drop: 'touchend',
-                  }
-                : {
-                      grab: 'mousedown',
-                      move: 'mousemove',
-                      drop: 'mouseup',
-                  };
-            // for the touch screen we set the parameter forcibly
-            this.events.options = this.isTouch
-                ? {
-                      passive: false,
-                  }
-                : false;
-            if (this.isTouch) {
-                this.options.smoothTime = 0;
-            }
-            on(
-                this.content.$element,
-                this.events.grab,
-                this._grabHandler,
-                this.events.options
-            );
-        }
-        _createClass(DragScrollable, [
-            {
-                key: 'destroy',
-                value: function destroy() {
-                    off(
-                        this.content.$element,
-                        this.events.grab,
-                        this._grabHandler,
-                        this.events.options
-                    );
-                    for (var key in this) {
-                        if (this.hasOwnProperty(key)) {
-                            this[key] = null;
-                        }
-                    }
-                },
-
-                /**
-                 * @param {Event|TouchEvent|MouseEvent} event
-                 * @private
-                 */
-            },
-            {
-                key: '_grabHandler',
-                value: function _grabHandler(event) {
-                    // if touch started (only one finger) or pressed left mouse button
-                    if (
-                        (this.isTouch && event.touches.length === 1) ||
-                        event.buttons === 1
-                    ) {
-                        event.preventDefault();
-                        this.isGrab = true;
-                        this.coordinates = {
-                            x: eventClientX(event),
-                            y: eventClientY(event),
-                        };
-                        this.coordinatesShift = {
-                            x: 0,
-                            y: 0,
-                        };
-                        on(
-                            document,
-                            this.events.drop,
-                            this._dropHandler,
-                            this.events.options
-                        );
-                        on(
-                            document,
-                            this.events.move,
-                            this._moveHandler,
-                            this.events.options
-                        );
-                        if (typeof this.options.onGrab === 'function') {
-                            this.options.onGrab(event);
-                        }
-                    }
-                },
-
-                /**
-                 * @param {Event} event
-                 * @private
-                 */
-            },
-            {
-                key: '_dropHandler',
-                value: function _dropHandler(event) {
-                    event.preventDefault();
-                    this.isGrab = false;
-                    off(document, this.events.drop, this._dropHandler);
-                    off(document, this.events.move, this._moveHandler);
-                    if (typeof this.options.onDrop === 'function') {
-                        this.options.onDrop(event);
-                    }
-                },
-
-                /**
-                 * @param {Event|TouchEvent} event
-                 * @private
-                 */
-            },
-            {
-                key: '_moveHandler',
-                value: function _moveHandler(event) {
-                    // so that it does not move when the touch screen and more than one finger
-                    if (this.isTouch && event.touches.length > 1) return false;
-                    event.preventDefault();
-                    var viewport = this.viewport,
-                        content = this.content,
-                        coordinatesShift = this.coordinatesShift,
-                        coordinates = this.coordinates,
-                        options = this.options;
-
-                    // change of the coordinate of the mouse cursor along the X/Y axis
-                    coordinatesShift.x = eventClientX(event) - coordinates.x;
-                    coordinatesShift.y = eventClientY(event) - coordinates.y;
-                    coordinates.x = eventClientX(event);
-                    coordinates.y = eventClientY(event);
-                    clearTimeout(this.moveTimer);
-
-                    // reset shift if cursor stops
-                    this.moveTimer = setTimeout(function () {
-                        coordinatesShift.x = 0;
-                        coordinatesShift.y = 0;
-                    }, 50);
-                    var contentNewLeft =
-                        content.currentLeft + coordinatesShift.x;
-                    var contentNewTop = content.currentTop + coordinatesShift.y;
-                    var maxAvailableLeft =
-                        (content.currentWidth - viewport.originalWidth) / 2 +
-                        content.correctX;
-                    var maxAvailableTop =
-                        (content.currentHeight - viewport.originalHeight) / 2 +
-                        content.correctY;
-
-                    // if we do not go beyond the permissible boundaries of the viewport
-                    if (Math.abs(contentNewLeft) <= maxAvailableLeft)
-                        content.currentLeft = contentNewLeft;
-
-                    // if we do not go beyond the permissible boundaries of the viewport
-                    if (Math.abs(contentNewTop) <= maxAvailableTop)
-                        content.currentTop = contentNewTop;
-                    transition(content.$element, this.options.smoothTime);
-                    transform(
-                        content.$element,
-                        content.currentLeft,
-                        content.currentTop,
-                        content.currentScale
-                    );
-                    if (typeof options.onMove === 'function') {
-                        options.onMove(event);
-                    }
-                },
-            },
-        ]);
-        return DragScrollable;
-    })();
-
-    var EVENT_CLICK = 'click';
-    var EVENT_DBLCLICK = 'dblclick';
-    var EVENT_WHEEL = 'wheel';
-    var EVENT_PINCH_TO_ZOOM = 'pinchtozoom';
-    var SHIFT_DECIDE_THAT_MOVE_STARTED = 5;
-    var InteractionObserver = /*#__PURE__*/ (function () {
-        /**
-         * @param {HTMLElement} target
-         * @constructor
-         */
-        function InteractionObserver(target) {
-            _classCallCheck(this, InteractionObserver);
-            this.target = target;
-
+        function AbstractObserver() {
+            _classCallCheck(this, AbstractObserver);
             /** @type {Object<string, (event: Event) => void>} */
             this.subscribes = {};
-            this.coordsOnDown = null;
-            this.pressingTimeout = null;
-            this.firstClick = true;
-            this.fingersHypot = null;
-            this.zoomPinchWasDetected = false;
-
-            // check if we're using a touch screen
-            this.isTouch = isTouch();
-            // switch to touch events if using a touch screen
-            this.events = this.isTouch
-                ? {
-                      down: 'touchstart',
-                      up: 'touchend',
-                  }
-                : {
-                      down: 'mousedown',
-                      up: 'mouseup',
-                  };
-            // if using touch screen tells the browser that the default action will not be undone
-            this.events.options = this.isTouch
-                ? {
-                      passive: true,
-                  }
-                : false;
-            this._downHandler = this._downHandler.bind(this);
-            this._upHandler = this._upHandler.bind(this);
-            this._wheelHandler = this._wheelHandler.bind(this);
-            this._touchMoveHandler = this._touchMoveHandler.bind(this);
-            this._touchEndHandler = this._touchEndHandler.bind(this);
-            on(
-                this.target,
-                this.events.down,
-                this._downHandler,
-                this.events.options
-            );
-            on(
-                this.target,
-                this.events.up,
-                this._upHandler,
-                this.events.options
-            );
-            on(this.target, EVENT_WHEEL, this._wheelHandler);
-            if (this.isTouch) {
-                on(this.target, 'touchmove', this._touchMoveHandler);
-                on(this.target, 'touchend', this._touchEndHandler);
-            }
         }
 
         /**
          * @param {string} eventType
          * @param {(event: Event) => void} eventHandler
-         * @returns {InteractionObserver}
+         * @returns {AbstractObserver}
          */
-        _createClass(InteractionObserver, [
+        _createClass(AbstractObserver, [
             {
                 key: 'on',
                 value: function on(eventType, eventHandler) {
@@ -869,28 +707,6 @@
             {
                 key: 'destroy',
                 value: function destroy() {
-                    off(
-                        this.target,
-                        this.events.down,
-                        this._downHandler,
-                        this.events.options
-                    );
-                    off(
-                        this.target,
-                        this.events.up,
-                        this._upHandler,
-                        this.events.options
-                    );
-                    off(
-                        this.target,
-                        EVENT_WHEEL,
-                        this._wheelHandler,
-                        this.events.options
-                    );
-                    if (this.isTouch) {
-                        off(this.target, 'touchmove', this._touchMoveHandler);
-                        off(this.target, 'touchend', this._touchEndHandler);
-                    }
                     for (var key in this) {
                         if (this.hasOwnProperty(key)) {
                             this[key] = null;
@@ -901,7 +717,7 @@
                 /**
                  * @param {string} eventType
                  * @param {Event} event
-                 * @private
+                 * @protected
                  */
             },
             {
@@ -927,6 +743,263 @@
                             _iterator.f();
                         }
                     }
+                },
+            },
+        ]);
+        return AbstractObserver;
+    })();
+
+    var EVENT_GRAB = 'grab';
+    var EVENT_MOVE = 'move';
+    var EVENT_DROP = 'drop';
+    var DragScrollableObserver = /*#__PURE__*/ (function (_AbstractObserver) {
+        _inherits(DragScrollableObserver, _AbstractObserver);
+        var _super = _createSuper(DragScrollableObserver);
+        /**
+         * @param {HTMLElement} target
+         * @constructor
+         */
+        function DragScrollableObserver(target) {
+            var _this;
+            _classCallCheck(this, DragScrollableObserver);
+            _this = _super.call(this);
+            _this.target = target;
+            _this.moveTimer = null;
+            _this.coordinates = null;
+            _this.coordinatesShift = null;
+
+            // check if we're using a touch screen
+            _this.isTouch = isTouch();
+            // switch to touch events if using a touch screen
+            _this.events = _this.isTouch
+                ? {
+                      grab: 'touchstart',
+                      move: 'touchmove',
+                      drop: 'touchend',
+                  }
+                : {
+                      grab: 'mousedown',
+                      move: 'mousemove',
+                      drop: 'mouseup',
+                  };
+            // for the touch screen we set the parameter forcibly
+            _this.events.options = _this.isTouch
+                ? {
+                      passive: false,
+                  }
+                : false;
+            _this._dropHandler = _this._dropHandler.bind(
+                _assertThisInitialized(_this)
+            );
+            _this._grabHandler = _this._grabHandler.bind(
+                _assertThisInitialized(_this)
+            );
+            _this._moveHandler = _this._moveHandler.bind(
+                _assertThisInitialized(_this)
+            );
+            on(
+                _this.target,
+                _this.events.grab,
+                _this._grabHandler,
+                _this.events.options
+            );
+            return _this;
+        }
+        _createClass(DragScrollableObserver, [
+            {
+                key: 'destroy',
+                value: function destroy() {
+                    off(
+                        this.target,
+                        this.events.grab,
+                        this._grabHandler,
+                        this.events.options
+                    );
+                    _get(
+                        _getPrototypeOf(DragScrollableObserver.prototype),
+                        'destroy',
+                        this
+                    ).call(this);
+                },
+
+                /**
+                 * @param {Event|TouchEvent|MouseEvent} event
+                 * @private
+                 */
+            },
+            {
+                key: '_grabHandler',
+                value: function _grabHandler(event) {
+                    // if touch started (only one finger) or pressed left mouse button
+                    if (
+                        (this.isTouch && event.touches.length === 1) ||
+                        event.buttons === 1
+                    ) {
+                        this.coordinates = {
+                            x: eventClientX(event),
+                            y: eventClientY(event),
+                        };
+                        this.coordinatesShift = {
+                            x: 0,
+                            y: 0,
+                        };
+                        on(
+                            document,
+                            this.events.drop,
+                            this._dropHandler,
+                            this.events.options
+                        );
+                        on(
+                            document,
+                            this.events.move,
+                            this._moveHandler,
+                            this.events.options
+                        );
+                        this._run(EVENT_GRAB, event);
+                    }
+                },
+
+                /**
+                 * @param {Event} event
+                 * @private
+                 */
+            },
+            {
+                key: '_dropHandler',
+                value: function _dropHandler(event) {
+                    off(document, this.events.drop, this._dropHandler);
+                    off(document, this.events.move, this._moveHandler);
+                    this._run(EVENT_DROP, event);
+                },
+
+                /**
+                 * @param {Event|TouchEvent} event
+                 * @private
+                 */
+            },
+            {
+                key: '_moveHandler',
+                value: function _moveHandler(event) {
+                    // so that it does not move when the touch screen and more than one finger
+                    if (this.isTouch && event.touches.length > 1) return false;
+                    var coordinatesShift = this.coordinatesShift,
+                        coordinates = this.coordinates;
+
+                    // change of the coordinate of the mouse cursor along the X/Y axis
+                    coordinatesShift.x = eventClientX(event) - coordinates.x;
+                    coordinatesShift.y = eventClientY(event) - coordinates.y;
+                    coordinates.x = eventClientX(event);
+                    coordinates.y = eventClientY(event);
+                    clearTimeout(this.moveTimer);
+
+                    // reset shift if cursor stops
+                    this.moveTimer = setTimeout(function () {
+                        coordinatesShift.x = 0;
+                        coordinatesShift.y = 0;
+                    }, 50);
+                    event.data = _objectSpread2(
+                        _objectSpread2({}, event.data || {}),
+                        {},
+                        {
+                            x: coordinatesShift.x,
+                            y: coordinatesShift.y,
+                        }
+                    );
+                    this._run(EVENT_MOVE, event);
+                },
+            },
+        ]);
+        return DragScrollableObserver;
+    })(AbstractObserver);
+
+    var EVENT_CLICK = 'click';
+    var EVENT_DBLCLICK = 'dblclick';
+    var EVENT_WHEEL = 'wheel';
+    var InteractionObserver = /*#__PURE__*/ (function (_AbstractObserver) {
+        _inherits(InteractionObserver, _AbstractObserver);
+        var _super = _createSuper(InteractionObserver);
+        /**
+         * @param {HTMLElement} target
+         * @constructor
+         */
+        function InteractionObserver(target) {
+            var _this;
+            _classCallCheck(this, InteractionObserver);
+            _this = _super.call(this);
+            _this.target = target;
+            _this.coordsOnDown = null;
+            _this.pressingTimeout = null;
+            _this.firstClick = true;
+
+            // check if we're using a touch screen
+            _this.isTouch = isTouch();
+            // switch to touch events if using a touch screen
+            _this.events = _this.isTouch
+                ? {
+                      down: 'touchstart',
+                      up: 'touchend',
+                  }
+                : {
+                      down: 'mousedown',
+                      up: 'mouseup',
+                  };
+            // if using touch screen tells the browser that the default action will not be undone
+            _this.events.options = _this.isTouch
+                ? {
+                      passive: true,
+                  }
+                : false;
+            _this._downHandler = _this._downHandler.bind(
+                _assertThisInitialized(_this)
+            );
+            _this._upHandler = _this._upHandler.bind(
+                _assertThisInitialized(_this)
+            );
+            _this._wheelHandler = _this._wheelHandler.bind(
+                _assertThisInitialized(_this)
+            );
+            on(
+                _this.target,
+                _this.events.down,
+                _this._downHandler,
+                _this.events.options
+            );
+            on(
+                _this.target,
+                _this.events.up,
+                _this._upHandler,
+                _this.events.options
+            );
+            on(_this.target, EVENT_WHEEL, _this._wheelHandler);
+            return _this;
+        }
+        _createClass(InteractionObserver, [
+            {
+                key: 'destroy',
+                value: function destroy() {
+                    off(
+                        this.target,
+                        this.events.down,
+                        this._downHandler,
+                        this.events.options
+                    );
+                    off(
+                        this.target,
+                        this.events.up,
+                        this._upHandler,
+                        this.events.options
+                    );
+                    off(
+                        this.target,
+                        EVENT_WHEEL,
+                        this._wheelHandler,
+                        this.events.options
+                    );
+                    _get(
+                        _getPrototypeOf(InteractionObserver.prototype),
+                        'destroy',
+                        this
+                    ).call(this);
                 },
 
                 /**
@@ -958,24 +1031,24 @@
             {
                 key: '_upHandler',
                 value: function _upHandler(event) {
-                    var _this = this;
+                    var _this2 = this;
                     var delay = this.subscribes[EVENT_DBLCLICK] ? 200 : 0;
                     if (this.firstClick) {
                         this.pressingTimeout = setTimeout(function () {
                             if (
-                                _this.coordsOnDown &&
-                                _this.coordsOnDown.x === eventClientX(event) &&
-                                _this.coordsOnDown.y === eventClientY(event)
+                                _this2.coordsOnDown &&
+                                _this2.coordsOnDown.x === eventClientX(event) &&
+                                _this2.coordsOnDown.y === eventClientY(event)
                             ) {
-                                _this._run(EVENT_CLICK, event);
+                                _this2._run(EVENT_CLICK, event);
                             }
-                            _this.firstClick = true;
+                            _this2.firstClick = true;
                         }, delay);
                         this.firstClick = false;
                     } else {
                         this.pressingTimeout = setTimeout(function () {
-                            _this._run(EVENT_DBLCLICK, event);
-                            _this.firstClick = true;
+                            _this2._run(EVENT_DBLCLICK, event);
+                            _this2.firstClick = true;
                         }, delay / 2);
                     }
                 },
@@ -989,6 +1062,49 @@
                 key: '_wheelHandler',
                 value: function _wheelHandler(event) {
                     this._run(EVENT_WHEEL, event);
+                },
+            },
+        ]);
+        return InteractionObserver;
+    })(AbstractObserver);
+
+    var EVENT_PINCH_TO_ZOOM = 'pinchtozoom';
+    var SHIFT_DECIDE_THAT_MOVE_STARTED = 5;
+    var PinchToZoomObserver = /*#__PURE__*/ (function (_AbstractObserver) {
+        _inherits(PinchToZoomObserver, _AbstractObserver);
+        var _super = _createSuper(PinchToZoomObserver);
+        /**
+         * @param {HTMLElement} target
+         * @constructor
+         */
+        function PinchToZoomObserver(target) {
+            var _this;
+            _classCallCheck(this, PinchToZoomObserver);
+            _this = _super.call(this);
+            _this.target = target;
+            _this.fingersHypot = null;
+            _this.zoomPinchWasDetected = false;
+            _this._touchMoveHandler = _this._touchMoveHandler.bind(
+                _assertThisInitialized(_this)
+            );
+            _this._touchEndHandler = _this._touchEndHandler.bind(
+                _assertThisInitialized(_this)
+            );
+            on(_this.target, 'touchmove', _this._touchMoveHandler);
+            on(_this.target, 'touchend', _this._touchEndHandler);
+            return _this;
+        }
+        _createClass(PinchToZoomObserver, [
+            {
+                key: 'destroy',
+                value: function destroy() {
+                    off(this.target, 'touchmove', this._touchMoveHandler);
+                    off(this.target, 'touchend', this._touchEndHandler);
+                    _get(
+                        _getPrototypeOf(PinchToZoomObserver.prototype),
+                        'destroy',
+                        this
+                    ).call(this);
                 },
 
                 /**
@@ -1064,8 +1180,8 @@
                 },
             },
         ]);
-        return InteractionObserver;
-    })();
+        return PinchToZoomObserver;
+    })(AbstractObserver);
 
     /**
      * @class WZoom
@@ -1104,17 +1220,13 @@
             this.viewport.$element = this.content.$element.parentElement;
 
             /** @type {WZoomOptions} */
-            this.options = optionsConstructor(
-                options,
-                wZoomDefaultOptions,
-                this
-            );
+            this.options = optionsConstructor(options, wZoomDefaultOptions);
 
             // check if we're using a touch screen
             this.isTouch = isTouch();
             this.direction = 1;
-            this.content.dragScrollable = null;
-            this.content.interactionObserver = null;
+            /** @type {AbstractObserver[]} */
+            this.observers = [];
             if (this.isTouch) {
                 this.options.smoothTime = 0;
             }
@@ -1141,58 +1253,103 @@
             var _this = this;
             var viewport = this.viewport,
                 content = this.content,
-                options = this.options;
+                options = this.options,
+                observers = this.observers;
             this._prepare();
-            if (content.interactionObserver) {
-                content.interactionObserver.destroy();
-            }
-            content.interactionObserver = new InteractionObserver(
-                content.$element
-            );
+            // this can happen if the src of this.content.$element (when type = image) is changed
+            // and repeat event load at image
+            this._destroyObservers();
             if (options.dragScrollable === true) {
-                // this can happen if the src of this.content.$element (when type = image) is changed and repeat event load at image
-                if (content.dragScrollable) {
-                    content.dragScrollable.destroy();
-                }
-                content.dragScrollable = new DragScrollable(
-                    viewport,
-                    content,
-                    options.dragScrollableOptions
+                var dragScrollableObserver = new DragScrollableObserver(
+                    content.$element
                 );
+                observers.push(dragScrollableObserver);
+                if (
+                    typeof options.dragScrollableOptions.onGrab === 'function'
+                ) {
+                    dragScrollableObserver.on(EVENT_GRAB, function (event) {
+                        event.preventDefault();
+                        options.dragScrollableOptions.onGrab(event, _this);
+                    });
+                }
+                if (
+                    typeof options.dragScrollableOptions.onDrop === 'function'
+                ) {
+                    dragScrollableObserver.on(EVENT_DROP, function (event) {
+                        event.preventDefault();
+                        options.dragScrollableOptions.onDrop(event, _this);
+                    });
+                }
+                dragScrollableObserver.on(EVENT_MOVE, function (event) {
+                    event.preventDefault();
+                    var _event$data = event.data,
+                        x = _event$data.x,
+                        y = _event$data.y;
+                    var contentNewLeft = content.currentLeft + x;
+                    var contentNewTop = content.currentTop + y;
+                    var maxAvailableLeft =
+                        (content.currentWidth - viewport.originalWidth) / 2 +
+                        content.correctX;
+                    var maxAvailableTop =
+                        (content.currentHeight - viewport.originalHeight) / 2 +
+                        content.correctY;
+
+                    // if we do not go beyond the permissible boundaries of the viewport
+                    if (Math.abs(contentNewLeft) <= maxAvailableLeft)
+                        content.currentLeft = contentNewLeft;
+                    // if we do not go beyond the permissible boundaries of the viewport
+                    if (Math.abs(contentNewTop) <= maxAvailableTop)
+                        content.currentTop = contentNewTop;
+                    _this._transform();
+                    if (
+                        typeof options.dragScrollableOptions.onMove ===
+                        'function'
+                    ) {
+                        options.dragScrollableOptions.onMove(event, _this);
+                    }
+                });
             }
+            var interactionObserver = new InteractionObserver(content.$element);
+            observers.push(interactionObserver);
             if (!options.disableWheelZoom) {
-                // support for zoom and pinch on touch screen devices
                 if (this.isTouch) {
-                    content.interactionObserver.on(
-                        'pinchtozoom',
+                    var pinchToZoomObserver = new PinchToZoomObserver(
+                        content.$element
+                    );
+                    observers.push(pinchToZoomObserver);
+                    pinchToZoomObserver.on(
+                        EVENT_PINCH_TO_ZOOM,
                         function (event) {
-                            var _event$data = event.data,
-                                clientX = _event$data.clientX,
-                                clientY = _event$data.clientY,
-                                direction = _event$data.direction;
+                            var _event$data2 = event.data,
+                                clientX = _event$data2.clientX,
+                                clientY = _event$data2.clientY,
+                                direction = _event$data2.direction;
                             var scale = _this._computeScale(direction);
                             _this._computePosition(scale, clientX, clientY);
                             _this._transform();
                         }
                     );
+                } else {
+                    interactionObserver.on(EVENT_WHEEL, function (event) {
+                        event.preventDefault();
+                        var direction = options.reverseWheelDirection
+                            ? -event.deltaY
+                            : event.deltaY;
+                        var scale = _this._computeScale(direction);
+                        _this._computePosition(
+                            scale,
+                            eventClientX(event),
+                            eventClientY(event)
+                        );
+                        _this._transform();
+                    });
                 }
-                content.interactionObserver.on('wheel', function (event) {
-                    event.preventDefault();
-                    var direction = options.reverseWheelDirection
-                        ? -event.deltaY
-                        : event.deltaY;
-                    var scale = _this._computeScale(direction);
-                    _this._computePosition(
-                        scale,
-                        eventClientX(event),
-                        eventClientY(event)
-                    );
-                    _this._transform();
-                });
             }
             if (options.zoomOnClick || options.zoomOnDblClick) {
-                var eventType = options.zoomOnDblClick ? 'dblclick' : 'click';
-                content.interactionObserver.on(eventType, function (event) {
+                var eventType = options.zoomOnDblClick
+                    ? EVENT_DBLCLICK
+                    : EVENT_CLICK;
+                interactionObserver.on(eventType, function (event) {
                     var scale =
                         _this.direction === 1
                             ? content.maxScale
@@ -1426,24 +1583,30 @@
             this._zoom(this.content.maxScale, coordinates);
         },
         destroy: function destroy() {
-            var _this$content$interac, _this$content$dragScr;
             this.content.$element.style.removeProperty('transition');
             this.content.$element.style.removeProperty('transform');
             if (this.options.type === 'image') {
                 off(this.content.$element, 'load', this._init);
             }
-            (_this$content$interac = this.content.interactionObserver) ===
-                null || _this$content$interac === void 0
-                ? void 0
-                : _this$content$interac.destroy();
-            (_this$content$dragScr = this.content.dragScrollable) === null ||
-            _this$content$dragScr === void 0
-                ? void 0
-                : _this$content$dragScr.destroy();
+            this._destroyObservers();
             for (var key in this) {
                 if (this.hasOwnProperty(key)) {
                     this[key] = null;
                 }
+            }
+        },
+        _destroyObservers: function _destroyObservers() {
+            var _iterator = _createForOfIteratorHelper(this.observers),
+                _step;
+            try {
+                for (_iterator.s(); !(_step = _iterator.n()).done; ) {
+                    var observer = _step.value;
+                    observer.destroy();
+                }
+            } catch (err) {
+                _iterator.e(err);
+            } finally {
+                _iterator.f();
             }
         },
     };
@@ -1451,40 +1614,19 @@
     /**
      * @param {?WZoomOptions} targetOptions
      * @param {?WZoomOptions} defaultOptions
-     * @param {WZoom} instance
      * @returns {?WZoomOptions}
      */
-    function optionsConstructor(targetOptions, defaultOptions, instance) {
+    function optionsConstructor(targetOptions, defaultOptions) {
         var options = Object.assign({}, defaultOptions, targetOptions);
-        var dragScrollableOptions = Object.assign(
-            {},
-            options.dragScrollableOptions
-        );
-        if (typeof dragScrollableOptions.onGrab === 'function') {
-            options.dragScrollableOptions.onGrab = function (event) {
-                return dragScrollableOptions.onGrab(event, instance);
-            };
-        }
-        if (typeof dragScrollableOptions.onMove === 'function') {
-            options.dragScrollableOptions.onMove = function (event) {
-                return dragScrollableOptions.onMove(event, instance);
-            };
-        }
-        if (typeof dragScrollableOptions.onDrop === 'function') {
-            options.dragScrollableOptions.onDrop = function (event) {
-                return dragScrollableOptions.onDrop(event, instance);
-            };
-        }
         options.smoothTime =
             Number(options.smoothTime) || wZoomDefaultOptions.smoothTime;
-        if (options.dragScrollableOptions) {
-            options.dragScrollableOptions.smoothTime =
-                Number(options.dragScrollableOptions.smoothTime) ||
-                dragScrollableDefaultOptions.smoothTime;
-        }
         if (options.minScale && options.minScale >= options.maxScale) {
             options.minScale = null;
         }
+        options.dragScrollableOptions = Object.assign(
+            {},
+            options.dragScrollableOptions
+        );
         return options;
     }
 
@@ -1505,8 +1647,6 @@
     /**
      * @typedef WZoomContent
      * @type {Object}
-     * @property {?InteractionObserver} interactionObserver
-     * @property {?DragScrollable} dragScrollable
      * @property {HTMLElement} [$element]
      * @property {number} [originalWidth]
      * @property {number} [originalHeight]

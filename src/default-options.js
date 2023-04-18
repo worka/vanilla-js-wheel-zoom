@@ -21,25 +21,13 @@ export const wZoomDefaultOptions = {
     // zoom to maximum (minimum) size on double click
     zoomOnDblClick: false,
     // smooth extinction
-    smoothTime: .3,
+    smoothTime: .25,
     // align content `center`, `left`, `top`, `right`, `bottom`
     alignContent: 'center',
     /********************/
     disableWheelZoom: false,
     // option to reverse wheel direction
     reverseWheelDirection: false,
-};
-
-/** @type {DragScrollableOptions} */
-export const dragScrollableDefaultOptions = {
-    // smooth extinction
-    smoothTime: .25,
-    // callback triggered when grabbing an element
-    onGrab: null,
-    // callback triggered when moving an element
-    onMove: null,
-    // callback triggered when dropping an element
-    onDrop: null,
 };
 
 /**
@@ -64,7 +52,6 @@ export const dragScrollableDefaultOptions = {
 /**
  * @typedef DragScrollableOptions
  * @type {Object}
- * @property {number} smoothTime
  * @property {?Function} onGrab
  * @property {?Function} onMove
  * @property {?Function} onDrop
