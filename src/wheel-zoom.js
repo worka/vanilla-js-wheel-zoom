@@ -301,6 +301,11 @@ WZoom.prototype = {
         this._computePosition(scale, coordinates.x, coordinates.y);
         this._transform();
     },
+    _destroyObservers() {
+        for (const observer of this.observers) {
+            observer.destroy();
+        }
+    },
     prepare() {
         this._prepare();
     },
@@ -356,11 +361,6 @@ WZoom.prototype = {
             if (this.hasOwnProperty(key)) {
                 this[key] = null;
             }
-        }
-    },
-    _destroyObservers() {
-        for (const observer of this.observers) {
-            observer.destroy();
         }
     }
 };
