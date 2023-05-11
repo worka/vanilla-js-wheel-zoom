@@ -1543,6 +1543,20 @@
             this._computePosition(scale, coordinates.x, coordinates.y);
             this._transform();
         },
+        _destroyObservers: function _destroyObservers() {
+            var _iterator = _createForOfIteratorHelper(this.observers),
+                _step;
+            try {
+                for (_iterator.s(); !(_step = _iterator.n()).done; ) {
+                    var observer = _step.value;
+                    observer.destroy();
+                }
+            } catch (err) {
+                _iterator.e(err);
+            } finally {
+                _iterator.f();
+            }
+        },
         prepare: function prepare() {
             this._prepare();
         },
@@ -1593,20 +1607,6 @@
                 if (this.hasOwnProperty(key)) {
                     this[key] = null;
                 }
-            }
-        },
-        _destroyObservers: function _destroyObservers() {
-            var _iterator = _createForOfIteratorHelper(this.observers),
-                _step;
-            try {
-                for (_iterator.s(); !(_step = _iterator.n()).done; ) {
-                    var observer = _step.value;
-                    observer.destroy();
-                }
-            } catch (err) {
-                _iterator.e(err);
-            } finally {
-                _iterator.f();
             }
         },
     };

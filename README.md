@@ -195,6 +195,6 @@ See <a href="https://worka.github.io/vanilla-js-wheel-zoom/examples/images.html"
 | .maxZoomUpToPoint({x, y})    | Zoom to max scale to point                         |
 | .destroy()                   | Destroy object                                     |
 
-### LICENSE
+### License
 
-vanilla-js-wheel-zoom is licensed under the <a href="http://choosealicense.com/licenses/gpl-3.0">GPLv3</a> license for all open source applications. A commercial license is required for all commercial applications (including sites, themes and apps you plan to sell).
+[MIT](https://choosealicense.com/licenses/mit/)
