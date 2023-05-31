@@ -1227,9 +1227,6 @@
             this.direction = 1;
             /** @type {AbstractObserver[]} */
             this.observers = [];
-            if (this.isTouch) {
-                this.options.smoothTime = 0;
-            }
             if (this.options.type === 'image') {
                 // if the `image` has already been loaded
                 if (this.content.$element.complete) {
@@ -1256,8 +1253,6 @@
                 options = this.options,
                 observers = this.observers;
             this._prepare();
-            // this can happen if the src of this.content.$element (when type = image) is changed
-            // and repeat event load at image
             this._destroyObservers();
             if (options.dragScrollable === true) {
                 var dragScrollableObserver = new DragScrollableObserver(
@@ -1620,6 +1615,9 @@
         var options = Object.assign({}, defaultOptions, targetOptions);
         options.smoothTime =
             Number(options.smoothTime) || wZoomDefaultOptions.smoothTime;
+        if (isTouch()) {
+            options.smoothTime = 0;
+        }
         if (options.minScale && options.minScale >= options.maxScale) {
             options.minScale = null;
         }
