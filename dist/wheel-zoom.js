@@ -1384,13 +1384,14 @@
                 content.originalHeight =
                     options.height || content.$element.offsetHeight;
             }
+            content.maxScale = options.maxScale;
             content.minScale =
                 options.minScale ||
                 Math.min(
                     viewport.originalWidth / content.originalWidth,
-                    viewport.originalHeight / content.originalHeight
+                    viewport.originalHeight / content.originalHeight,
+                    content.maxScale
                 );
-            content.maxScale = options.maxScale;
             content.currentScale = content.minScale;
             content.currentWidth = content.originalWidth * content.currentScale;
             content.currentHeight =
@@ -1613,18 +1614,15 @@
      */
     function optionsConstructor(targetOptions, defaultOptions) {
         var options = Object.assign({}, defaultOptions, targetOptions);
+        options.dragScrollableOptions = Object.assign(
+            {},
+            options.dragScrollableOptions
+        );
         options.smoothTime =
             Number(options.smoothTime) || wZoomDefaultOptions.smoothTime;
         if (isTouch()) {
             options.smoothTime = 0;
         }
-        if (options.minScale && options.minScale >= options.maxScale) {
-            options.minScale = null;
-        }
-        options.dragScrollableOptions = Object.assign(
-            {},
-            options.dragScrollableOptions
-        );
         return options;
     }
 
