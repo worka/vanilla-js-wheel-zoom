@@ -3,8 +3,8 @@
     "version": "7.0.2",
     "main": "src/wheel-zoom.js",
     "devDependencies": {
-        "@babel/core": "^7.22.1",
-        "@babel/preset-env": "^7.22.4",
+        "@babel/core": "^7.22.5",
+        "@babel/preset-env": "^7.22.5",
         "@rollup/plugin-babel": "^6.0.3",
         "prettier": "2.8.8",
         "rollup": "^3.24.0",
