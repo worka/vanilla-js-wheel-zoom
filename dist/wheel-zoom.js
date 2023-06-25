@@ -636,7 +636,7 @@
         // maximum allowed proportion of scale (1 = 100% content size)
         maxScale: 1,
         // content resizing speed
-        speed: 50,
+        speed: 1.1,
         // zoom to maximum (minimum) size on click
         zoomOnClick: true,
         // zoom to maximum (minimum) size on double click
@@ -1433,12 +1433,13 @@
                 minScale = _this$content.minScale,
                 maxScale = _this$content.maxScale,
                 currentScale = _this$content.currentScale;
-            var scale = currentScale + this.direction / this.options.speed;
-            if (scale < minScale) {
+            var scale =
+                currentScale * Math.pow(this.options.speed, this.direction);
+            if (scale <= minScale) {
                 this.direction = 1;
                 return minScale;
             }
-            if (scale > maxScale) {
+            if (scale >= maxScale) {
                 this.direction = -1;
                 return maxScale;
             }

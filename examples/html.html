@@ -92,13 +92,11 @@
                     }
                 },
                 prepare: function (instance) {
-                    rangeElement.min = instance.content.minScale;
-                    rangeElement.defaultValue = instance.content.minScale;
-                    rangeElement.max = instance.content.maxScale;
-                    rangeElement.step = 1 / instance.options.speed;
+                    rangeElement.defaultValue = 0;
+                    rangeElement.max = Math.round(Math.log(instance.content.maxScale / instance.content.minScale) / Math.log(instance.options.speed));
                 },
                 rescale: function (instance) {
-                    rangeElement.value = instance.content.currentScale;
+                    rangeElement.value = Math.round(Math.log(instance.content.currentScale / instance.content.minScale) / Math.log(instance.options.speed));
                 }
             });
 
@@ -115,12 +113,20 @@
             });
 
             rangeElement.addEventListener('input', function () {
-                let newScale = Number(rangeElement.value);
+                var newZoom = Number(rangeElement.value);
 
-                if (newScale > wzoom.content.currentScale) {
-                    wzoom.zoomUp();
+                if (newZoom === 0) {
+                    wzoom.maxZoomDown();
+                } else if (newZoom === rangeElement.max) {
+                    wzoom.maxZoomUp();
                 } else {
-                    wzoom.zoomDown();
+                    var oldZoom = Math.round(Math.log(wzoom.content.currentScale / wzoom.content.minScale) / Math.log(wzoom.options.speed));
+
+                    if (newZoom > oldZoom) {
+                        wzoom.zoomUp();
+                    } else {
+                        wzoom.zoomDown();
+                    }
                 }
             });
         }

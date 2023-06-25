@@ -15,7 +15,7 @@ export const wZoomDefaultOptions = {
     // maximum allowed proportion of scale (1 = 100% content size)
     maxScale: 1,
     // content resizing speed
-    speed: 50,
+    speed: 1.1,
     // zoom to maximum (minimum) size on click
     zoomOnClick: true,
     // zoom to maximum (minimum) size on double click

@@ -217,14 +217,14 @@ WZoom.prototype = {
 
         const { minScale, maxScale, currentScale } = this.content;
 
-        let scale = currentScale + (this.direction / this.options.speed);
+        const scale = currentScale * Math.pow(this.options.speed, this.direction);
 
-        if (scale < minScale) {
+        if (scale <= minScale) {
             this.direction = 1;
             return minScale;
         }
 
-        if (scale > maxScale) {
+        if (scale >= maxScale) {
             this.direction = -1;
             return maxScale;
         }
