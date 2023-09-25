@@ -369,7 +369,7 @@ function optionsConstructor(targetOptions, defaultOptions) {
 
     options.dragScrollableOptions = Object.assign({}, options.dragScrollableOptions);
 
-    options.smoothTime = Number(options.smoothTime) || wZoomDefaultOptions.smoothTime;
+    options.smoothTime = Number(options.smoothTime) ?? wZoomDefaultOptions.smoothTime;
 
     if (isTouch()) {
         options.smoothTime = 0;
