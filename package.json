@@ -1,6 +1,6 @@
 {
     "name": "vanilla-js-wheel-zoom",
-    "version": "8.0.1",
+    "version": "8.0.2",
     "main": "src/wheel-zoom.js",
     "devDependencies": {
         "@babel/core": "^7.23.0",
