@@ -1614,13 +1614,17 @@
      * @returns {?WZoomOptions}
      */
     function optionsConstructor(targetOptions, defaultOptions) {
+        var _Number;
         var options = Object.assign({}, defaultOptions, targetOptions);
         options.dragScrollableOptions = Object.assign(
             {},
             options.dragScrollableOptions
         );
         options.smoothTime =
-            Number(options.smoothTime) || wZoomDefaultOptions.smoothTime;
+            (_Number = Number(options.smoothTime)) !== null &&
+            _Number !== void 0
+                ? _Number
+                : wZoomDefaultOptions.smoothTime;
         if (isTouch()) {
             options.smoothTime = 0;
         }
