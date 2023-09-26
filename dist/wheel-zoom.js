@@ -1203,6 +1203,12 @@
             this.content.$element = document.querySelector(
                 selectorOrHTMLElement
             );
+            if (!this.content.$element) {
+                throw 'WZoom: Element with selector `'.concat(
+                    selectorOrHTMLElement,
+                    '` not found'
+                );
+            }
         } else if (selectorOrHTMLElement instanceof HTMLElement) {
             this.content.$element = selectorOrHTMLElement;
         } else {
@@ -1210,32 +1216,31 @@
                 {}.toString.call(selectorOrHTMLElement)
             );
         }
-        if (this.content.$element) {
-            /** @type {WZoomViewport} */
-            this.viewport = {};
-            // for viewport take just the parent
-            this.viewport.$element = this.content.$element.parentElement;
 
-            /** @type {WZoomOptions} */
-            this.options = optionsConstructor(options, wZoomDefaultOptions);
+        /** @type {WZoomViewport} */
+        this.viewport = {};
+        // for viewport take just the parent
+        this.viewport.$element = this.content.$element.parentElement;
 
-            // check if we're using a touch screen
-            this.isTouch = isTouch();
-            this.direction = 1;
-            /** @type {AbstractObserver[]} */
-            this.observers = [];
-            if (this.options.type === 'image') {
-                // if the `image` has already been loaded
-                if (this.content.$element.complete) {
-                    this._init();
-                } else {
-                    on(this.content.$element, 'load', this._init, {
-                        once: true,
-                    });
-                }
-            } else {
+        /** @type {WZoomOptions} */
+        this.options = optionsConstructor(options, wZoomDefaultOptions);
+
+        // check if we're using a touch screen
+        this.isTouch = isTouch();
+        this.direction = 1;
+        /** @type {AbstractObserver[]} */
+        this.observers = [];
+        if (this.options.type === 'image') {
+            // if the `image` has already been loaded
+            if (this.content.$element.complete) {
                 this._init();
+            } else {
+                on(this.content.$element, 'load', this._init, {
+                    once: true,
+                });
             }
+        } else {
+            this._init();
         }
     }
     WZoom.prototype = {
