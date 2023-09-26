@@ -1029,22 +1029,25 @@
                 key: '_upHandler',
                 value: function _upHandler(event) {
                     var _this2 = this;
-                    var delay = this.subscribes[EVENT_DBLCLICK] ? 200 : 0;
+                    var delay = 200;
+                    var setTimeoutInner = this.subscribes[EVENT_DBLCLICK]
+                        ? setTimeout
+                        : function (cb, delay) {
+                              return cb();
+                          };
                     if (this.firstClick) {
-                        this.pressingTimeout = setTimeout(function () {
-                            if (
-                                _this2.coordsOnDown &&
-                                _this2.coordsOnDown.x === eventClientX(event) &&
-                                _this2.coordsOnDown.y === eventClientY(event)
-                            ) {
+                        this.firstClick = false;
+                        this.pressingTimeout = setTimeoutInner(function () {
+                            if (!_this2._isDetectedShift(event)) {
                                 _this2._run(EVENT_CLICK, event);
                             }
                             _this2.firstClick = true;
                         }, delay);
-                        this.firstClick = false;
                     } else {
-                        this.pressingTimeout = setTimeout(function () {
-                            _this2._run(EVENT_DBLCLICK, event);
+                        this.pressingTimeout = setTimeoutInner(function () {
+                            if (!_this2._isDetectedShift(event)) {
+                                _this2._run(EVENT_DBLCLICK, event);
+                            }
                             _this2.firstClick = true;
                         }, delay / 2);
                     }
@@ -1059,6 +1062,22 @@
                 key: '_wheelHandler',
                 value: function _wheelHandler(event) {
                     this._run(EVENT_WHEEL, event);
+                },
+
+                /**
+                 * @param {TouchEvent|MouseEvent|PointerEvent} event
+                 * @return {boolean}
+                 * @private
+                 */
+            },
+            {
+                key: '_isDetectedShift',
+                value: function _isDetectedShift(event) {
+                    return !(
+                        this.coordsOnDown &&
+                        this.coordsOnDown.x === eventClientX(event) &&
+                        this.coordsOnDown.y === eventClientY(event)
+                    );
                 },
             },
         ]);

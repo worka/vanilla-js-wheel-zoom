@@ -64,24 +64,26 @@ class InteractionObserver extends AbstractObserver {
      * @private
      */
     _upHandler(event) {
-        const delay = this.subscribes[EVENT_DBLCLICK] ? 200 : 0;
+        const delay = 200;
+        const setTimeoutInner = this.subscribes[EVENT_DBLCLICK]
+            ? setTimeout
+            : (cb, delay) => cb();
 
         if (this.firstClick) {
-            this.pressingTimeout = setTimeout(() => {
-                if (this.coordsOnDown &&
-                    this.coordsOnDown.x === eventClientX(event) &&
-                    this.coordsOnDown.y === eventClientY(event)
-                ) {
+            this.firstClick = false;
+
+            this.pressingTimeout = setTimeoutInner(() => {
+                if (!this._isDetectedShift(event)) {
                     this._run(EVENT_CLICK, event);
                 }
 
                 this.firstClick = true;
             }, delay);
-
-            this.firstClick = false;
         } else {
-            this.pressingTimeout = setTimeout(() => {
-                this._run(EVENT_DBLCLICK, event);
+            this.pressingTimeout = setTimeoutInner(() => {
+                if (!this._isDetectedShift(event)) {
+                    this._run(EVENT_DBLCLICK, event);
+                }
 
                 this.firstClick = true;
             }, delay / 2);
@@ -94,6 +96,17 @@ class InteractionObserver extends AbstractObserver {
      */
     _wheelHandler(event) {
         this._run(EVENT_WHEEL, event);
+    }
+
+    /**
+     * @param {TouchEvent|MouseEvent|PointerEvent} event
+     * @return {boolean}
+     * @private
+     */
+    _isDetectedShift(event) {
+        return !(this.coordsOnDown &&
+            this.coordsOnDown.x === eventClientX(event) &&
+            this.coordsOnDown.y === eventClientY(event));
     }
 }
 
