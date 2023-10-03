@@ -7,8 +7,8 @@
         "@babel/preset-env": "^7.22.20",
         "@rollup/plugin-babel": "^6.0.3",
         "prettier": "3.0.3",
-        "rollup": "^3.29.3",
-        "terser": "^5.20.0"
+        "rollup": "^3.29.4",
+        "terser": "^5.21.0"
     },
     "scripts": {
         "build": "yarn rollup && yarn prettier && yarn minify",
