@@ -662,6 +662,7 @@
      * @property {boolean} zoomOnClick
      * @property {boolean} zoomOnDblClick
      * @property {number} smoothTime
+     * @property {number} smoothTimeDrag
      * @property {string} alignContent
      * @property {boolean} disableWheelZoom
      * @property {boolean} reverseWheelDirection
@@ -1316,7 +1317,7 @@
                     // if we do not go beyond the permissible boundaries of the viewport
                     if (Math.abs(contentNewTop) <= maxAvailableTop)
                         content.currentTop = contentNewTop;
-                    _this._transform();
+                    _this._transform(true);
                     if (
                         typeof options.dragScrollableOptions.onMove ===
                         'function'
@@ -1532,7 +1533,14 @@
          * @private
          */
         _transform: function _transform() {
-            transition(this.content.$element, this.options.smoothTime);
+            var isDrag =
+                arguments.length > 0 && arguments[0] !== undefined
+                    ? arguments[0]
+                    : false;
+            transition(
+                this.content.$element,
+                isDrag ? this.options.smoothTimeDrag : this.options.smoothTime
+            );
             transform(
                 this.content.$element,
                 this.content.currentLeft,
@@ -1646,8 +1654,12 @@
             _Number !== void 0
                 ? _Number
                 : wZoomDefaultOptions.smoothTime;
+        options.smoothTimeDrag = !isNaN(Number(options.smoothTimeDrag))
+            ? Number(options.smoothTimeDrag)
+            : options.smoothTime;
         if (isTouch()) {
             options.smoothTime = 0;
+            options.smoothTimeDrag = 0;
         }
         return options;
     }
