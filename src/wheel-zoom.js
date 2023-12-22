@@ -91,19 +91,19 @@ WZoom.prototype = {
             const dragScrollableObserver = new DragScrollableObserver(content.$element);
             observers.push(dragScrollableObserver);
 
-            if (typeof options.dragScrollableOptions.onGrab === 'function') {
+            if (typeof options.onGrab === 'function') {
                 dragScrollableObserver.on(EVENT_GRAB, (event) => {
                     event.preventDefault();
 
-                    options.dragScrollableOptions.onGrab(event, this);
+                    options.onGrab(event, this);
                 });
             }
 
-            if (typeof options.dragScrollableOptions.onDrop === 'function') {
+            if (typeof options.onDrop === 'function') {
                 dragScrollableObserver.on(EVENT_DROP, (event) => {
                     event.preventDefault();
 
-                    options.dragScrollableOptions.onDrop(event, this);
+                    options.onDrop(event, this);
                 });
             }
 
@@ -125,8 +125,8 @@ WZoom.prototype = {
 
                 this._transform(options.smoothTimeDrag);
 
-                if (typeof options.dragScrollableOptions.onMove === 'function') {
-                    options.dragScrollableOptions.onMove(event, this);
+                if (typeof options.onMove === 'function') {
+                    options.onMove(event, this);
                 }
             });
         }
@@ -371,8 +371,6 @@ WZoom.prototype = {
  */
 function optionsConstructor(targetOptions, defaultOptions) {
     const options = Object.assign({}, defaultOptions, targetOptions);
-
-    options.dragScrollableOptions = Object.assign({}, options.dragScrollableOptions);
 
     if (isTouch()) {
         options.smoothTime = 0;

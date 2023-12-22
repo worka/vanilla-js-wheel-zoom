@@ -626,10 +626,6 @@
         width: null,
         // for type `image` computed auto (if height set null), for type `html` need set real html content height, else computed auto
         height: null,
-        // drag scrollable content
-        dragScrollable: true,
-        // options for the DragScrollable module
-        dragScrollableOptions: {},
         // minimum allowed proportion of scale (computed auto if null)
         minScale: null,
         // maximum allowed proportion of scale (1 = 100% content size)
@@ -644,10 +640,13 @@
         smoothTime: 0.25,
         // align content `center`, `left`, `top`, `right`, `bottom`
         alignContent: 'center',
-        /********************/
+        // ******************** //
         disableWheelZoom: false,
         // option to reverse wheel direction
         reverseWheelDirection: false,
+        // ******************** //
+        // drag scrollable content
+        dragScrollable: true,
     };
 
     /**
@@ -656,23 +655,17 @@
      * @property {string} type
      * @property {?number} width
      * @property {?number} height
-     * @property {boolean} dragScrollable
-     * @property {DragScrollableOptions} dragScrollableOptions
      * @property {?number} minScale
      * @property {number} maxScale
      * @property {number} speed
      * @property {boolean} zoomOnClick
      * @property {boolean} zoomOnDblClick
      * @property {number} smoothTime
-     * @property {number} smoothTimeDrag
      * @property {string} alignContent
      * @property {boolean} disableWheelZoom
      * @property {boolean} reverseWheelDirection
-     */
-
-    /**
-     * @typedef DragScrollableOptions
-     * @type {Object}
+     * @property {boolean} dragScrollable
+     * @property {number} smoothTimeDrag
      * @property {?Function} onGrab
      * @property {?Function} onMove
      * @property {?Function} onDrop
@@ -1283,20 +1276,16 @@
                     content.$element
                 );
                 observers.push(dragScrollableObserver);
-                if (
-                    typeof options.dragScrollableOptions.onGrab === 'function'
-                ) {
+                if (typeof options.onGrab === 'function') {
                     dragScrollableObserver.on(EVENT_GRAB, function (event) {
                         event.preventDefault();
-                        options.dragScrollableOptions.onGrab(event, _this);
+                        options.onGrab(event, _this);
                     });
                 }
-                if (
-                    typeof options.dragScrollableOptions.onDrop === 'function'
-                ) {
+                if (typeof options.onDrop === 'function') {
                     dragScrollableObserver.on(EVENT_DROP, function (event) {
                         event.preventDefault();
-                        options.dragScrollableOptions.onDrop(event, _this);
+                        options.onDrop(event, _this);
                     });
                 }
                 dragScrollableObserver.on(EVENT_MOVE, function (event) {
@@ -1320,11 +1309,8 @@
                     if (Math.abs(contentNewTop) <= maxAvailableTop)
                         content.currentTop = contentNewTop;
                     _this._transform(options.smoothTimeDrag);
-                    if (
-                        typeof options.dragScrollableOptions.onMove ===
-                        'function'
-                    ) {
-                        options.dragScrollableOptions.onMove(event, _this);
+                    if (typeof options.onMove === 'function') {
+                        options.onMove(event, _this);
                     }
                 });
             }
@@ -1641,10 +1627,6 @@
      */
     function optionsConstructor(targetOptions, defaultOptions) {
         var options = Object.assign({}, defaultOptions, targetOptions);
-        options.dragScrollableOptions = Object.assign(
-            {},
-            options.dragScrollableOptions
-        );
         if (isTouch()) {
             options.smoothTime = 0;
             options.smoothTimeDrag = 0;

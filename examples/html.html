@@ -83,13 +83,11 @@
                 type: 'html',
                 width: imageElement.naturalWidth,
                 height: imageElement.naturalHeight,
-                dragScrollableOptions: {
-                    onGrab: function () {
-                        document.getElementById('myViewport').style.cursor = 'grabbing';
-                    },
-                    onDrop: function () {
-                        document.getElementById('myViewport').style.cursor = 'grab';
-                    }
+                onGrab: function () {
+                    document.getElementById('myViewport').style.cursor = 'grabbing';
+                },
+                onDrop: function () {
+                    document.getElementById('myViewport').style.cursor = 'grab';
                 },
                 prepare: function (instance) {
                     rangeElement.defaultValue = 0;

@@ -83,13 +83,11 @@
         ];
 
         var wzoom = WZoom.create('#myContent', {
-            dragScrollableOptions: {
-                onGrab: function () {
-                    frame.style.cursor = 'grabbing';
-                },
-                onDrop: function () {
-                    frame.style.cursor = 'grab';
-                }
+            onGrab: function () {
+                frame.style.cursor = 'grabbing';
+            },
+            onDrop: function () {
+                frame.style.cursor = 'grab';
             }
         });
 

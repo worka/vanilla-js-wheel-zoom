@@ -6,10 +6,6 @@ export const wZoomDefaultOptions = {
     width: null,
     // for type `image` computed auto (if height set null), for type `html` need set real html content height, else computed auto
     height: null,
-    // drag scrollable content
-    dragScrollable: true,
-    // options for the DragScrollable module
-    dragScrollableOptions: {},
     // minimum allowed proportion of scale (computed auto if null)
     minScale: null,
     // maximum allowed proportion of scale (1 = 100% content size)
@@ -24,10 +20,13 @@ export const wZoomDefaultOptions = {
     smoothTime: .25,
     // align content `center`, `left`, `top`, `right`, `bottom`
     alignContent: 'center',
-    /********************/
+    // ******************** //
     disableWheelZoom: false,
     // option to reverse wheel direction
     reverseWheelDirection: false,
+    // ******************** //
+    // drag scrollable content
+    dragScrollable: true,
 };
 
 /**
@@ -36,23 +35,17 @@ export const wZoomDefaultOptions = {
  * @property {string} type
  * @property {?number} width
  * @property {?number} height
- * @property {boolean} dragScrollable
- * @property {DragScrollableOptions} dragScrollableOptions
  * @property {?number} minScale
  * @property {number} maxScale
  * @property {number} speed
  * @property {boolean} zoomOnClick
  * @property {boolean} zoomOnDblClick
  * @property {number} smoothTime
- * @property {number} smoothTimeDrag
  * @property {string} alignContent
  * @property {boolean} disableWheelZoom
  * @property {boolean} reverseWheelDirection
- */
-
-/**
- * @typedef DragScrollableOptions
- * @type {Object}
+ * @property {boolean} dragScrollable
+ * @property {number} smoothTimeDrag
  * @property {?Function} onGrab
  * @property {?Function} onMove
  * @property {?Function} onDrop

@@ -118,6 +118,7 @@
             var state = getStore(index);
 
             WZoom.create(element, {
+                smoothTimeDrag: 0,
                 prepare: function (instance) {
                     if (state) {
                         instance.transform(state.top, state.left, state.scale);
@@ -127,11 +128,9 @@
                     setStore(index, getState(instance));
                     summary(instance, getState(instance));
                 },
-                dragScrollableOptions: {
-                    onMove: function (event, instance) {
-                        setStore(index, getState(instance));
-                        summary(instance, getState(instance));
-                    }
+                onMove: function (event, instance) {
+                    setStore(index, getState(instance));
+                    summary(instance, getState(instance));
                 }
             });
         });
