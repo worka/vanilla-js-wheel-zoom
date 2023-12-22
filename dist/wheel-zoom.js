@@ -664,6 +664,7 @@
      * @property {boolean} zoomOnClick
      * @property {boolean} zoomOnDblClick
      * @property {number} smoothTime
+     * @property {number} smoothTimeDrag
      * @property {string} alignContent
      * @property {boolean} disableWheelZoom
      * @property {boolean} reverseWheelDirection
@@ -1318,7 +1319,7 @@
                     // if we do not go beyond the permissible boundaries of the viewport
                     if (Math.abs(contentNewTop) <= maxAvailableTop)
                         content.currentTop = contentNewTop;
-                    _this._transform();
+                    _this._transform(_this.options.smoothTimeDrag);
                     if (
                         typeof options.dragScrollableOptions.onMove ===
                         'function'
@@ -1531,10 +1532,12 @@
             content.currentScale = scale;
         },
         /**
+         * @param {number} smoothTime
          * @private
          */
-        _transform: function _transform() {
-            transition(this.content.$element, this.options.smoothTime);
+        _transform: function _transform(smoothTime) {
+            if (smoothTime === undefined) smoothTime = this.options.smoothTime;
+            transition(this.content.$element, smoothTime);
             transform(
                 this.content.$element,
                 this.content.currentLeft,
@@ -1637,19 +1640,23 @@
      * @returns {?WZoomOptions}
      */
     function optionsConstructor(targetOptions, defaultOptions) {
-        var _Number;
         var options = Object.assign({}, defaultOptions, targetOptions);
         options.dragScrollableOptions = Object.assign(
             {},
             options.dragScrollableOptions
         );
-        options.smoothTime =
-            (_Number = Number(options.smoothTime)) !== null &&
-            _Number !== void 0
-                ? _Number
-                : wZoomDefaultOptions.smoothTime;
         if (isTouch()) {
             options.smoothTime = 0;
+            options.smoothTimeDrag = 0;
+        } else {
+            var smoothTime = Number(options.smoothTime);
+            var smoothTimeDrag = Number(options.smoothTimeDrag);
+            options.smoothTime = !isNaN(smoothTime)
+                ? smoothTime
+                : wZoomDefaultOptions.smoothTime;
+            options.smoothTimeDrag = !isNaN(smoothTimeDrag)
+                ? smoothTimeDrag
+                : options.smoothTime;
         }
         return options;
     }
