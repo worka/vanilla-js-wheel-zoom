@@ -1319,7 +1319,7 @@
                     // if we do not go beyond the permissible boundaries of the viewport
                     if (Math.abs(contentNewTop) <= maxAvailableTop)
                         content.currentTop = contentNewTop;
-                    _this._transform(_this.options.smoothTimeDrag);
+                    _this._transform(options.smoothTimeDrag);
                     if (
                         typeof options.dragScrollableOptions.onMove ===
                         'function'

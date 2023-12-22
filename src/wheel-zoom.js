@@ -123,7 +123,7 @@ WZoom.prototype = {
                 // if we do not go beyond the permissible boundaries of the viewport
                 if (Math.abs(contentNewTop) <= maxAvailableTop) content.currentTop = contentNewTop;
 
-                this._transform(this.options.smoothTimeDrag);
+                this._transform(options.smoothTimeDrag);
 
                 if (typeof options.dragScrollableOptions.onMove === 'function') {
                     options.dragScrollableOptions.onMove(event, this);
