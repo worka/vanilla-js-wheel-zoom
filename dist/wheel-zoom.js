@@ -2,10 +2,12 @@
     typeof exports === 'object' && typeof module !== 'undefined'
         ? (module.exports = factory())
         : typeof define === 'function' && define.amd
-        ? define(factory)
-        : ((global =
-              typeof globalThis !== 'undefined' ? globalThis : global || self),
-          (global.WZoom = factory()));
+          ? define(factory)
+          : ((global =
+                typeof globalThis !== 'undefined'
+                    ? globalThis
+                    : global || self),
+            (global.WZoom = factory()));
 })(this, function () {
     'use strict';
 
@@ -71,19 +73,33 @@
                       _defineProperty(e, r, t[r]);
                   })
                 : Object.getOwnPropertyDescriptors
-                ? Object.defineProperties(
-                      e,
-                      Object.getOwnPropertyDescriptors(t)
-                  )
-                : ownKeys(Object(t)).forEach(function (r) {
-                      Object.defineProperty(
-                          e,
-                          r,
-                          Object.getOwnPropertyDescriptor(t, r)
-                      );
-                  });
+                  ? Object.defineProperties(
+                        e,
+                        Object.getOwnPropertyDescriptors(t)
+                    )
+                  : ownKeys(Object(t)).forEach(function (r) {
+                        Object.defineProperty(
+                            e,
+                            r,
+                            Object.getOwnPropertyDescriptor(t, r)
+                        );
+                    });
         }
         return e;
+    }
+    function _toPrimitive(t, r) {
+        if ('object' != typeof t || !t) return t;
+        var e = t[Symbol.toPrimitive];
+        if (void 0 !== e) {
+            var i = e.call(t, r || 'default');
+            if ('object' != typeof i) return i;
+            throw new TypeError('@@toPrimitive must return a primitive value.');
+        }
+        return ('string' === r ? String : Number)(t);
+    }
+    function _toPropertyKey(t) {
+        var i = _toPrimitive(t, 'string');
+        return 'symbol' == typeof i ? i : String(i);
     }
     function _classCallCheck(instance, Constructor) {
         if (!(instance instanceof Constructor)) {
@@ -323,20 +339,6 @@
             },
         };
     }
-    function _toPrimitive(input, hint) {
-        if (typeof input !== 'object' || input === null) return input;
-        var prim = input[Symbol.toPrimitive];
-        if (prim !== undefined) {
-            var res = prim.call(input, hint || 'default');
-            if (typeof res !== 'object') return res;
-            throw new TypeError('@@toPrimitive must return a primitive value.');
-        }
-        return (hint === 'string' ? String : Number)(input);
-    }
-    function _toPropertyKey(arg) {
-        var key = _toPrimitive(arg, 'string');
-        return typeof key === 'symbol' ? key : String(key);
-    }
 
     /**
      * Get element position (with support old browsers)
@@ -370,8 +372,8 @@
         return supportPageOffset
             ? window.pageXOffset
             : isCSS1Compat
-            ? document.documentElement.scrollLeft
-            : document.body.scrollLeft;
+              ? document.documentElement.scrollLeft
+              : document.body.scrollLeft;
     }
 
     /**
@@ -384,8 +386,8 @@
         return supportPageOffset
             ? window.pageYOffset
             : isCSS1Compat
-            ? document.documentElement.scrollTop
-            : document.body.scrollTop;
+              ? document.documentElement.scrollTop
+              : document.body.scrollTop;
     }
 
     /**
