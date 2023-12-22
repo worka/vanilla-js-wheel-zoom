@@ -44,6 +44,7 @@ export const wZoomDefaultOptions = {
  * @property {boolean} zoomOnClick
  * @property {boolean} zoomOnDblClick
  * @property {number} smoothTime
+ * @property {number} smoothTimeDrag
  * @property {string} alignContent
  * @property {boolean} disableWheelZoom
  * @property {boolean} reverseWheelDirection

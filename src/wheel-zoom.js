@@ -123,7 +123,7 @@ WZoom.prototype = {
                 // if we do not go beyond the permissible boundaries of the viewport
                 if (Math.abs(contentNewTop) <= maxAvailableTop) content.currentTop = contentNewTop;
 
-                this._transform();
+                this._transform(this.options.smoothTimeDrag);
 
                 if (typeof options.dragScrollableOptions.onMove === 'function') {
                     options.dragScrollableOptions.onMove(event, this);
@@ -272,10 +272,13 @@ WZoom.prototype = {
         content.currentScale = scale;
     },
     /**
+     * @param {number} smoothTime
      * @private
      */
-    _transform() {
-        transition(this.content.$element, this.options.smoothTime);
+    _transform(smoothTime) {
+        if (smoothTime === undefined) smoothTime = this.options.smoothTime;
+
+        transition(this.content.$element, smoothTime);
         transform(this.content.$element, this.content.currentLeft, this.content.currentTop, this.content.currentScale);
 
         if (typeof this.options.rescale === 'function') {
@@ -371,10 +374,15 @@ function optionsConstructor(targetOptions, defaultOptions) {
 
     options.dragScrollableOptions = Object.assign({}, options.dragScrollableOptions);
 
-    options.smoothTime = Number(options.smoothTime) ?? wZoomDefaultOptions.smoothTime;
-
     if (isTouch()) {
         options.smoothTime = 0;
+        options.smoothTimeDrag = 0;
+    } else {
+        const smoothTime = Number(options.smoothTime);
+        const smoothTimeDrag = Number(options.smoothTimeDrag);
+
+        options.smoothTime = !isNaN(smoothTime) ? smoothTime : wZoomDefaultOptions.smoothTime;
+        options.smoothTimeDrag = !isNaN(smoothTimeDrag) ? smoothTimeDrag : options.smoothTime;
     }
 
     return options;
