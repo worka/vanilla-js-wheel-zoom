@@ -11,6 +11,31 @@
 })(this, function () {
     'use strict';
 
+    function _callSuper(t, o, e) {
+        return (
+            (o = _getPrototypeOf(o)),
+            _possibleConstructorReturn(
+                t,
+                _isNativeReflectConstruct()
+                    ? Reflect.construct(
+                          o,
+                          e || [],
+                          _getPrototypeOf(t).constructor
+                      )
+                    : o.apply(t, e)
+            )
+        );
+    }
+    function _isNativeReflectConstruct() {
+        try {
+            var t = !Boolean.prototype.valueOf.call(
+                Reflect.construct(Boolean, [], function () {})
+            );
+        } catch (t) {}
+        return (_isNativeReflectConstruct = function () {
+            return !!t;
+        })();
+    }
     function _iterableToArrayLimit(r, l) {
         var t =
             null == r
@@ -176,19 +201,6 @@
               };
         return _setPrototypeOf(o, p);
     }
-    function _isNativeReflectConstruct() {
-        if (typeof Reflect === 'undefined' || !Reflect.construct) return false;
-        if (Reflect.construct.sham) return false;
-        if (typeof Proxy === 'function') return true;
-        try {
-            Boolean.prototype.valueOf.call(
-                Reflect.construct(Boolean, [], function () {})
-            );
-            return true;
-        } catch (e) {
-            return false;
-        }
-    }
     function _assertThisInitialized(self) {
         if (self === void 0) {
             throw new ReferenceError(
@@ -206,20 +218,6 @@
             );
         }
         return _assertThisInitialized(self);
-    }
-    function _createSuper(Derived) {
-        var hasNativeReflectConstruct = _isNativeReflectConstruct();
-        return function _createSuperInternal() {
-            var Super = _getPrototypeOf(Derived),
-                result;
-            if (hasNativeReflectConstruct) {
-                var NewTarget = _getPrototypeOf(this).constructor;
-                result = Reflect.construct(Super, arguments, NewTarget);
-            } else {
-                result = Super.apply(this, arguments);
-            }
-            return _possibleConstructorReturn(this, result);
-        };
     }
     function _superPropBase(object, property) {
         while (!Object.prototype.hasOwnProperty.call(object, property)) {
@@ -747,7 +745,6 @@
     var EVENT_DROP = 'drop';
     var DragScrollableObserver = /*#__PURE__*/ (function (_AbstractObserver) {
         _inherits(DragScrollableObserver, _AbstractObserver);
-        var _super = _createSuper(DragScrollableObserver);
         /**
          * @param {HTMLElement} target
          * @constructor
@@ -755,7 +752,7 @@
         function DragScrollableObserver(target) {
             var _this;
             _classCallCheck(this, DragScrollableObserver);
-            _this = _super.call(this);
+            _this = _callSuper(this, DragScrollableObserver);
             _this.target = target;
             _this.moveTimer = null;
             _this.coordinates = null;
@@ -910,7 +907,6 @@
     var EVENT_WHEEL = 'wheel';
     var InteractionObserver = /*#__PURE__*/ (function (_AbstractObserver) {
         _inherits(InteractionObserver, _AbstractObserver);
-        var _super = _createSuper(InteractionObserver);
         /**
          * @param {HTMLElement} target
          * @constructor
@@ -918,7 +914,7 @@
         function InteractionObserver(target) {
             var _this;
             _classCallCheck(this, InteractionObserver);
-            _this = _super.call(this);
+            _this = _callSuper(this, InteractionObserver);
             _this.target = target;
             _this.coordsOnDown = null;
             _this.pressingTimeout = null;
@@ -1084,7 +1080,6 @@
     var SHIFT_DECIDE_THAT_MOVE_STARTED = 5;
     var PinchToZoomObserver = /*#__PURE__*/ (function (_AbstractObserver) {
         _inherits(PinchToZoomObserver, _AbstractObserver);
-        var _super = _createSuper(PinchToZoomObserver);
         /**
          * @param {HTMLElement} target
          * @constructor
@@ -1092,7 +1087,7 @@
         function PinchToZoomObserver(target) {
             var _this;
             _classCallCheck(this, PinchToZoomObserver);
-            _this = _super.call(this);
+            _this = _callSuper(this, PinchToZoomObserver);
             _this.target = target;
             _this.fingersHypot = null;
             _this.zoomPinchWasDetected = false;
