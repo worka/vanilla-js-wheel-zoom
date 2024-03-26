@@ -124,7 +124,7 @@
     }
     function _toPropertyKey(t) {
         var i = _toPrimitive(t, 'string');
-        return 'symbol' == typeof i ? i : String(i);
+        return 'symbol' == typeof i ? i : i + '';
     }
     function _classCallCheck(instance, Constructor) {
         if (!(instance instanceof Constructor)) {
@@ -684,7 +684,7 @@
          * @param {(event: Event) => void} eventHandler
          * @returns {AbstractObserver}
          */
-        _createClass(AbstractObserver, [
+        return _createClass(AbstractObserver, [
             {
                 key: 'on',
                 value: function on(eventType, eventHandler) {
@@ -737,14 +737,12 @@
                 },
             },
         ]);
-        return AbstractObserver;
     })();
 
     var EVENT_GRAB = 'grab';
     var EVENT_MOVE = 'move';
     var EVENT_DROP = 'drop';
     var DragScrollableObserver = /*#__PURE__*/ (function (_AbstractObserver) {
-        _inherits(DragScrollableObserver, _AbstractObserver);
         /**
          * @param {HTMLElement} target
          * @constructor
@@ -778,15 +776,9 @@
                       passive: false,
                   }
                 : false;
-            _this._dropHandler = _this._dropHandler.bind(
-                _assertThisInitialized(_this)
-            );
-            _this._grabHandler = _this._grabHandler.bind(
-                _assertThisInitialized(_this)
-            );
-            _this._moveHandler = _this._moveHandler.bind(
-                _assertThisInitialized(_this)
-            );
+            _this._dropHandler = _this._dropHandler.bind(_this);
+            _this._grabHandler = _this._grabHandler.bind(_this);
+            _this._moveHandler = _this._moveHandler.bind(_this);
             on(
                 _this.target,
                 _this.events.grab,
@@ -795,7 +787,8 @@
             );
             return _this;
         }
-        _createClass(DragScrollableObserver, [
+        _inherits(DragScrollableObserver, _AbstractObserver);
+        return _createClass(DragScrollableObserver, [
             {
                 key: 'destroy',
                 value: function destroy() {
@@ -899,14 +892,12 @@
                 },
             },
         ]);
-        return DragScrollableObserver;
     })(AbstractObserver);
 
     var EVENT_CLICK = 'click';
     var EVENT_DBLCLICK = 'dblclick';
     var EVENT_WHEEL = 'wheel';
     var InteractionObserver = /*#__PURE__*/ (function (_AbstractObserver) {
-        _inherits(InteractionObserver, _AbstractObserver);
         /**
          * @param {HTMLElement} target
          * @constructor
@@ -938,15 +929,9 @@
                       passive: true,
                   }
                 : false;
-            _this._downHandler = _this._downHandler.bind(
-                _assertThisInitialized(_this)
-            );
-            _this._upHandler = _this._upHandler.bind(
-                _assertThisInitialized(_this)
-            );
-            _this._wheelHandler = _this._wheelHandler.bind(
-                _assertThisInitialized(_this)
-            );
+            _this._downHandler = _this._downHandler.bind(_this);
+            _this._upHandler = _this._upHandler.bind(_this);
+            _this._wheelHandler = _this._wheelHandler.bind(_this);
             on(
                 _this.target,
                 _this.events.down,
@@ -962,7 +947,8 @@
             on(_this.target, EVENT_WHEEL, _this._wheelHandler);
             return _this;
         }
-        _createClass(InteractionObserver, [
+        _inherits(InteractionObserver, _AbstractObserver);
+        return _createClass(InteractionObserver, [
             {
                 key: 'destroy',
                 value: function destroy() {
@@ -1073,13 +1059,11 @@
                 },
             },
         ]);
-        return InteractionObserver;
     })(AbstractObserver);
 
     var EVENT_PINCH_TO_ZOOM = 'pinchtozoom';
     var SHIFT_DECIDE_THAT_MOVE_STARTED = 5;
     var PinchToZoomObserver = /*#__PURE__*/ (function (_AbstractObserver) {
-        _inherits(PinchToZoomObserver, _AbstractObserver);
         /**
          * @param {HTMLElement} target
          * @constructor
@@ -1091,17 +1075,14 @@
             _this.target = target;
             _this.fingersHypot = null;
             _this.zoomPinchWasDetected = false;
-            _this._touchMoveHandler = _this._touchMoveHandler.bind(
-                _assertThisInitialized(_this)
-            );
-            _this._touchEndHandler = _this._touchEndHandler.bind(
-                _assertThisInitialized(_this)
-            );
+            _this._touchMoveHandler = _this._touchMoveHandler.bind(_this);
+            _this._touchEndHandler = _this._touchEndHandler.bind(_this);
             on(_this.target, 'touchmove', _this._touchMoveHandler);
             on(_this.target, 'touchend', _this._touchEndHandler);
             return _this;
         }
-        _createClass(PinchToZoomObserver, [
+        _inherits(PinchToZoomObserver, _AbstractObserver);
+        return _createClass(PinchToZoomObserver, [
             {
                 key: 'destroy',
                 value: function destroy() {
@@ -1187,7 +1168,6 @@
                 },
             },
         ]);
-        return PinchToZoomObserver;
     })(AbstractObserver);
 
     /**
