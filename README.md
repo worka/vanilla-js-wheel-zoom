@@ -141,7 +141,7 @@ window.addEventListener('resize', () => {
 
 #### How to rotate the image?
 
-[Try this 😉](https://github.com/worka/vanilla-js-wheel-zoom/issues/21) (and see <a href="https://worka.github.io/vanilla-js-wheel-zoom/examples/image-rotate.html">demo</a>)
+Just set the CSS rotate property (and see <a href="https://worka.github.io/vanilla-js-wheel-zoom/examples/image-rotate.html">demo</a>)
 
 #### Callbacks onMaxScaleReached() / onMinScaleReached()
 

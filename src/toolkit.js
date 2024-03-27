@@ -101,20 +101,57 @@ export function eventClientY(event) {
  * @param {HTMLElement} $element
  * @param {number} left
  * @param {number} top
- * @param {number} scale
+ * @param {string} z
+ * @param {string} scale
  */
-export function transform($element, left, top, scale) {
-    $element.style.transform = `translate(${ left }px, ${ top }px) scale(${ scale })`;
+export function transform($element, left, top, z, scale) {
+    $element.style.translate = `${ left }px ${ top }px ${ z }`;
+    $element.style.scale = scale;
 }
 
 /**
+ * Set the element transition for translate and scale but do not alter other rules.
  * @param {HTMLElement} $element
  * @param {number} time
  */
 export function transition($element, time) {
     if (time) {
-        $element.style.transition = `transform ${ time }s`;
+        replaceTransition($element, "translate", time)
+        replaceTransition($element, "scale", time)
     } else {
+        replaceTransition($element, "translate", null)
+        replaceTransition($element, "scale", null)
+    }
+}
+
+/**
+ * @param {HTMLElement} $element
+ * @param {string} property
+ * @param {number | null} time
+ */
+function replaceTransition($element, property, time) {
+    const css = $element.style.transition
+    const regex = RegExp(/(^|\s)/ + property + /\s\d+s($|,)/, 'i');
+    if (time !== null) {
+        const rule = `${property} ${time}s`;
+        if (!css) {
+            // create definition
+            $element.style.transition = rule
+        } else if (css.includes(property)) {
+            // change existing rule in the definition
+            $element.style.transition.replace(regex, rule)
+        } else {
+            // append to an existing definition
+            $element.style.transition += ", " + rule
+    }
+    } else {
+        if (css.includes(property)) {
+            // remove rule from the definition
+            $element.style.transition.replace(regex, "")
+        }
+        if (!$element.style.transition) {
+            // clean up the definition if not needed
         $element.style.removeProperty('transition');
     }
+}
 }
