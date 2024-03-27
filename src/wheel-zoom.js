@@ -190,6 +190,10 @@ WZoom.prototype = {
             content.originalHeight = options.height || content.$element.offsetHeight;
         }
 
+        const scale = content.$element.style.scale;
+        content.originalScale = scale ? scale.split(" ").map(p => parseFloat(p)) : [1,1,1];
+        content.originalTranslateZ = content.$element.style.translate?.split(" ")[2] || "0px";
+
         content.maxScale = options.maxScale;
         content.minScale = options.minScale || Math.min(viewport.originalWidth / content.originalWidth, viewport.originalHeight / content.originalHeight, content.maxScale);
 
@@ -278,8 +282,13 @@ WZoom.prototype = {
     _transform(smoothTime) {
         if (smoothTime === undefined) smoothTime = this.options.smoothTime;
 
+        // calculate the scale with the respect to the original scale
+        const o = this.content.originalScale;
+        const s = this.content.currentScale;
+        const scale = [o[0] * s, o[1] * s, o[2]].join(" ");
+
         transition(this.content.$element, smoothTime);
-        transform(this.content.$element, this.content.currentLeft, this.content.currentTop, this.content.currentScale);
+        transform(this.content.$element, this.content.currentLeft, this.content.currentTop, this.content.originalTranslateZ, scale);
 
         if (typeof this.options.rescale === 'function') {
             this.options.rescale(this);
@@ -404,6 +413,8 @@ export default WZoom;
  * @property {HTMLElement} [$element]
  * @property {number} [originalWidth]
  * @property {number} [originalHeight]
+ * @property {number[]} [originalScale]
+ * @property {string} [originalTranslateZ]
  * @property {number} [currentWidth]
  * @property {number} [currentHeight]
  * @property {number} [currentLeft]
