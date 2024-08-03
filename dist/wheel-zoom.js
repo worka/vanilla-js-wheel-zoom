@@ -293,6 +293,12 @@
         );
         return t;
     }
+    function _superPropGet(t, e, r, o) {
+        var p = _get(_getPrototypeOf(t.prototype), e, r);
+        return function (t) {
+            return p.apply(r, t);
+        };
+    }
     function _toPrimitive(t, r) {
         if ('object' != typeof t || !t) return t;
         var e = t[Symbol.toPrimitive];
@@ -783,11 +789,7 @@
                         this._grabHandler,
                         this.events.options
                     );
-                    _get(
-                        _getPrototypeOf(DragScrollableObserver.prototype),
-                        'destroy',
-                        this
-                    ).call(this);
+                    _superPropGet(DragScrollableObserver, 'destroy', this)([]);
                 },
 
                 /**
@@ -955,11 +957,7 @@
                         this._wheelHandler,
                         this.events.options
                     );
-                    _get(
-                        _getPrototypeOf(InteractionObserver.prototype),
-                        'destroy',
-                        this
-                    ).call(this);
+                    _superPropGet(InteractionObserver, 'destroy', this)([]);
                 },
 
                 /**
@@ -1073,11 +1071,7 @@
                 value: function destroy() {
                     off(this.target, 'touchmove', this._touchMoveHandler);
                     off(this.target, 'touchend', this._touchEndHandler);
-                    _get(
-                        _getPrototypeOf(PinchToZoomObserver.prototype),
-                        'destroy',
-                        this
-                    ).call(this);
+                    _superPropGet(PinchToZoomObserver, 'destroy', this)([]);
                 },
 
                 /**
