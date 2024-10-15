@@ -38,6 +38,9 @@ class DragScrollableObserver extends AbstractObserver {
     destroy() {
         off(this.target, this.events.grab, this._grabHandler, this.events.options);
 
+        off(document, this.events.drop, this._dropHandler);
+        off(document, this.events.move, this._moveHandler);
+
         super.destroy();
     }
 

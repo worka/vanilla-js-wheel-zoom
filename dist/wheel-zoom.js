@@ -791,6 +791,8 @@
                         this._grabHandler,
                         this.events.options
                     );
+                    off(document, this.events.drop, this._dropHandler);
+                    off(document, this.events.move, this._moveHandler);
                     _superPropGet(DragScrollableObserver, 'destroy', this)([]);
                 },
 
