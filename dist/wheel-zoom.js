@@ -293,11 +293,13 @@
         );
         return t;
     }
-    function _superPropGet(t, e, r, o) {
-        var p = _get(_getPrototypeOf(t.prototype), e, r);
-        return function (t) {
-            return p.apply(r, t);
-        };
+    function _superPropGet(t, e, o, r) {
+        var p = _get(_getPrototypeOf(t.prototype), e, o);
+        return 'function' == typeof p
+            ? function (t) {
+                  return p.apply(o, t);
+              }
+            : p;
     }
     function _toPrimitive(t, r) {
         if ('object' != typeof t || !t) return t;
