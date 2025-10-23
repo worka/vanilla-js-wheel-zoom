@@ -7,5 +7,6 @@ LOCAL_DIR="$(pwd)/.."
 WORK_DIR='/app'
 
 docker build --tag $IMAGE_NAME .
+docker rm -f $CONTAINER_NAME
 docker run -itd --volume $LOCAL_DIR:$WORK_DIR --name $CONTAINER_NAME $IMAGE_NAME
-docker exec -it --workdir $WORK_DIR $CONTAINER_NAME sh
+docker exec -it --workdir $WORK_DIR $CONTAINER_NAME bash
