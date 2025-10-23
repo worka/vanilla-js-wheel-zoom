@@ -484,9 +484,16 @@
             replaceTransition($element, 'translate', time);
             replaceTransition($element, 'scale', time);
         } else {
-            replaceTransition($element, 'translate', null);
-            replaceTransition($element, 'scale', null);
+            removeTransition($element);
         }
+    }
+
+    /**
+     * @param {HTMLElement} $element
+     */
+    function removeTransition($element) {
+        replaceTransition($element, 'translate', null);
+        replaceTransition($element, 'scale', null);
     }
 
     /**
@@ -495,28 +502,29 @@
      * @param {?number} time
      */
     function replaceTransition($element, property, time) {
-        var css = $element.style.transition;
-        var regex = RegExp(/(^|\s)/ + property + /\s\d+s($|,)/, 'i');
+        var st = $element.style;
+        var css = st.transition;
+        var regex = RegExp(property + '[^,]+', 'i');
         if (time !== null) {
             var rule = ''.concat(property, ' ').concat(time, 's');
             if (!css) {
                 // create definition
-                $element.style.transition = rule;
+                st.transition = rule;
             } else if (css.includes(property)) {
                 // change existing rule in the definition
-                $element.style.transition.replace(regex, rule);
+                st.transition = css.replace(regex, rule);
             } else {
                 // append to an existing definition
-                $element.style.transition += ', '.concat(rule);
+                st.transition += ', '.concat(rule);
             }
         } else {
             if (css.includes(property)) {
                 // remove rule from the definition
-                $element.style.transition.replace(regex, '');
+                st.transition = css.replace(RegExp(regex.source + ',?'), '');
             }
-            if (!$element.style.transition) {
+            if (!st.transition) {
                 // clean up the definition if not needed
-                $element.style.removeProperty('transition');
+                st.removeProperty('transition');
             }
         }
     }
@@ -835,6 +843,8 @@
                         this._grabHandler,
                         this.events.options
                     );
+                    off(document, this.events.drop, this._dropHandler);
+                    off(document, this.events.move, this._moveHandler);
                     _get(
                         _getPrototypeOf(DragScrollableObserver.prototype),
                         'destroy',
@@ -1407,12 +1417,33 @@
                 content.originalHeight =
                     options.height || content.$element.offsetHeight;
             }
-            var scale = content.$element.style.scale;
-            content.originalScale = scale
-                ? scale.split(' ').map(function (p) {
-                      return parseFloat(p);
-                  })
-                : [1, 1, 1];
+
+            // Parse the original scale to the full canonical form ( = 3 numbers)
+            // Note that the scale must be set directly to the element in the HTML,
+            // not via an inherited CSS rule.
+            // Ex: Set via `img.style.scale = '1 -1';`, not via `#img { scale: 1 -1; }`,
+            var scale = content.$element.style.scale
+                .split(' ')
+                .map(function (v) {
+                    return parseFloat(v);
+                });
+            content.originalScale = (function () {
+                switch (scale.length) {
+                    case 1:
+                        if (isNaN(scale[0])) {
+                            // no scale defined (empty string to float produced NaN)
+                            return [1, 1, 1];
+                        }
+                        return [scale[0], scale[0], 1];
+                    // single value → X used for X and Y
+                    case 2:
+                        // two values → used for X and Y
+                        return [scale[0], scale[1], 1];
+                    case 3:
+                        // all X, Y, Z values defined
+                        return scale;
+                }
+            })();
             content.originalTranslateZ =
                 ((_content$$element$sty = content.$element.style.translate) ===
                     null || _content$$element$sty === void 0
@@ -1605,6 +1636,9 @@
             }
         },
         prepare: function prepare() {
+            // Before reinitializing the script, we need to restore the original CSS
+            // so that the actual zoomed CSS is not mistaken for the original one.
+            this.restoreElement();
             this._prepare();
         },
         /**
@@ -1643,11 +1677,42 @@
         maxZoomUpToPoint: function maxZoomUpToPoint(coordinates) {
             this._zoom(this.content.maxScale, coordinates);
         },
+        restoreElement: function restoreElement() {
+            var _this$content3 = this.content,
+                $element = _this$content3.$element,
+                originalScale = _this$content3.originalScale,
+                originalTranslateZ = _this$content3.originalTranslateZ;
+
+            // restore the scale
+            if (
+                originalScale.every(function (v) {
+                    return v === 1;
+                })
+            ) {
+                // there was just the default scale, remove the property altogether
+                $element.style.removeProperty('scale');
+            } else {
+                // there was an original scale that needs to be restored
+                $element.style.scale = ''
+                    .concat(originalScale[0], ' ')
+                    .concat(originalScale[1], ' ')
+                    .concat(originalScale[2]);
+            }
+
+            // restore the translation
+            if (originalTranslateZ === '0px') {
+                // keep translate-Z if specified
+                $element.style.removeProperty('translate');
+            } else {
+                $element.style.translate = '0 0 ' + originalTranslateZ;
+            }
+        },
         destroy: function destroy() {
-            this.content.$element.style.removeProperty('transition');
-            this.content.$element.style.removeProperty('transform');
+            var $el = this.content.$element;
+            this.restoreElement();
+            removeTransition($el);
             if (this.options.type === 'image') {
-                off(this.content.$element, 'load', this._init);
+                off($el, 'load', this._init);
             }
             this._destroyObservers();
             for (var key in this) {
@@ -1701,8 +1766,8 @@
      * @property {HTMLElement} [$element]
      * @property {number} [originalWidth]
      * @property {number} [originalHeight]
-     * @property {number[]} [originalScale]
-     * @property {string} [originalTranslateZ]
+     * @property {[number,number,number]} [originalScale]
+     * @property {string} [originalTranslateZ] Original Z value. Cannot be reduced to number due to the unit.
      * @property {number} [currentWidth]
      * @property {number} [currentHeight]
      * @property {number} [currentLeft]
