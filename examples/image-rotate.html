@@ -60,28 +60,18 @@
         var degreeRotation = 0;
 
         function changeTransformRotateProperty(element, value) {
-            element.style.transform = element.style.transform.replace(/(^|\s)rotate\(\d+deg\)($|\s)/i, '') + ' rotate(' + value + 'deg)';
+            element.style.rotate = value + 'deg';
         }
 
         function rotateImage() {
             var animationDuration = 0.2;
-
-            image.style.transition = 'transform ' + animationDuration + 's';
+            image.style.transition = 'rotate ' + animationDuration + 's';
             changeTransformRotateProperty(image, degreeRotation);
-
-            if (degreeRotation > 270 && animationDuration) {
-                setTimeout(function () {
-                    changeTransformRotateProperty(image, 0);
-                }, animationDuration * 1000);
-            }
         }
-
-        var observer = new MutationObserver(rotateImage);
-
-        observer.observe(image, { attributes: true, attributeFilter: [ 'style' ] });
 
         rotateButton.addEventListener('click', function () {
             degreeRotation += 90;
+            degreeRotation %= 360;
 
             rotateImage();
         });
