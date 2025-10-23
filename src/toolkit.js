@@ -99,13 +99,13 @@ export function eventClientY(event) {
 
 /**
  * @param {HTMLElement} $element
- * @param {number} left
- * @param {number} top
+ * @param {number} x
+ * @param {number} y
  * @param {string} z
  * @param {string} scale
  */
-export function transform($element, left, top, z, scale) {
-    $element.style.translate = `${ left }px ${ top }px ${ z }`;
+export function transform($element, x, y, z, scale) {
+    $element.style.translate = `${ x }px ${ y }px ${ z }`;
     $element.style.scale = scale;
 }
 
@@ -116,42 +116,45 @@ export function transform($element, left, top, z, scale) {
  */
 export function transition($element, time) {
     if (time) {
-        replaceTransition($element, "translate", time)
-        replaceTransition($element, "scale", time)
+        replaceTransition($element, 'translate', time);
+        replaceTransition($element, 'scale', time);
     } else {
-        replaceTransition($element, "translate", null)
-        replaceTransition($element, "scale", null)
+        replaceTransition($element, 'translate', null);
+        replaceTransition($element, 'scale', null);
     }
 }
 
 /**
  * @param {HTMLElement} $element
  * @param {string} property
- * @param {number | null} time
+ * @param {?number} time
  */
 function replaceTransition($element, property, time) {
-    const css = $element.style.transition
+    const css = $element.style.transition;
     const regex = RegExp(/(^|\s)/ + property + /\s\d+s($|,)/, 'i');
+
     if (time !== null) {
-        const rule = `${property} ${time}s`;
+        const rule = `${ property } ${ time }s`;
+
         if (!css) {
             // create definition
-            $element.style.transition = rule
+            $element.style.transition = rule;
         } else if (css.includes(property)) {
             // change existing rule in the definition
-            $element.style.transition.replace(regex, rule)
+            $element.style.transition.replace(regex, rule);
         } else {
             // append to an existing definition
-            $element.style.transition += ", " + rule
-    }
+            $element.style.transition += `, ${ rule }`;
+        }
     } else {
         if (css.includes(property)) {
             // remove rule from the definition
-            $element.style.transition.replace(regex, "")
+            $element.style.transition.replace(regex, '');
         }
+
         if (!$element.style.transition) {
             // clean up the definition if not needed
-        $element.style.removeProperty('transition');
+            $element.style.removeProperty('transition');
+        }
     }
-}
 }
