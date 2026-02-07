@@ -44,17 +44,17 @@
     function _defineProperties(e, r) {
         for (var t = 0; t < r.length; t++) {
             var o = r[t];
-            (o.enumerable = o.enumerable || !1),
-                (o.configurable = !0),
-                'value' in o && (o.writable = !0),
-                Object.defineProperty(e, _toPropertyKey(o.key), o);
+            ((o.enumerable = o.enumerable || false),
+                (o.configurable = true),
+                'value' in o && (o.writable = true),
+                Object.defineProperty(e, _toPropertyKey(o.key), o));
         }
     }
     function _createClass(e, r, t) {
         return (
             r && _defineProperties(e.prototype, r),
             Object.defineProperty(e, 'prototype', {
-                writable: !1,
+                writable: false,
             }),
             e
         );
@@ -73,10 +73,10 @@
                     n: function () {
                         return n >= r.length
                             ? {
-                                  done: !0,
+                                  done: true,
                               }
                             : {
-                                  done: !1,
+                                  done: false,
                                   value: r[n++],
                               };
                     },
@@ -91,18 +91,18 @@
             );
         }
         var o,
-            a = !0,
-            u = !1;
+            a = true,
+            u = false;
         return {
             s: function () {
                 t = t.call(r);
             },
             n: function () {
                 var r = t.next();
-                return (a = r.done), r;
+                return ((a = r.done), r);
             },
             e: function (r) {
-                (u = !0), (o = r);
+                ((u = true), (o = r));
             },
             f: function () {
                 try {
@@ -118,9 +118,9 @@
             (r = _toPropertyKey(r)) in e
                 ? Object.defineProperty(e, r, {
                       value: t,
-                      enumerable: !0,
-                      configurable: !0,
-                      writable: !0,
+                      enumerable: true,
+                      configurable: true,
+                      writable: true,
                   })
                 : (e[r] = t),
             e
@@ -158,17 +158,17 @@
             throw new TypeError(
                 'Super expression must either be null or a function'
             );
-        (t.prototype = Object.create(e && e.prototype, {
+        ((t.prototype = Object.create(e && e.prototype, {
             constructor: {
                 value: t,
-                writable: !0,
-                configurable: !0,
+                writable: true,
+                configurable: true,
             },
         })),
             Object.defineProperty(t, 'prototype', {
-                writable: !1,
+                writable: false,
             }),
-            e && _setPrototypeOf(t, e);
+            e && _setPrototypeOf(t, e));
     }
     function _isNativeReflectConstruct() {
         try {
@@ -192,8 +192,8 @@
                 i,
                 u,
                 a = [],
-                f = !0,
-                o = !1;
+                f = true,
+                o = false;
             try {
                 if (((i = (t = t.call(r)).next), 0 === l));
                 else
@@ -204,7 +204,7 @@
                         f = !0
                     );
             } catch (r) {
-                (o = !0), (n = r);
+                ((o = true), (n = r));
             } finally {
                 try {
                     if (
@@ -229,11 +229,11 @@
         var t = Object.keys(e);
         if (Object.getOwnPropertySymbols) {
             var o = Object.getOwnPropertySymbols(e);
-            r &&
+            (r &&
                 (o = o.filter(function (r) {
                     return Object.getOwnPropertyDescriptor(e, r).enumerable;
                 })),
-                t.push.apply(t, o);
+                t.push.apply(t, o));
         }
         return t;
     }
@@ -241,7 +241,7 @@
         for (var r = 1; r < arguments.length; r++) {
             var t = null != arguments[r] ? arguments[r] : {};
             r % 2
-                ? ownKeys(Object(t), !0).forEach(function (r) {
+                ? ownKeys(Object(t), true).forEach(function (r) {
                       _defineProperty(e, r, t[r]);
                   })
                 : Object.getOwnPropertyDescriptors
@@ -272,7 +272,7 @@
             (_setPrototypeOf = Object.setPrototypeOf
                 ? Object.setPrototypeOf.bind()
                 : function (t, e) {
-                      return (t.__proto__ = e), t;
+                      return ((t.__proto__ = e), t);
                   }),
             _setPrototypeOf(t, e)
         );
@@ -289,15 +289,14 @@
         for (
             ;
             !{}.hasOwnProperty.call(t, o) && null !== (t = _getPrototypeOf(t));
-
         );
         return t;
     }
-    function _superPropGet(t, e, o, r) {
-        var p = _get(_getPrototypeOf(t.prototype), e, o);
+    function _superPropGet(t, o, e, r) {
+        var p = _get(_getPrototypeOf(t.prototype), o, e);
         return 'function' == typeof p
             ? function (t) {
-                  return p.apply(o, t);
+                  return p.apply(e, t);
               }
             : p;
     }
@@ -716,7 +715,6 @@
                             for (
                                 _iterator.s();
                                 !(_step = _iterator.n()).done;
-
                             ) {
                                 var eventHandler = _step.value;
                                 eventHandler(event);
