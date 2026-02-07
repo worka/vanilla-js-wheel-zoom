@@ -137,8 +137,8 @@ export function removeTransition($element) {
  * @param {?number} time
  */
 function replaceTransition($element, property, time) {
-    const st = $element.style
-    const css = st.transition;
+    const style = $element.style;
+    const css = style.transition;
     const regex = RegExp(property + "[^,]+", 'i');
 
     if (time !== null) {
@@ -146,23 +146,23 @@ function replaceTransition($element, property, time) {
 
         if (!css) {
             // create definition
-            st.transition = rule;
+            style.transition = rule;
         } else if (css.includes(property)) {
             // change existing rule in the definition
-            st.transition = css.replace(regex, rule);
+            style.transition = css.replace(regex, rule);
         } else {
             // append to an existing definition
-            st.transition += `, ${ rule }`;
+            style.transition += `, ${ rule }`;
         }
     } else {
         if (css.includes(property)) {
             // remove rule from the definition
-            st.transition = css.replace(RegExp(regex.source + ",?"), '');
+            style.transition = css.replace(RegExp(regex.source + ",?"), '');
         }
 
-        if (!st.transition) {
+        if (!style.transition) {
             // clean up the definition if not needed
-            st.removeProperty('transition');
+            style.removeProperty('transition');
         }
     }
 }
