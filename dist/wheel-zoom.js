@@ -26,6 +26,139 @@
             )
         );
     }
+    function _classCallCheck(a, n) {
+        if (!(a instanceof n))
+            throw new TypeError('Cannot call a class as a function');
+    }
+    function _defineProperties(e, r) {
+        for (var t = 0; t < r.length; t++) {
+            var o = r[t];
+            ((o.enumerable = o.enumerable || false),
+                (o.configurable = true),
+                'value' in o && (o.writable = true),
+                Object.defineProperty(e, _toPropertyKey(o.key), o));
+        }
+    }
+    function _createClass(e, r, t) {
+        return (
+            r && _defineProperties(e.prototype, r),
+            Object.defineProperty(e, 'prototype', {
+                writable: false,
+            }),
+            e
+        );
+    }
+    function _createForOfIteratorHelper(r, e) {
+        var t =
+            ('undefined' != typeof Symbol && r[Symbol.iterator]) ||
+            r['@@iterator'];
+        if (!t) {
+            if (Array.isArray(r) || (t = _unsupportedIterableToArray(r)) || e) {
+                t && (r = t);
+                var n = 0,
+                    F = function () {};
+                return {
+                    s: F,
+                    n: function () {
+                        return n >= r.length
+                            ? {
+                                  done: true,
+                              }
+                            : {
+                                  done: false,
+                                  value: r[n++],
+                              };
+                    },
+                    e: function (r) {
+                        throw r;
+                    },
+                    f: F,
+                };
+            }
+            throw new TypeError(
+                'Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.'
+            );
+        }
+        var o,
+            a = true,
+            u = false;
+        return {
+            s: function () {
+                t = t.call(r);
+            },
+            n: function () {
+                var r = t.next();
+                return ((a = r.done), r);
+            },
+            e: function (r) {
+                ((u = true), (o = r));
+            },
+            f: function () {
+                try {
+                    a || null == t.return || t.return();
+                } finally {
+                    if (u) throw o;
+                }
+            },
+        };
+    }
+    function _defineProperty(e, r, t) {
+        return (
+            (r = _toPropertyKey(r)) in e
+                ? Object.defineProperty(e, r, {
+                      value: t,
+                      enumerable: true,
+                      configurable: true,
+                      writable: true,
+                  })
+                : (e[r] = t),
+            e
+        );
+    }
+    function _get() {
+        return (
+            (_get =
+                'undefined' != typeof Reflect && Reflect.get
+                    ? Reflect.get.bind()
+                    : function (e, t, r) {
+                          var p = _superPropBase(e, t);
+                          if (p) {
+                              var n = Object.getOwnPropertyDescriptor(p, t);
+                              return n.get
+                                  ? n.get.call(arguments.length < 3 ? e : r)
+                                  : n.value;
+                          }
+                      }),
+            _get.apply(null, arguments)
+        );
+    }
+    function _getPrototypeOf(t) {
+        return (
+            (_getPrototypeOf = Object.setPrototypeOf
+                ? Object.getPrototypeOf.bind()
+                : function (t) {
+                      return t.__proto__ || Object.getPrototypeOf(t);
+                  }),
+            _getPrototypeOf(t)
+        );
+    }
+    function _inherits(t, e) {
+        if ('function' != typeof e && null !== e)
+            throw new TypeError(
+                'Super expression must either be null or a function'
+            );
+        ((t.prototype = Object.create(e && e.prototype, {
+            constructor: {
+                value: t,
+                writable: true,
+                configurable: true,
+            },
+        })),
+            Object.defineProperty(t, 'prototype', {
+                writable: false,
+            }),
+            e && _setPrototypeOf(t, e));
+    }
     function _isNativeReflectConstruct() {
         try {
             var t = !Boolean.prototype.valueOf.call(
@@ -48,8 +181,8 @@
                 i,
                 u,
                 a = [],
-                f = !0,
-                o = !1;
+                f = true,
+                o = false;
             try {
                 if (((i = (t = t.call(r)).next), 0 === l)) {
                     if (Object(t) !== t) return;
@@ -62,7 +195,7 @@
                         f = !0
                     );
             } catch (r) {
-                (o = !0), (n = r);
+                ((o = true), (n = r));
             } finally {
                 try {
                     if (
@@ -82,11 +215,11 @@
         var t = Object.keys(e);
         if (Object.getOwnPropertySymbols) {
             var o = Object.getOwnPropertySymbols(e);
-            r &&
+            (r &&
                 (o = o.filter(function (r) {
                     return Object.getOwnPropertyDescriptor(e, r).enumerable;
                 })),
-                t.push.apply(t, o);
+                t.push.apply(t, o));
         }
         return t;
     }
@@ -94,7 +227,7 @@
         for (var r = 1; r < arguments.length; r++) {
             var t = null != arguments[r] ? arguments[r] : {};
             r % 2
-                ? ownKeys(Object(t), !0).forEach(function (r) {
+                ? ownKeys(Object(t), true).forEach(function (r) {
                       _defineProperty(e, r, t[r]);
                   })
                 : Object.getOwnPropertyDescriptors
@@ -219,12 +352,15 @@
         }
         return _assertThisInitialized(self);
     }
-    function _superPropBase(object, property) {
-        while (!Object.prototype.hasOwnProperty.call(object, property)) {
-            object = _getPrototypeOf(object);
-            if (object === null) break;
-        }
-        return object;
+    function _setPrototypeOf(t, e) {
+        return (
+            (_setPrototypeOf = Object.setPrototypeOf
+                ? Object.setPrototypeOf.bind()
+                : function (t, e) {
+                      return ((t.__proto__ = e), t);
+                  }),
+            _setPrototypeOf(t, e)
+        );
     }
     function _get() {
         if (typeof Reflect !== 'undefined' && Reflect.get) {
@@ -252,20 +388,20 @@
             _nonIterableRest()
         );
     }
-    function _arrayWithHoles(arr) {
-        if (Array.isArray(arr)) return arr;
+    function _superPropBase(t, o) {
+        for (
+            ;
+            !{}.hasOwnProperty.call(t, o) && null !== (t = _getPrototypeOf(t));
+        );
+        return t;
     }
-    function _unsupportedIterableToArray(o, minLen) {
-        if (!o) return;
-        if (typeof o === 'string') return _arrayLikeToArray(o, minLen);
-        var n = Object.prototype.toString.call(o).slice(8, -1);
-        if (n === 'Object' && o.constructor) n = o.constructor.name;
-        if (n === 'Map' || n === 'Set') return Array.from(o);
-        if (
-            n === 'Arguments' ||
-            /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)
-        )
-            return _arrayLikeToArray(o, minLen);
+    function _superPropGet(t, o, e, r) {
+        var p = _get(_getPrototypeOf(t.prototype), o, e);
+        return 'function' == typeof p
+            ? function (t) {
+                  return p.apply(e, t);
+              }
+            : p;
     }
     function _arrayLikeToArray(arr, len) {
         if (len == null || len > arr.length) len = arr.length;
@@ -768,7 +904,6 @@
                             for (
                                 _iterator.s();
                                 !(_step = _iterator.n()).done;
-
                             ) {
                                 var eventHandler = _step.value;
                                 eventHandler(event);
