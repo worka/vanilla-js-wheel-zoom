@@ -195,19 +195,23 @@ WZoom.prototype = {
         // Note that the scale must be set directly to the element in the HTML,
         // not via an inherited CSS rule.
         // Ex: Set via `img.style.scale = '1 -1';`, not via `#img { scale: 1 -1; }`,
-        const scale = content.$element.style.scale.split(" ").map(v => parseFloat(v));
+        const scale = content.$element.style.scale.split(' ').map(parseFloat);
+
         content.originalScale = (() => {
+            // no scale defined (empty string to float produced NaN)
+            if (scale.some(isNaN)) {
+                return [ 1, 1, 1 ];
+            }
+
             switch (scale.length) {
-                case 1:
-                    if (isNaN(scale[0])) { // no scale defined (empty string to float produced NaN)
-                        return [1,1,1];
-                    }
-                    return [scale[0],scale[0],1]; // single value → X used for X and Y
+                case 1: // single value → X used for X and Y
+                    return [ scale[0], scale[0], 1 ];
                 case 2: // two values → used for X and Y
-                    return [scale[0],scale[1],1];
+                    return [ scale[0], scale[1], 1 ];
                 case 3: // all X, Y, Z values defined
                     return scale;
-        }})()
+            }
+        })();
         content.originalTranslateZ = content.$element.style.translate?.split(' ')[2] || '0px';
 
         content.maxScale = options.maxScale;
@@ -382,23 +386,21 @@ WZoom.prototype = {
         this._zoom(this.content.maxScale, coordinates);
     },
     restoreElement() {
-        const {$element, originalScale, originalTranslateZ} = this.content;
+        const { $element, originalScale, originalTranslateZ } = this.content;
 
         // restore the scale
-        if(originalScale.every(v => v  === 1)) { // there was just the default scale, remove the property altogether
+        if (originalScale.every(v => v === 1)) { // there was just the default scale, remove the property altogether
             $element.style.removeProperty('scale');
         } else { // there was an original scale that needs to be restored
-            $element.style.scale = `${ originalScale[0] } ${ originalScale[1]  } ${ originalScale[2] }`
+            $element.style.scale = `${ originalScale[0] } ${ originalScale[1] } ${ originalScale[2] }`
         }
 
         // restore the translation
-        if(originalTranslateZ === "0px") { // keep translate-Z if specified
+        if (originalTranslateZ === "0px") { // keep translate-Z if specified
             $element.style.removeProperty('translate');
         } else {
             $element.style.translate = "0 0 " + originalTranslateZ;
         }
-
-
     },
     destroy() {
         const $el = this.content.$element;

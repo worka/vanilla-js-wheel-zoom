@@ -494,29 +494,29 @@
      * @param {?number} time
      */
     function replaceTransition($element, property, time) {
-        var st = $element.style;
-        var css = st.transition;
+        var style = $element.style;
+        var css = style.transition;
         var regex = RegExp(property + '[^,]+', 'i');
         if (time !== null) {
             var rule = ''.concat(property, ' ').concat(time, 's');
             if (!css) {
                 // create definition
-                st.transition = rule;
+                style.transition = rule;
             } else if (css.includes(property)) {
                 // change existing rule in the definition
-                st.transition = css.replace(regex, rule);
+                style.transition = css.replace(regex, rule);
             } else {
                 // append to an existing definition
-                st.transition += ', '.concat(rule);
+                style.transition += ', '.concat(rule);
             }
         } else {
             if (css.includes(property)) {
                 // remove rule from the definition
-                st.transition = css.replace(RegExp(regex.source + ',?'), '');
+                style.transition = css.replace(RegExp(regex.source + ',?'), '');
             }
-            if (!st.transition) {
+            if (!style.transition) {
                 // clean up the definition if not needed
-                st.removeProperty('transition');
+                style.removeProperty('transition');
             }
         }
     }
@@ -836,11 +836,7 @@
                     );
                     off(document, this.events.drop, this._dropHandler);
                     off(document, this.events.move, this._moveHandler);
-                    _get(
-                        _getPrototypeOf(DragScrollableObserver.prototype),
-                        'destroy',
-                        this
-                    ).call(this);
+                    _superPropGet(DragScrollableObserver, 'destroy', this)([]);
                 },
 
                 /**
@@ -1008,11 +1004,7 @@
                         this._wheelHandler,
                         this.events.options
                     );
-                    _get(
-                        _getPrototypeOf(InteractionObserver.prototype),
-                        'destroy',
-                        this
-                    ).call(this);
+                    _superPropGet(InteractionObserver, 'destroy', this)([]);
                 },
 
                 /**
@@ -1126,11 +1118,7 @@
                 value: function destroy() {
                     off(this.target, 'touchmove', this._touchMoveHandler);
                     off(this.target, 'touchend', this._touchEndHandler);
-                    _get(
-                        _getPrototypeOf(PinchToZoomObserver.prototype),
-                        'destroy',
-                        this
-                    ).call(this);
+                    _superPropGet(PinchToZoomObserver, 'destroy', this)([]);
                 },
 
                 /**
@@ -1413,20 +1401,16 @@
             // Note that the scale must be set directly to the element in the HTML,
             // not via an inherited CSS rule.
             // Ex: Set via `img.style.scale = '1 -1';`, not via `#img { scale: 1 -1; }`,
-            var scale = content.$element.style.scale
-                .split(' ')
-                .map(function (v) {
-                    return parseFloat(v);
-                });
+            var scale = content.$element.style.scale.split(' ').map(parseFloat);
             content.originalScale = (function () {
+                // no scale defined (empty string to float produced NaN)
+                if (scale.some(isNaN)) {
+                    return [1, 1, 1];
+                }
                 switch (scale.length) {
                     case 1:
-                        if (isNaN(scale[0])) {
-                            // no scale defined (empty string to float produced NaN)
-                            return [1, 1, 1];
-                        }
+                        // single value → X used for X and Y
                         return [scale[0], scale[0], 1];
-                    // single value → X used for X and Y
                     case 2:
                         // two values → used for X and Y
                         return [scale[0], scale[1], 1];
