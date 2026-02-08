@@ -42,22 +42,10 @@ export function getPageScrollTop() {
     return supportPageOffset ? window.pageYOffset : isCSS1Compat ? document.documentElement.scrollTop : document.body.scrollTop;
 }
 
-/**
- * @param target
- * @param type
- * @param listener
- * @param options
- */
 export function on(target, type, listener, options = false) {
     target.addEventListener(type, listener, options);
 }
 
-/**
- * @param target
- * @param type
- * @param listener
- * @param options
- */
 export function off(target, type, listener, options = false) {
     target.removeEventListener(type, listener, options);
 }
@@ -66,7 +54,7 @@ export function off(target, type, listener, options = false) {
  * @returns {boolean}
  */
 export function isTouch() {
-    return 'ontouchstart' in window || navigator.MaxTouchPoints > 0 || navigator.msMaxTouchPoints > 0;
+    return 'ontouchstart' in window || navigator.maxTouchPoints > 0 || navigator.msMaxTouchPoints > 0;
 }
 
 /**

@@ -3,7 +3,7 @@ import { getElementPosition, getPageScrollLeft, getPageScrollTop } from './toolk
 /**
  * @param {WZoomViewport} viewport
  * @param {WZoomContent} content
- * @param {string} align
+ * @param {'top'|'right'|'bottom'|'left'|'center'} align
  * @returns {number[]}
  */
 export function calculateAlignPoint(viewport, content, align) {
@@ -31,7 +31,7 @@ export function calculateAlignPoint(viewport, content, align) {
 /**
  * @param {WZoomViewport} viewport
  * @param {WZoomContent} content
- * @param {string} align
+ * @param {'top'|'right'|'bottom'|'left'|'center'} align
  * @returns {number[]}
  */
 export function calculateCorrectPoint(viewport, content, align) {
@@ -67,22 +67,34 @@ export function calculateContentShift(axisValue, axisScroll, axisViewportPositio
     return centerContentShift * contentSizeRatio - centerContentShift + axisContentPosition;
 }
 
+/**
+ * @param {'top'|'right'|'bottom'|'left'|'center'} align
+ * @param {number} originalViewportSize
+ * @param {number} correctCoordinate
+ * @param {number} size
+ * @param {number} shift
+ * @return {number}
+ */
 export function calculateContentMaxShift(align, originalViewportSize, correctCoordinate, size, shift) {
+    const maxShift = (size - originalViewportSize) / 2;
+    const halfSize = size / 2;
+    const halfViewport = originalViewportSize / 2;
+
     switch (align) {
         case 'left':
-            if (size / 2 - shift < originalViewportSize / 2) {
-                shift = (size - originalViewportSize) / 2;
+            if (halfSize - shift < halfViewport) {
+                shift = maxShift;
             }
             break;
         case 'right':
-            if (size / 2 + shift < originalViewportSize / 2) {
-                shift = (size - originalViewportSize) / 2 * -1;
+            if (halfSize + shift < halfViewport) {
+                shift = maxShift * -1;
             }
             break;
         default:
-            if ((size - originalViewportSize) / 2 + correctCoordinate < Math.abs(shift)) {
-                const positive = shift < 0 ? -1 : 1;
-                shift = ((size - originalViewportSize) / 2 + correctCoordinate) * positive;
+            if (maxShift + correctCoordinate < Math.abs(shift)) {
+                const direction = shift < 0 ? -1 : 1;
+                shift = (maxShift + correctCoordinate) * direction;
             }
     }
 

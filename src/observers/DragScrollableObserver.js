@@ -41,6 +41,8 @@ class DragScrollableObserver extends AbstractObserver {
         off(document, this.events.drop, this._dropHandler);
         off(document, this.events.move, this._moveHandler);
 
+        clearTimeout(this.moveTimer);
+
         super.destroy();
     }
 
@@ -78,7 +80,7 @@ class DragScrollableObserver extends AbstractObserver {
      */
     _moveHandler(event) {
         // so that it does not move when the touch screen and more than one finger
-        if (this.isTouch && event.touches.length > 1) return false;
+        if (this.isTouch && event.touches.length > 1) return;
 
         const { coordinatesShift, coordinates } = this;
 

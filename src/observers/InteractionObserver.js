@@ -34,7 +34,7 @@ class InteractionObserver extends AbstractObserver {
 
         on(this.target, this.events.down, this._downHandler, this.events.options);
         on(this.target, this.events.up, this._upHandler, this.events.options);
-        on(this.target, EVENT_WHEEL, this._wheelHandler);
+        on(this.target, EVENT_WHEEL, this._wheelHandler, { passive: false });
     }
 
     destroy() {

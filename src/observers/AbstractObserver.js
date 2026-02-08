@@ -3,7 +3,7 @@ class AbstractObserver {
      * @constructor
      */
     constructor() {
-        /** @type {Object<string, (event: Event) => void>} */
+        /** @type {Object<string, Array<(event: Event) => void>>} */
         this.subscribes = {};
     }
 

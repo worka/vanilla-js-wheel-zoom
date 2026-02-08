@@ -379,13 +379,6 @@
               ? document.documentElement.scrollTop
               : document.body.scrollTop;
     }
-
-    /**
-     * @param target
-     * @param type
-     * @param listener
-     * @param options
-     */
     function on(target, type, listener) {
         var options =
             arguments.length > 3 && arguments[3] !== undefined
@@ -393,13 +386,6 @@
                 : false;
         target.addEventListener(type, listener, options);
     }
-
-    /**
-     * @param target
-     * @param type
-     * @param listener
-     * @param options
-     */
     function off(target, type, listener) {
         var options =
             arguments.length > 3 && arguments[3] !== undefined
@@ -414,7 +400,7 @@
     function isTouch() {
         return (
             'ontouchstart' in window ||
-            navigator.MaxTouchPoints > 0 ||
+            navigator.maxTouchPoints > 0 ||
             navigator.msMaxTouchPoints > 0
         );
     }
@@ -524,7 +510,7 @@
     /**
      * @param {WZoomViewport} viewport
      * @param {WZoomContent} content
-     * @param {string} align
+     * @param {'top'|'right'|'bottom'|'left'|'center'} align
      * @returns {number[]}
      */
     function calculateAlignPoint(viewport, content, align) {
@@ -553,7 +539,7 @@
     /**
      * @param {WZoomViewport} viewport
      * @param {WZoomContent} content
-     * @param {string} align
+     * @param {'top'|'right'|'bottom'|'left'|'center'} align
      * @returns {number[]}
      */
     function calculateCorrectPoint(viewport, content, align) {
@@ -602,6 +588,15 @@
             axisContentPosition
         );
     }
+
+    /**
+     * @param {'top'|'right'|'bottom'|'left'|'center'} align
+     * @param {number} originalViewportSize
+     * @param {number} correctCoordinate
+     * @param {number} size
+     * @param {number} shift
+     * @return {number}
+     */
     function calculateContentMaxShift(
         align,
         originalViewportSize,
@@ -609,27 +604,24 @@
         size,
         shift
     ) {
+        var maxShift = (size - originalViewportSize) / 2;
+        var halfSize = size / 2;
+        var halfViewport = originalViewportSize / 2;
         switch (align) {
             case 'left':
-                if (size / 2 - shift < originalViewportSize / 2) {
-                    shift = (size - originalViewportSize) / 2;
+                if (halfSize - shift < halfViewport) {
+                    shift = maxShift;
                 }
                 break;
             case 'right':
-                if (size / 2 + shift < originalViewportSize / 2) {
-                    shift = ((size - originalViewportSize) / 2) * -1;
+                if (halfSize + shift < halfViewport) {
+                    shift = maxShift * -1;
                 }
                 break;
             default:
-                if (
-                    (size - originalViewportSize) / 2 + correctCoordinate <
-                    Math.abs(shift)
-                ) {
-                    var positive = shift < 0 ? -1 : 1;
-                    shift =
-                        ((size - originalViewportSize) / 2 +
-                            correctCoordinate) *
-                        positive;
+                if (maxShift + correctCoordinate < Math.abs(shift)) {
+                    var direction = shift < 0 ? -1 : 1;
+                    shift = (maxShift + correctCoordinate) * direction;
                 }
         }
         return shift;
@@ -712,7 +704,7 @@
          */
         function AbstractObserver() {
             _classCallCheck(this, AbstractObserver);
-            /** @type {Object<string, (event: Event) => void>} */
+            /** @type {Object<string, Array<(event: Event) => void>>} */
             this.subscribes = {};
         }
 
@@ -836,6 +828,7 @@
                     );
                     off(document, this.events.drop, this._dropHandler);
                     off(document, this.events.move, this._moveHandler);
+                    clearTimeout(this.moveTimer);
                     _superPropGet(DragScrollableObserver, 'destroy', this)([]);
                 },
 
@@ -898,7 +891,7 @@
                 key: '_moveHandler',
                 value: function _moveHandler(event) {
                     // so that it does not move when the touch screen and more than one finger
-                    if (this.isTouch && event.touches.length > 1) return false;
+                    if (this.isTouch && event.touches.length > 1) return;
                     var coordinatesShift = this.coordinatesShift,
                         coordinates = this.coordinates;
 
@@ -978,7 +971,9 @@
                 _this._upHandler,
                 _this.events.options
             );
-            on(_this.target, EVENT_WHEEL, _this._wheelHandler);
+            on(_this.target, EVENT_WHEEL, _this._wheelHandler, {
+                passive: false,
+            });
             return _this;
         }
         _inherits(InteractionObserver, _AbstractObserver);
